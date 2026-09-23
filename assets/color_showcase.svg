@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 380" width="100%" height="100%">
+  <defs>
+    <linearGradient id="colorBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16"/>
+      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0b0f19"/>
+    </linearGradient>
+
+    <!-- 滑块 1 渐变: DeepSeek 蓝 -->
+    <linearGradient id="trackBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(77, 107, 254, 0.15)"/>
+      <stop offset="70%" stop-color="rgba(77, 107, 254, 0.45)"/>
+      <stop offset="100%" stop-color="#4D6BFE"/>
+    </linearGradient>
+
+    <!-- 滑块 2 渐变: 极客翠绿 -->
+    <linearGradient id="trackGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(16, 185, 129, 0.15)"/>
+      <stop offset="70%" stop-color="rgba(16, 185, 129, 0.45)"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+
+    <!-- 滑块 3 渐变: 蔷薇绯粉 -->
+    <linearGradient id="trackRose" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(244, 63, 94, 0.15)"/>
+      <stop offset="70%" stop-color="rgba(244, 63, 94, 0.45)"/>
+      <stop offset="100%" stop-color="#F43F5E"/>
+    </linearGradient>
+
+    <filter id="glowShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="rgba(0,0,0,0.4)"/>
+    </filter>
+  </defs>
+
+  <!-- 背景底板 -->
+  <rect width="880" height="380" rx="20" fill="url(#colorBg)"/>
+  <rect width="878" height="378" x="1" y="1" rx="19" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+
+  <!-- 头部说明 -->
+  <g transform="translate(36, 38)">
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#f8fafc">
+      🎨 全局主题色彩体系 · 全动效流光实时联动
+    </text>
+    <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="400" fill="#94a3b8">
+      支持 9 款高饱和预设色彩与原生 Hex 拾色器 · 粒子流、冲击波、喷流羽羽与辉光全局联动变色（非仅修改边框）
+    </text>
+  </g>
+
+  <!-- 左侧：预设色盘与原生取色器 -->
+  <g transform="translate(36, 88)" filter="url(#glowShadow)">
+    <rect width="360" height="254" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+    
+    <text x="20" y="32" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#ffffff">
+      🎨 9 款专属定制主题色
+    </text>
+
+    <!-- 3x3 调色块网格 -->
+    <!-- 行 1 -->
+    <g transform="translate(20, 48)">
+      <!-- 1. DeepSeek 蓝 -->
+      <rect x="0" y="0" width="96" height="42" rx="8" fill="#4D6BFE" stroke="#ffffff" stroke-width="2"/>
+      <text x="48" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">DeepSeek 蓝</text>
+      <text x="48" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#4D6BFE ✓</text>
+
+      <!-- 2. 幻海晶青 -->
+      <rect x="110" y="0" width="96" height="42" rx="8" fill="#06B6D4"/>
+      <text x="158" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">幻海晶青</text>
+      <text x="158" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#06B6D4</text>
+
+      <!-- 3. Claude 暖陶 -->
+      <rect x="220" y="0" width="96" height="42" rx="8" fill="#D97757"/>
+      <text x="268" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Claude 暖陶</text>
+      <text x="268" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#D97757</text>
+    </g>
+
+    <!-- 行 2 -->
+    <g transform="translate(20, 100)">
+      <!-- 4. Claude 曜金 -->
+      <rect x="0" y="0" width="96" height="42" rx="8" fill="#D97706"/>
+      <text x="48" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Claude 曜金</text>
+      <text x="48" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#D97706</text>
+
+      <!-- 5. 极客翠绿 -->
+      <rect x="110" y="0" width="96" height="42" rx="8" fill="#10B981"/>
+      <text x="158" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">极客翠绿</text>
+      <text x="158" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#10B981</text>
+
+      <!-- 6. 暗夜幽紫 -->
+      <rect x="220" y="0" width="96" height="42" rx="8" fill="#9333EA"/>
+      <text x="268" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">暗夜幽紫</text>
+      <text x="268" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#9333EA</text>
+    </g>
+
+    <!-- 行 3 -->
+    <g transform="translate(20, 152)">
+      <!-- 7. 蔷薇绯粉 -->
+      <rect x="0" y="0" width="96" height="42" rx="8" fill="#F43F5E"/>
+      <text x="48" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">蔷薇绯粉</text>
+      <text x="48" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#F43F5E</text>
+
+      <!-- 8. 烈焰赤橙 -->
+      <rect x="110" y="0" width="96" height="42" rx="8" fill="#EA580C"/>
+      <text x="158" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">烈焰赤橙</text>
+      <text x="158" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#EA580C</text>
+
+      <!-- 9. 冷月珠光 -->
+      <rect x="220" y="0" width="96" height="42" rx="8" fill="#475569"/>
+      <text x="268" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">冷月珠光</text>
+      <text x="268" y="34" font-family="monospace" font-size="9" fill="rgba(255,255,255,0.85)" text-anchor="middle">#E2E8F0</text>
+    </g>
+
+    <!-- 原生取色器模拟 -->
+    <g transform="translate(20, 208)">
+      <rect width="316" height="34" rx="8" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      <text x="14" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#cbd5e1">🖌️ 自定义拾色器:</text>
+      <circle cx="216" cy="17" r="10" fill="#4D6BFE" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="240" y="22" font-family="monospace" font-size="12" font-weight="700" fill="#60a5fa">#4D6BFE</text>
+    </g>
+  </g>
+
+  <!-- 右侧：三色实时联动滑块展示 -->
+  <g transform="translate(424, 88)" filter="url(#glowShadow)">
+    <rect width="420" height="254" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1.2"/>
+
+    <text x="20" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#ffffff">
+      ✨ 粒子流体与光轨实时变色演示
+    </text>
+
+    <!-- 演示 1: DeepSeek 蓝 -->
+    <g transform="translate(20, 44)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#93c5fd">
+        🚀 火箭尾焰 · 配色: #4D6BFE (DeepSeek 蓝)
+      </text>
+      <rect x="0" y="22" width="380" height="28" rx="14" fill="rgba(0,0,0,0.5)" stroke="#4D6BFE" stroke-width="1"/>
+      <rect x="2" y="24" width="376" height="24" rx="12" fill="url(#trackBlue)"/>
+      <!-- 粒子点点 -->
+      <circle cx="80" cy="36" r="2.5" fill="#ffffff"/>
+      <rect x="140" y="33" width="6" height="6" fill="#bfdbfe" rx="1"/>
+      <circle cx="220" cy="35" r="3" fill="#ffffff"/>
+      <rect x="290" y="32" width="8" height="8" fill="#dbeafe" rx="1.5"/>
+      <!-- 手柄 -->
+      <circle cx="360" cy="36" r="14" fill="#ffffff" stroke="#4D6BFE" stroke-width="2"/>
+      <text x="360" y="41" font-size="13" text-anchor="middle" fill="#4D6BFE">✦</text>
+    </g>
+
+    <!-- 演示 2: 极客翠绿 -->
+    <g transform="translate(20, 110)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#6ee7b7">
+        ⚡ 离子飞箭 · 配色: #10B981 (极客翠绿)
+      </text>
+      <rect x="0" y="22" width="380" height="28" rx="14" fill="rgba(0,0,0,0.5)" stroke="#10B981" stroke-width="1"/>
+      <rect x="2" y="24" width="376" height="24" rx="12" fill="url(#trackGreen)"/>
+      <!-- 粒子 -->
+      <rect x="90" y="34" width="8" height="4" rx="1" fill="#a7f3d0"/>
+      <circle cx="170" cy="36" r="2.5" fill="#ffffff"/>
+      <rect x="240" y="33" width="10" height="5" rx="1" fill="#d1fae5"/>
+      <circle cx="310" cy="37" r="3" fill="#ffffff"/>
+      <!-- 手柄 -->
+      <circle cx="360" cy="36" r="14" fill="#ffffff" stroke="#10B981" stroke-width="2"/>
+      <text x="360" y="41" font-size="13" text-anchor="middle" fill="#10B981">✦</text>
+    </g>
+
+    <!-- 演示 3: 蔷薇绯粉 -->
+    <g transform="translate(20, 176)">
+      <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#fca5a5">
+        🌋 火山喷发 · 配色: #F43F5E (炽热绯红)
+      </text>
+      <rect x="0" y="22" width="380" height="28" rx="14" fill="rgba(0,0,0,0.5)" stroke="#F43F5E" stroke-width="1"/>
+      <rect x="2" y="24" width="376" height="24" rx="12" fill="url(#trackRose)"/>
+      <!-- 气泡与火花粒子 -->
+      <circle cx="100" cy="34" r="3.5" fill="#fecdd3"/>
+      <circle cx="160" cy="38" r="2.5" fill="#ffffff"/>
+      <circle cx="230" cy="33" r="4.5" fill="#ffe4e6"/>
+      <circle cx="290" cy="36" r="3" fill="#ffffff"/>
+      <!-- 手柄 -->
+      <circle cx="360" cy="36" r="14" fill="#ffffff" stroke="#F43F5E" stroke-width="2"/>
+      <text x="360" y="41" font-size="13" text-anchor="middle" fill="#F43F5E">✦</text>
+    </g>
+  </g>
+</svg>

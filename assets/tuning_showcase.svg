@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 370" width="100%" height="100%">
+  <defs>
+    <linearGradient id="tuningBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+
+    <linearGradient id="barBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="barAmber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="barCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <filter id="tuningShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="rgba(0,0,0,0.5)"/>
+    </filter>
+  </defs>
+
+  <!-- 背景底板 -->
+  <rect width="880" height="370" rx="20" fill="url(#tuningBg)"/>
+  <rect width="878" height="368" x="1" y="1" rx="19" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+
+  <!-- 头部说明 -->
+  <g transform="translate(36, 38)">
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#f8fafc">
+      ⚡ 调校控制台 · 音量、速度与亮度三大微调滑块
+    </text>
+    <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="400" fill="#94a3b8">
+      毫秒级实时响应，无需重载客户端 · 支持独立试听、松手即试与一键复位为标准数值
+    </text>
+  </g>
+
+  <!-- 主卡片 -->
+  <g transform="translate(36, 88)" filter="url(#tuningShadow)">
+    <rect width="808" height="246" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+
+    <!-- 1. 音效音量 (Volume: 0% ~ 150%) -->
+    <g transform="translate(24, 20)">
+      <!-- 标签行 -->
+      <text x="0" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#ffffff">
+        🔊 吸附音量大小 (Volume)
+      </text>
+      <text x="210" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94a3b8">
+        范围: 0% (静音) ~ 150% (高增益)
+      </text>
+      <rect x="580" y="0" width="60" height="22" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="1"/>
+      <text x="610" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#60a5fa" text-anchor="middle">
+        100%
+      </text>
+
+      <!-- 滑块轨道与手柄 -->
+      <g transform="translate(0, 28)">
+        <rect width="580" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect width="386" height="8" rx="4" fill="url(#barBlue)"/>
+        <!-- 手柄 -->
+        <circle cx="386" cy="4" r="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2.5"/>
+        
+        <!-- 操作按钮 -->
+        <g transform="translate(600, -8)">
+          <!-- 试听按钮 -->
+          <rect width="70" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="35" y="17" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">▶ 试听</text>
+          
+          <!-- 复位按钮 -->
+          <rect x="80" width="70" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="115" y="17" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">复位</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- 分割线 1 -->
+    <line x1="24" y1="92" x2="784" y2="92" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+    <!-- 2. 动效流速 (Speed Multiplier: 0.2x ~ 2.5x) -->
+    <g transform="translate(24, 102)">
+      <text x="0" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#ffffff">
+        ⚡ 动效流速倍率 (Speed)
+      </text>
+      <text x="210" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94a3b8">
+        范围: 0.2x (慢动作) ~ 2.5x (超高速流光)
+      </text>
+      <rect x="580" y="0" width="60" height="22" rx="6" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="610" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#fbbf24" text-anchor="middle">
+        120%
+      </text>
+
+      <g transform="translate(0, 28)">
+        <rect width="580" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect width="250" height="8" rx="4" fill="url(#barAmber)"/>
+        <circle cx="250" cy="4" r="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2.5"/>
+
+        <g transform="translate(600, -8)">
+          <rect x="80" width="70" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="115" y="17" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">复位 1.0x</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- 分割线 2 -->
+    <line x1="24" y1="174" x2="784" y2="174" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+    <!-- 3. 辉光亮度 (Glow Brightness: 0.4x ~ 2.2x) -->
+    <g transform="translate(24, 184)">
+      <text x="0" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#ffffff">
+        💡 辉光亮度倍率 (Brightness)
+      </text>
+      <text x="210" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94a3b8">
+        范围: 40% (极暗柔光) ~ 220% (高亮过载)
+      </text>
+      <rect x="580" y="0" width="60" height="22" rx="6" fill="rgba(6, 182, 212, 0.2)" stroke="#06b6d4" stroke-width="1"/>
+      <text x="610" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#38bdf8" text-anchor="middle">
+        140%
+      </text>
+
+      <g transform="translate(0, 28)">
+        <rect width="580" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect width="320" height="8" rx="4" fill="url(#barCyan)"/>
+        <circle cx="320" cy="4" r="10" fill="#ffffff" stroke="#06b6d4" stroke-width="2.5"/>
+
+        <g transform="translate(600, -8)">
+          <rect x="80" width="70" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="115" y="17" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#e2e8f0" text-anchor="middle">复位 100%</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
