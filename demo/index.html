@@ -3868,14 +3868,20 @@
       const fileInputRef = useRef(null);
       const soundFileInputRef = useRef(null);
       const familyPillsRef = useDraggableScroll();
-      // 选中大类时自动居中该标签
+      // 选中大类时在分类栏内部平滑滚动，绝不调用 scrollIntoView（避免触发外部祖先窗口及整页横向偏移）
       useEffect(() => {
         const container = familyPillsRef.current;
         if (!container) return;
         const activeBtn = container.querySelector(".dcs-family-pill.is-active");
-        if (activeBtn && typeof activeBtn.scrollIntoView === "function") {
-          activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        }
+        if (!activeBtn) return;
+        try {
+          const containerRect = container.getBoundingClientRect();
+          const btnRect = activeBtn.getBoundingClientRect();
+          const delta = (btnRect.left + btnRect.width / 2) - (containerRect.left + containerRect.width / 2);
+          if (Math.abs(delta) > 4) {
+            container.scrollTo({ left: Math.max(0, container.scrollLeft + delta), behavior: "smooth" });
+          }
+        } catch (_) {}
       }, [activeFamily]);
 
       const [customSoundName, setCustomSoundName] = useState(() => (typeof window !== "undefined" ? window.localStorage.getItem("dcs_custom_sound_name") || "" : ""));
