@@ -2628,12 +2628,10 @@
         };
         document.addEventListener("visibilitychange", onVisibilityChange);
 
-        const onWindowBlur = () => { isPageVisible = false; };
+        // 截图工具唤起（如 Win+Shift+S / 微信/QQ截图 / Snipaste）或窗口失焦时，绝不暂停动效，确保截图与多任务后台下粒子动效持续流畅运转
         const onWindowFocus = () => {
-          isPageVisible = true;
           wakeUp();
         };
-        window.addEventListener("blur", onWindowBlur);
         window.addEventListener("focus", onWindowFocus);
 
         const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -3601,7 +3599,6 @@
           if (animationFrameId) cancelAnimationFrame(animationFrameId);
           resizeObserver.disconnect();
           document.removeEventListener("visibilitychange", onVisibilityChange);
-          window.removeEventListener("blur", onWindowBlur);
           window.removeEventListener("focus", onWindowFocus);
           window.removeEventListener("pointermove", onUserActivity);
           window.removeEventListener("pointerdown", onUserActivity);
@@ -3868,6 +3865,7 @@
       const fileInputRef = useRef(null);
       const soundFileInputRef = useRef(null);
       const familyPillsRef = useDraggableScroll();
+      const prevPresetEffectRef = useRef(config.effect !== "custom_flow" ? config.effect : "rocket_thrust");
       // 选中大类时在分类栏内部平滑滚动，绝不调用 scrollIntoView（避免触发外部祖先窗口及整页横向偏移）
       useEffect(() => {
         const container = familyPillsRef.current;
@@ -4038,6 +4036,7 @@
                 style: config.effect === eff.id ? { borderColor: config.accentColor || "#4D6BFE", color: config.accentColor || "#4D6BFE" } : {},
                 onClick: (e) => {
                   e.stopPropagation();
+                  prevPresetEffectRef.current = eff.id;
                   configStore.update({ effect: eff.id });
                 }
               },
@@ -4049,11 +4048,26 @@
               ))
           ),
 
-          // 专属于定制动效的快捷入口卡片
+          // 专属于定制动效的快捷入口卡片（支持点击启用、再次点击禁用并恢复预设）
           h("div", {
             className: `dcs-custom-studio-banner ${config.effect === "custom_flow" ? "is-selected" : ""}`,
             style: config.effect === "custom_flow" ? { borderColor: config.accentColor || "#4D6BFE", background: "rgba(77, 107, 254, 0.14)" } : {},
-            onClick: () => configStore.update({ effect: "custom_flow" })
+            onClick: (e) => {
+              e.stopPropagation();
+              if (config.effect === "custom_flow") {
+                // 点击禁用，还原为之前的预设动效
+                const fallback = prevPresetEffectRef.current && prevPresetEffectRef.current !== "custom_flow"
+                  ? prevPresetEffectRef.current
+                  : (EFFECT_MODES.find(eff => eff.family === activeFamily && eff.id !== "custom_flow")?.id || "rocket_thrust");
+                configStore.update({ effect: fallback });
+              } else {
+                // 点击启用
+                if (config.effect && config.effect !== "custom_flow") {
+                  prevPresetEffectRef.current = config.effect;
+                }
+                configStore.update({ effect: "custom_flow" });
+              }
+            }
           },
             h("div", { className: "dcs-studio-banner-left" },
               h("span", { className: "dcs-studio-title" }, "✨ 定制动效"),
@@ -4062,7 +4076,7 @@
             h("span", {
               className: "dcs-studio-check",
               style: { color: config.accentColor || "#4D6BFE" }
-            }, config.effect === "custom_flow" ? "✓ 已启用" : "点击配置")
+            }, config.effect === "custom_flow" ? "✓ 已启用 · 点击禁用" : "点击启用")
           ),
 
           // 客制动效调节面板（当选中客制动效时展现，整齐的 5x2 和 4x2 矩阵网格）
@@ -4874,6 +4888,7 @@
       const fileInputRef = useRef(null);
       const settingsPillsRef = useDraggableScroll();
       const soundFileInputRef = useRef(null);
+      const settingsPrevPresetRef = useRef(config.effect !== "custom_flow" ? config.effect : "rocket_thrust");
       const [customSoundName, setCustomSoundName] = useState(() => (typeof window !== "undefined" ? window.localStorage.getItem("dcs_custom_sound_name") || "" : ""));
 
       const handleSoundUpload = (e) => {
@@ -5109,6 +5124,7 @@
                   style: config.effect === eff.id ? { borderColor: config.accentColor || "#4D6BFE", color: config.accentColor || "#4D6BFE" } : {},
                   onClick: (e) => {
                     e.stopPropagation();
+                    settingsPrevPresetRef.current = eff.id;
                     configStore.update({ effect: eff.id });
                   }
                 },
@@ -5122,7 +5138,20 @@
             h("div", {
               className: `dcs-custom-studio-banner ${config.effect === "custom_flow" ? "is-selected" : ""}`,
               style: config.effect === "custom_flow" ? { borderColor: config.accentColor || "#4D6BFE", background: "rgba(77, 107, 254, 0.14)" } : {},
-              onClick: () => configStore.update({ effect: "custom_flow" })
+              onClick: (e) => {
+                e.stopPropagation();
+                if (config.effect === "custom_flow") {
+                  const fallback = settingsPrevPresetRef.current && settingsPrevPresetRef.current !== "custom_flow"
+                    ? settingsPrevPresetRef.current
+                    : (EFFECT_MODES.find(eff => eff.family === settingsFamily && eff.id !== "custom_flow")?.id || "rocket_thrust");
+                  configStore.update({ effect: fallback });
+                } else {
+                  if (config.effect && config.effect !== "custom_flow") {
+                    settingsPrevPresetRef.current = config.effect;
+                  }
+                  configStore.update({ effect: "custom_flow" });
+                }
+              }
             },
               h("div", { className: "dcs-studio-banner-left" },
                 h("span", { className: "dcs-studio-title" }, "✨ 定制动效"),
@@ -5131,7 +5160,7 @@
               h("span", {
                 className: "dcs-studio-check",
                 style: { color: config.accentColor || "#4D6BFE" }
-              }, config.effect === "custom_flow" ? "✓ 已启用" : "点击定制")
+              }, config.effect === "custom_flow" ? "✓ 已启用 · 点击禁用" : "点击定制")
             ),
             config.effect === "custom_flow" && h("div", { className: "dcs-customizer-box" },
               h("div", { className: "dcs-custom-group" },
