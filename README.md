@@ -3,9 +3,25 @@
 DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。  
 将默认的思考模式/推理强度下拉选择器替换为横向滑块交互，并提供动效、音效、图标及参数自定义功能。
 
-![推理强度滑块](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/demo.png)
+![DSH Claude Slider 界面演示](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/demo.png)
 
-> 上图为 `demo/index.html` 的实时渲染。**双击该文件即可在浏览器里体验全部动效**，无需安装 DSH。
+---
+
+## 🔊 档位吸附音效展示
+
+滑块切换档位吸附时即时触发发声，支持在【调校】页面中独立调节音量大小（0% ~ 150%）或一键静音。
+
+![音效展示卡片](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/sound_showcase.svg)
+
+### 在线试听与音频
+
+| 音效名称 | 台词 / 声效 | 风格特色 | 试听与音频文件 |
+| :--- | :--- | :--- | :--- |
+| **🐟 杂鱼 (Zako)** | `ざぁ～こ♡ ざぁ～こ♡` | 傲娇反差萌嘲讽声线 | <audio src="assets/sounds/zako.mp3" controls preload="none"></audio><br>[▶ 试听 / 下载 zako.mp3](assets/sounds/zako.mp3) |
+| **🐳 哦鲸鲸 (Ochinchin)** | `お～ちんちん♡` | 软萌声线，DeepSeek 谐音梗 | <audio src="assets/sounds/ochinchin.mp3" controls preload="none"></audio><br>[▶ 试听 / 下载 ochinchin.mp3](assets/sounds/ochinchin.mp3) |
+| **🐥 小黄鸭** | `嘎啾~ 嘎啾~` | 经典捏橡皮鸭解压声 | *内置 Web Audio 双谐波物理声学合成* |
+| **⚙️ 机械微触感** | `咔哒` | 高频物理齿轮拨动阻尼微触感 | *内置 Web Audio 物理声学合成* |
+| **📁 本地自定义音频** | 用户本地音频 | 支持上传任意 MP3 / WAV 作为音效 | *本地持久化存储与极速发声* |
 
 ---
 
@@ -35,13 +51,7 @@ DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。
 - **自动居中**：切换或点击某个大类时，该标签自动平滑滚动至视口中央。
 - **轻扫切换**：在动效卡片网格区域左右滑动即可切换上一类或下一类。
 
-### 4. 档位吸附音效
-- **内置音效**：
-  - 杂鱼（ざぁ～こ♡）
-  - 哦鲸鲸（お～ちんちん）
-  - 小黄鸭（橡皮鸭捏叫声）
-  - 机械微触感（齿轮拨动声）
-- **自定义音频**：支持上传本地音频文件（MP3 / WAV / OGG 等）作为吸附音效。
+### 4. 档位吸附音效与音量调校
 - **音量调节**：提供 0% ~ 150% 独立音量滑块，支持拖拽即时试听、独立【试听】按钮与一键【复位】为 100%。
 - **开关控制**：可随时开启或关闭吸附音效。
 
@@ -94,6 +104,10 @@ dsh plugin --profile desktop remove dsh-claude-slider
 dsh-claude-slider/
 ├── package.json          # 插件信息与版本定义
 ├── cordis.patch.yml      # DSH 插件插槽声明
+├── assets/               # 真实界面截图与矢量展示资源
+│   ├── demo.png          # 实际运行界面实测截图
+│   ├── sound_showcase.svg# 音效系统矢量展示卡片
+│   └── sounds/           # 独立音频文件（zako.mp3, ochinchin.mp3）
 ├── lib/
 │   ├── index.js          # 插件服务端入口
 │   ├── client.js         # 客户端核心实现（滑块组件、动效引擎、音效系统、配置抽屉）

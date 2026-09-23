@@ -1311,28 +1311,77 @@
       </div>
     </div>
 
+    <!-- 🔊 档位吸附音效直观试听展台 -->
+    <div class="sound-showcase-card" style="margin-top: 24px; padding: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <span>🔊 档位吸附音效在线试听</span>
+            <span style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(77, 107, 254, 0.15); color: var(--accent); font-weight: 500;">零网络延迟 · 离线 Base64</span>
+          </h3>
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">
+            点击下方按钮即可直接试听不同档位吸附音效，支持实时拖动调节音量：
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 12px; font-weight: 500;">🔊 音量:</span>
+          <input type="range" id="soundboardVolumeRange" min="0" max="1.5" step="0.05" value="1.0" style="width: 90px; cursor: pointer;" />
+          <span id="soundboardVolumeVal" style="font-size: 12px; font-weight: 600; color: var(--accent); min-width: 42px;">100%</span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+        <!-- 杂鱼 -->
+        <button type="button" class="sound-demo-btn" id="btnPlayZako" style="display: flex; flex-direction: column; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.25); cursor: pointer; color: inherit; transition: all 0.15s ease; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 20px;">🐟</span>
+            <span style="font-size: 14px; font-weight: 700; color: #fb7185;">杂鱼 (Zako)</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #fecdd3; margin-bottom: 4px;">「 ざぁ～こ♡ ざぁ～こ♡ 」</div>
+          <div style="font-size: 11px; opacity: 0.7;">傲娇反差萌 · 点击试听 ▶</div>
+        </button>
+
+        <!-- 哦鲸鲸 -->
+        <button type="button" class="sound-demo-btn" id="btnPlayOchin" style="display: flex; flex-direction: column; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); cursor: pointer; color: inherit; transition: all 0.15s ease; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 20px;">🐳</span>
+            <span style="font-size: 14px; font-weight: 700; color: #60a5fa;">哦鲸鲸 (Ochinchin)</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #dbeafe; margin-bottom: 4px;">「 お～ちんちん♡ 」</div>
+          <div style="font-size: 11px; opacity: 0.7;">软萌少女梗 · 点击试听 ▶</div>
+        </button>
+
+        <!-- 小黄鸭 -->
+        <button type="button" class="sound-demo-btn" id="btnPlayDuck" style="display: flex; flex-direction: column; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.25); cursor: pointer; color: inherit; transition: all 0.15s ease; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 20px;">🐥</span>
+            <span style="font-size: 14px; font-weight: 700; color: #facc15;">小黄鸭 (Duck)</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #fef08a; margin-bottom: 4px;">「 嘎啾~ 嘎啾~ 」</div>
+          <div style="font-size: 11px; opacity: 0.7;">橡皮鸭捏捏叫 · 点击试听 ▶</div>
+        </button>
+
+        <!-- 机械微触感 -->
+        <button type="button" class="sound-demo-btn" id="btnPlayTick" style="display: flex; flex-direction: column; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.25); cursor: pointer; color: inherit; transition: all 0.15s ease; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 20px;">⚙️</span>
+            <span style="font-size: 14px; font-weight: 700; color: #cbd5e1;">机械微触感 (Tick)</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px;">「 咔哒 」</div>
+          <div style="font-size: 11px; opacity: 0.7;">物理齿轮拨动阻尼 · 点击试听 ▶</div>
+        </button>
+      </div>
+    </div>
+
     <!-- 演示说明 -->
-    <div class="instructions-card">
-      <h4>⚡ v2.5 全新升级特性亮点</h4>
-      <ul>
-        <li><strong>DeepSeek 鲸鱼娘重构（彻底告别杂乱背景）</strong>：
-          重新设计并高清裁剪生成贴合圆形图标的专属蓝发鲸鱼娘，纯净透明底色无房间/墙面杂景，高饱和 DeepSeek 蓝宝石配色（<code>#4D6BFE</code>），灵动可爱！
-        </li>
-        <li><strong>全新【⚡ 调校】标签页（速度与亮度自由滑块）</strong>：
-          支持在抽屉中自由调节<strong>动效流速（20% ~ 250%）</strong>与<strong>光效亮度（40% ~ 220%）</strong>，配有一键复位，所有光波、激光、粒子速度与辉光即时联动！
-        </li>
-        <li><strong>MAX 挡位极致震撼力重铸</strong>：
-          <ul>
-            <li><strong>极光织带</strong>：4 重超临界流光交织，90px 璀璨镜面扫光与全轨地磁光幔！</li>
-            <li><strong>霓虹激光</strong>：7.5px 白炽主轴核，手柄四向旋转准星光刃与相对论冲击环！</li>
-            <li><strong>水银重波</strong>：9.5px 水银巨浪海啸与手柄 5 重同心水面激荡！</li>
-            <li><strong>全息棱镜</strong>：6 重色散钻石网格与八芒星全息光斑！</li>
-            <li><strong>星海涡旋</strong>：130+ 密集多普勒星辰与双向相对论垂直喷流！</li>
-            <li><strong>赛博矩阵</strong>：85+ 字符双速代码瀑布与黄金导电总线脉冲！</li>
-            <li><strong>量子电弧</strong>：4 道高压连续电离电弧与等离子核球（<3Hz 护眼）！</li>
-            <li><strong>落樱春水</strong>：45+ 翻滚花瓣飞旋狂舞与 14 只呼吸流萤星团！</li>
-          </ul>
-        </li>
+    <div class="instructions-card" style="margin-top: 16px;">
+      <h4>📋 功能速览</h4>
+      <ul style="margin: 0; padding-left: 20px; font-size: 12px; line-height: 1.8; color: var(--text-muted);">
+        <li><strong>推理滑块交互</strong>：4 档位（Off / Low / High / Max）吸附与快速切换，支持拖拽和文字点击。</li>
+        <li><strong>5 大类 19 款动效 + 定制动效</strong>：推进、流体、幻境、科技、质感；支持 10 种粒子微元与 8 种运动动力学混搭。</li>
+        <li><strong>全局色彩联动</strong>：动效粒子与流体颜色全局跟随自选主题色改变。</li>
+        <li><strong>分类栏灵活操控</strong>：支持鼠标拖拽滑动、鼠标滚轮横滚、两侧 ‹ / › 微翻页按钮、激活自动居中与动效网格左右轻扫。</li>
+        <li><strong>10 款矢量图标 + 自定义</strong>：内置 DeepSeek 鲸鱼娘、Claude 官方星芒等 10 款图标，支持上传本地图片或输入 Emoji。</li>
       </ul>
     </div>
   </div>
