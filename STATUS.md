@@ -62,8 +62,9 @@ DSH（DeepSeek Harness）客户端插件 `dsh-claude-slider`：把推理强度�
 
 ## 五、待办
 
-- [ ] README 里写死了本机路径（`C:\Users\王文岩\.dsh\profiles\...`），发布前必须删
-- [ ] README 的动效名单与代码同步（历史上换过 4 代命名）
+- [x] 本机绝对路径已从仓库文件中清除（README 重写时移除）
+- [x] 补齐 `LICENSE`（MIT）+ README「非官方插件」免责声明 + 给外部用户的安装命令
+- [ ] README 的动效名单与代码同步（当前 README 写 23 种，与 `EFFECT_MODES` 一致；历史上换过 4 代命名）
 - [ ] `demo/index.html` 是手工同步副本，改 `lib/client.js` 后要一起改（长期建议改成引用同一份渲染代码）
 - [ ] 效果 id 已冻结；今后只允许通过 `LEGACY_EFFECT_MAP` 改名
 - [ ] 上传 GitHub（仓库尚未创建）
