@@ -3,6 +3,10 @@
 DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。  
 将默认的思考模式/推理强度下拉选择器替换为横向滑块交互，并提供动效、音效、图标及参数自定义功能。
 
+![推理强度滑块](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/demo.png)
+
+> 上图为 `demo/index.html` 的实时渲染。**双击该文件即可在浏览器里体验全部动效**，无需安装 DSH。
+
 ---
 
 ## 功能列表

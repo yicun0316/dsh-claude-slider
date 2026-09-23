@@ -11,7 +11,19 @@
     "effort-slider",
     "thinking"
   ],
-  "author": "Antigravity",
+  "author": "yicun0316",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yicun0316/dsh-claude-slider.git"
+  },
+  "homepage": "https://github.com/yicun0316/dsh-claude-slider#readme",
+  "bugs": {
+    "url": "https://github.com/yicun0316/dsh-claude-slider/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
