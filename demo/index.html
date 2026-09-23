@@ -2286,32 +2286,39 @@
 
         let isDown = false;
         let startX = 0;
+        let startY = 0;
         let scrollLeft = 0;
-        let hasMoved = false;
+        let isDragging = false;
         let pointerId = null;
 
         const onPointerDown = (e) => {
           if (e.button !== undefined && e.button !== 0) return;
           isDown = true;
-          hasMoved = false;
+          isDragging = false;
           pointerId = e.pointerId;
           startX = e.clientX;
+          startY = e.clientY;
           scrollLeft = el.scrollLeft;
-          try {
-            el.setPointerCapture(e.pointerId);
-          } catch (_) {}
-          el.style.cursor = "grabbing";
-          el.style.userSelect = "none";
-          el.style.webkitUserSelect = "none";
         };
 
         const onPointerMove = (e) => {
           if (!isDown) return;
           const deltaX = e.clientX - startX;
-          if (Math.abs(deltaX) > 5) {
-            hasMoved = true;
+          const deltaY = e.clientY - startY;
+
+          if (!isDragging) {
+            if (Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
+              isDragging = true;
+              try {
+                el.setPointerCapture(pointerId);
+              } catch (_) {}
+              el.style.cursor = "grabbing";
+              el.style.userSelect = "none";
+              el.style.webkitUserSelect = "none";
+            }
           }
-          if (hasMoved) {
+
+          if (isDragging) {
             e.preventDefault();
             el.scrollLeft = scrollLeft - deltaX;
           }
@@ -2320,24 +2327,29 @@
         const onPointerUp = (e) => {
           if (!isDown) return;
           isDown = false;
-          if (pointerId !== null) {
-            try {
-              el.releasePointerCapture(pointerId);
-            } catch (_) {}
-            pointerId = null;
+          if (isDragging) {
+            if (pointerId !== null) {
+              try {
+                el.releasePointerCapture(pointerId);
+              } catch (_) {}
+            }
+            el.style.cursor = "grab";
+            el.style.userSelect = "";
+            el.style.webkitUserSelect = "";
+            setTimeout(() => {
+              isDragging = false;
+            }, 60);
+          } else {
+            isDragging = false;
           }
-          el.style.cursor = "grab";
-          el.style.userSelect = "";
-          el.style.webkitUserSelect = "";
-          setTimeout(() => {
-            hasMoved = false;
-          }, 80);
+          pointerId = null;
         };
 
         const onClickCapture = (e) => {
-          if (hasMoved) {
+          if (isDragging) {
             e.stopPropagation();
             e.preventDefault();
+            isDragging = false;
           }
         };
 
@@ -3992,7 +4004,10 @@
                 type: "button",
                 className: `dcs-family-pill ${(activeFamily || "rocket") === fam.id ? "is-active" : ""}`,
                 style: (activeFamily || "rocket") === fam.id ? { backgroundColor: config.accentColor || "#4D6BFE", color: "#ffffff" } : {},
-                onClick: () => setActiveFamily(fam.id)
+                onClick: (e) => {
+                  e.stopPropagation();
+                  setActiveFamily(fam.id);
+                }
               }, fam.name))
             ),
             h("button", {
@@ -4015,7 +4030,10 @@
                 type: "button",
                 className: `dcs-effect-tile ${config.effect === eff.id ? "is-selected" : ""}`,
                 style: config.effect === eff.id ? { borderColor: config.accentColor || "#4D6BFE", color: config.accentColor || "#4D6BFE" } : {},
-                onClick: () => configStore.update({ effect: eff.id })
+                onClick: (e) => {
+                  e.stopPropagation();
+                  configStore.update({ effect: eff.id });
+                }
               },
                 h("span", {
                   className: "dcs-tile-dot",
@@ -5069,7 +5087,10 @@
                 type: "button",
                 className: `dcs-family-pill ${(settingsFamily || "rocket") === fam.id ? "is-active" : ""}`,
                 style: (settingsFamily || "rocket") === fam.id ? { backgroundColor: config.accentColor || "#4D6BFE", color: "#ffffff" } : {},
-                onClick: () => setSettingsFamily(fam.id)
+                onClick: (e) => {
+                  e.stopPropagation();
+                  setSettingsFamily(fam.id);
+                }
               }, fam.name))
             ),
             h("div", { className: "dcs-effect-grid", style: { maxHeight: 220 } },
@@ -5080,7 +5101,10 @@
                   type: "button",
                   className: `dcs-effect-tile ${config.effect === eff.id ? "is-selected" : ""}`,
                   style: config.effect === eff.id ? { borderColor: config.accentColor || "#4D6BFE", color: config.accentColor || "#4D6BFE" } : {},
-                  onClick: () => configStore.update({ effect: eff.id })
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    configStore.update({ effect: eff.id });
+                  }
                 },
                   h("span", {
                     className: "dcs-tile-dot",
@@ -6468,6 +6492,13 @@
   border-color: rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px) !important;
 }
+.dcs-family-pill:focus {
+  outline: none !important;
+}
+.dcs-family-pill:focus-visible {
+  outline: 2px solid #4D6BFE !important;
+  outline-offset: 1px !important;
+}
 .dcs-family-pill.is-active {
   opacity: 1 !important;
   border-color: rgba(255, 255, 255, 0.45) !important;
@@ -6524,6 +6555,13 @@
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
 }
+.dcs-effect-tile:focus {
+  outline: none !important;
+}
+.dcs-effect-tile:focus-visible {
+  outline: 2px solid #4D6BFE !important;
+  outline-offset: 1px !important;
+}
 .dcs-effect-tile.is-selected {
   background: rgba(77, 107, 254, 0.18) !important;
   border-color: #4D6BFE !important;
@@ -6536,11 +6574,13 @@
   border-radius: 50% !important;
   flex-shrink: 0 !important;
   transition: background-color 0.15s ease !important;
+  pointer-events: none !important;
 }
 .dcs-tile-name {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  pointer-events: none !important;
 }
 
 /* 专属客制工坊尊贵横幅卡片 */
