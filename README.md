@@ -117,26 +117,54 @@ DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。
 
 ---
 
-## 安装与使用
+## 📦 安装与使用
 
-### 本地演示预览
-无需启动 DSH，直接在浏览器中打开 `demo/index.html` 即可预览完整功能。
+### 方式一：命令行一键安装（推荐）
 
-### 安装到 DSH 客户端
-1. **自动挂载**：在项目根目录运行 `install.bat`，自动创建软链接到 DSH 插件目录。
-2. **刷新生效**：打开或切换到 DSH 客户端窗口，按下快捷键 `Ctrl + R` 重新加载。
-3. **打开配置抽屉**：点击滑块右上方的头像按钮即可展开配置面板。
+在终端（PowerShell / CMD / Terminal）中直接执行以下命令：
 
-### 命令行安装（分发使用）
 ```bash
-# 从 npm 安装
-dsh plugin --profile desktop add dsh-claude-slider
-
-# 或从 GitHub 安装
+# 安装到桌面版 (Desktop Profile)
 dsh plugin --profile desktop add github:yicun0316/dsh-claude-slider
 
-# 卸载
+# 或安装到网页版 (Web Profile)
+dsh plugin --profile web add github:yicun0316/dsh-claude-slider
+```
+
+安装完成后，打开或切换到 DSH 窗口，按下 **`Ctrl + R`** 重新加载即可生效！
+
+> [!NOTE]
+> **安全说明**：装任何插件都等于在你的机器上跑第三方代码，权限与用户本人相同（能读写文件、使用模型凭据、访问网络）。本项目 100% 开源且不传输任何隐私数据。如需锁定特定版本，可在末尾添加 commit 哈希（例如 `github:yicun0316/dsh-claude-slider#fa9cc70`）。
+
+---
+
+### 方式二：在 DeepSeek Harness 里通过 dsh-market 安装
+
+如果你的 DSH 已经安装了社区应用市场 `dshmarket`，可以直接在界面内搜索 `dsh-claude-slider` 一键点击安装。
+
+> 若尚未安装插件市场，可先通过命令启用插件市场：
+> ```bash
+> dsh plugin --profile desktop add dshmarket
+> ```
+
+---
+
+### 方式三：本地开发者模式（源码挂载）
+
+1. **一键挂载**：克隆本仓库后，双击运行项目根目录的 `install.bat`，自动创建软链接到 DSH 插件目录；
+2. **刷新生效**：在 DSH 客户端中按下 `Ctrl + R` 重新加载；
+3. **本地纯浏览器预览**：直接双击打开 `demo/index.html`，无需启动 DSH 即可全功能调试。
+
+---
+
+### 卸载插件
+
+```bash
+# 从桌面版卸载
 dsh plugin --profile desktop remove dsh-claude-slider
+
+# 从网页版卸载
+dsh plugin --profile web remove dsh-claude-slider
 ```
 
 ---
