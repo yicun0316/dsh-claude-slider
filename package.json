@@ -1,7 +1,7 @@
 {
   "name": "dsh-claude-slider",
-  "version": "2.10.1",
-  "description": "Claude 风格推理强度滑块插件：真实粒子物理引擎实测展示、优化截图与失焦防冻结、定制动效支持点击启用与禁用还原、全库动效全局色彩联动",
+  "version": "2.10.2",
+  "description": "Claude 风格推理强度滑块插件：更新真实实机实测动效效果展示、优化截图与失焦防冻结、定制动效支持点击启用与禁用还原、全库动效全局色彩联动",
   "keywords": [
     "dsh",
     "dsh-plugin",

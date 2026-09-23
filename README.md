@@ -7,18 +7,16 @@ DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。
 
 ---
 
-## ✨ 真实物理粒子动效动态展示
+## ✨ 动效实机效果展示
 
-所有动效均基于原生 Canvas 粒子物理引擎实时演算，支持主题色彩全局联动与 60 FPS 流畅渲染。  
-优化截图与多任务交互体验：使用截图工具（`Win + Shift + S` / 微信截图 / QQ截图 / Snipaste）或窗口失焦时，粒子持续运转，绝不定格死锁。
+所有动效均在 DSH 客户端中基于原生 Canvas 实时渲染，粒子形态与流光跟随档位及自选主题色动态演色。  
+优化截图与多任务交互体验：使用系统截图（`Win + Shift + S` / 微信截图 / QQ截图 / Snipaste）或窗口失焦时，粒子持续运转，绝不定格。
 
-![真实物理粒子动效动态展示](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effects_showcase.gif)
-
-| 动效名称 | 核心粒子形态与运动逻辑 | 视觉风格 |
-| :--- | :--- | :--- |
-| **🌸 落樱春水 (Sakura Flutter)** | 绯粉水波渐变漫射、贝塞尔曲线自转翻滚花瓣、沿水流逆向与顺向飘扬 | 柔和浪漫、落樱涟漪 |
-| **🌊 玻璃水银 (Liquid Mercury)** | 多层液态金属高光波涌、旋转多面玻璃晶片棱镜、十字星芒周期闪耀 | 透亮水银、棱镜折射 |
-| **📊 频谱律动 (Spectrum Bars)** | 30 频段多频跳跃均衡波柱、动态能量波峰指示点、浮空科技光粒 | 极客声学、高能律动 |
+| 动效类型 | 实机运行实测截图 | 特性与粒子说明 |
+| :--- | :---: | :--- |
+| **🌊 玻璃水银**<br>`(Liquid Mercury)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_mercury.png" width="480" alt="玻璃水银实测截图" /> | 多层液态金属高光波涌、旋转多面玻璃晶片棱镜、十字星芒闪烁 |
+| **🌸 落樱春水**<br>`(Sakura Flutter)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_sakura.png" width="480" alt="落樱春水实测截图" /> | 绯粉水波渐变漫射、贝塞尔自转翻滚花瓣微元、随波翻腾与涟漪扩散 |
+| **⚡ 科技流光**<br>`(Tech Stream)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_tech.png" width="480" alt="科技流光实测截图" /> | 高亮等离子流光、矩阵粒子微元高速推进、动态外发光晕染 |
 
 ---
 
@@ -151,6 +149,9 @@ dsh-claude-slider/
 ├── cordis.patch.yml      # DSH 插件插槽声明
 ├── assets/               # 真实界面截图与矢量展示资源
 │   ├── demo.png          # 实际运行界面实测截图
+│   ├── effect_mercury.png# 玻璃水银实机实测截图
+│   ├── effect_sakura.png # 落樱春水实机实测截图
+│   ├── effect_tech.png   # 科技流光实机实测截图
 │   ├── sound_showcase.svg# 音效系统矢量展示卡片
 │   ├── color_showcase.svg# 主题色彩联动展示卡片
 │   ├── tuning_showcase.svg# 调校控制台（音量/流速/亮度）展示卡片
