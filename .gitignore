@@ -41,3 +41,6 @@ sync_demo*.cjs
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# agent 生成的一次性 Python 补丁脚本（见 AGENTS.md）
+scripts/*.py
