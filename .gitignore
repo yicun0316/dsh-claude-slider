@@ -1,0 +1,32 @@
+# 依赖与构建产物
+node_modules/
+dist/
+build/
+*.tgz
+.artifacts/
+
+# 本地备份快照（含修复前的 .bak），不进仓库
+_backups/
+*.bak
+*.bak-*
+
+# 机密
+.env
+.env.*
+!.env.example
+.credentials*
+*.key
+*.pem
+
+# 临时 / 调试产物
+temp_*.json
+crop_test.png
+test.vtt
+*.log
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
