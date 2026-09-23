@@ -24,6 +24,17 @@ crop_test.png
 test.vtt
 *.log
 
+# 一次性补丁 / 重写脚本（改动应直接落在源码里，见 AGENTS.md）
+scripts/patch_*.py
+scripts/apply_*.py
+scripts/rewrite_*.py
+tools/
+build_v*.cjs
+build_*.cjs
+apply_v*.cjs
+sync_demo*.cjs
+*_b64.txt
+
 # 编辑器与系统
 .vscode/
 .idea/
