@@ -24,6 +24,10 @@ crop_test.png
 test.vtt
 *.log
 
+# 本地展示素材：仅保留在本地，不提交（600 KB 二进制，仓库内无引用）
+assets/github_avatar.jpg
+assets/github_avatar.png
+
 # 一次性补丁 / 重写脚本（改动应直接落在源码里，见 AGENTS.md）
 scripts/patch_*.py
 scripts/apply_*.py
