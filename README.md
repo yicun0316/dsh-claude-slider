@@ -1,191 +1,130 @@
+<div align="center">
+
 # dsh-claude-slider
 
-DeepSeek Harness (DSH Desktop & Web) 的推理强度调节滑块插件。  
-将默认的思考模式/推理强度下拉选择器替换为横向滑块交互，并提供动效、音效、图标及参数自定义功能。
+把 DeepSeek Harness 的「推理强度」下拉框，换成一条会呼吸的滑块。
+
+![version](https://img.shields.io/badge/version-2.11.0-4D6BFE?style=flat-square)
+![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![build](https://img.shields.io/badge/build-零构建-orange?style=flat-square)
+![network](https://img.shields.io/badge/网络请求-0-lightgrey?style=flat-square)
+
+</div>
+
+拖动滑块即可在 Off / Low / Medium / High / Max 之间切换推理强度，并附带液态玻璃面板、Canvas 动效、主题配色与吸附音效。
 
 ---
 
-## 📸 功能面板概览
+## 面板一览
 
-| ✨ 动效与定制工坊 | 🎨 主题色彩与拾色器 |
+| 动效库 | 外观 |
 | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/panel_effect.png" width="380" alt="动效面板" /> | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/panel_color.png" width="380" alt="色彩面板" /> |
-| ⚡ **参数调校与音效** | 🐟 **手柄图标选择** |
-| <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/panel_tuning.png" width="380" alt="调校面板" /> | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/panel_icon.png" width="380" alt="图标面板" /> |
+| ![动效库](assets/panel_effect.png) | ![外观](assets/panel_color.png) |
+| 调校 | 游标图标 |
+| ![调校](assets/panel_tuning.png) | ![游标图标](assets/panel_icon.png) |
+
+动效实机效果：
+
+| 玻璃水银 | 落樱春水 | 科技流光 |
+| :---: | :---: | :---: |
+| ![玻璃水银](assets/effect_mercury.png) | ![落樱春水](assets/effect_sakura.png) | ![科技流光](assets/effect_tech.png) |
 
 ---
 
-## 🌟 动效实机效果
-
-| 动效类型 | 实机运行截图 | 说明 |
-| :--- | :---: | :--- |
-| **🌊 玻璃水银**<br>`(Liquid Mercury)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_mercury.png" width="450" alt="玻璃水银实测截图" /> | 液态金属光泽、旋转多面玻璃晶片与十字星芒闪烁 |
-| **🌸 落樱春水**<br>`(Sakura Flutter)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_sakura.png" width="450" alt="落樱春水实测截图" /> | 绯粉水流渐变、翻滚花瓣微元与水波涟漪 |
-| **⚡ 科技流光**<br>`(Tech Stream)` | <img src="https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/effect_tech.png" width="450" alt="科技流光实测截图" /> | 高能等离子流光、动态矩阵粒子推进与外发光晕染 |
-
----
-
-## 🔊 档位吸附音效
-
-滑块切换档位吸附时即时发声，支持在【调校】页面中调节音量大小（0% ~ 150%）或静音。
-
-![音效展示卡片](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/sound_showcase.svg)
-
-| 音效名称 | 台词 / 声效 | 风格特色 | 试听与音频文件 |
-| :--- | :--- | :--- | :--- |
-| **🐟 杂鱼 (Zako)** | `ざぁ～こ♡ ざぁ～こ♡` | 傲娇嘲讽萌系声线 | <audio src="assets/sounds/zako.mp3" controls preload="none"></audio><br>[▶ 试听 / 下载 zako.mp3](assets/sounds/zako.mp3) |
-| **🐳 哦鲸鲸 (Ochinchin)** | `お～ちんちん♡` | 软萌声线，DeepSeek 谐音梗 | <audio src="assets/sounds/ochinchin.mp3" controls preload="none"></audio><br>[▶ 试听 / 下载 ochinchin.mp3](assets/sounds/ochinchin.mp3) |
-| **🐥 小黄鸭** | `嘎啾~ 嘎啾~` | 经典捏橡皮鸭解压声 | 内置 Web Audio 物理声学合成 |
-| **⚙️ 机械微触感** | `咔哒` | 高频物理齿轮拨动阻尼微触感 | 内置 Web Audio 物理声学合成 |
-| **📁 本地自定义音频** | 用户本地音频 | 支持上传任意 MP3 / WAV 作为音效 | 本地持久化存储与即时发声 |
-
----
-
-## 🎨 全局色彩联动与自定义拾色
-
-提供 9 款预设主题色与原生 Hex 拾色器，动效主色调与光晕随主题色同步切换。
-
-![主题色彩与动效联动展示](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/color_showcase.svg)
-
-| 色彩类别 | 包含颜色 / 功能 | 说明 |
-| :--- | :--- | :--- |
-| **预设主题色 (9 款)** | DeepSeek 蓝 (`#4D6BFE`)、幻海晶青 (`#00F2FE`)、Claude 暖陶 (`#D97706`)、Claude 曜金 (`#F59E0B`)、极客翠绿 (`#10B981`)、暗夜幽紫 (`#8B5CF6`)、蔷薇绯粉 (`#F43F5E`)、烈焰赤橙 (`#FF6B4A`)、冷月珠光 (`#E2E8F0`) | 一键应用，全局同步生效 |
-| **原生 Hex 拾色器** | 任意 16 进制颜色代码（如 `#FF0055`）或点击色盘直选 | 自动计算渐变与粒子透明度分层 |
-
----
-
-## ⚡ 调校控制台（音量 / 流速 / 亮度）
-
-在【调校】页面中配备无极微调滑块，实时生效。
-
-![调校控制台展示](https://raw.githubusercontent.com/yicun0316/dsh-claude-slider/main/assets/tuning_showcase.svg)
-
-| 调节参数 | 可调范围 | 默认数值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| **🔊 吸附音量大小 (Volume)** | `0%` (静音) ~ `150%` | `100%` | 拖拽即时试听，提供独立【试听】与一键【复位】 |
-| **⚡ 动效流速倍率 (Speed)** | `0.2x` ~ `2.5x` | `1.0x` | 控制粒子飞行速度与波涌频率，提供一键【复位】 |
-| **💡 辉光渲染亮度 (Brightness)** | `0.4x` ~ `2.2x` | `100%` | 调节发光核心透明度与晕染强度，提供一键【复位】 |
-
----
-
-## 📋 功能列表
-
-### 1. 推理强度控制
-- **档位调节**：支持模型预设档位（如 Off / Low / High / Max）的拖拽调节与即时吸附。
-- **点击直达**：点击滑块轨道各节点或文字可直接切换。
-- **原生兼容**：在调校面板或系统设置中提供总开关；关闭后还原为 DSH 默认下拉菜单。
-
-### 2. 视觉动效
-- **预设动效**（5 大类，共 13 款）：
-  - **推进**：火箭尾焰、超载折跃
-  - **流体**：玻璃水银、火山喷发
-  - **幻境**：落樱春水、极光织锦、深海鲸跃、萤火微光、落雪狂沙
-  - **科技**：频谱律动、雷达扫描
-  - **质感**：星流碎钻、流金星河
-- **档位三阶递进**：动效随推理档位逐层解锁，而不是只有量的变化。
-  - `Low` → **基础层**：主体形态、主题色底衬与主粒子，密度最低、流速最慢。
-  - `High` → **结构层**：追加全轨高光脊线、匀速掠过的扫描线，以及各效果自己的次级元素（马赫激波环、水波涟漪、柱顶峰值、折射条纹、回波点…）。
-  - `Max` → **高能层**：再叠加泛光、12 道旋转能量射线、18 颗环绕火花、3 道扩散脉冲环与边缘流转光晕，各效果同时进入终极形态；切入 Max 的瞬间还有径向冲击波 + 全轨高光冲洗。
-  - 粒子预算（约 6 → 18 → 60 → 128）与动画速度（约 1.1× → 1.3× → 1.8×）也按档位阶梯提升。
-- **定制动效**：支持自定义混搭，提供启用/禁用切换：
-  - 粒子形态（10 种）：炽焰、晶体、星芒、圆点、光雾、花瓣、弧光、气泡、霓虹、碎片
-  - 流动轨迹（8 种）：推进、星流、对撞、波涌、涡旋、跃迁、爆发、环绕
-- **色彩联动**：动效光效与粒子颜色跟随主题色同步变化。
-- **🎲 随机灵感搭配**：13 套策展组合，每款效果各配一套专属的主题色 / 手柄图标 / 流速 / 辉光。
-  抽取采用**洗牌袋**而非独立随机——连续点 13 次会把 13 款各抽到一次、绝不重复，重洗后也不会与上一轮末尾相邻撞车。
-
-### 3. 分类栏交互
-- **拖拽滑动**：按住分类栏可左右拖动切换。
-- **滚轮横滚**：鼠标悬停在分类栏上时滚轮可横向滚动。
-- **微翻页控制**：分类栏两侧设有 `‹` 和 `›` 翻页按钮。
-- **自动居中**：点击分类标签自动平滑滚动至视口中央。
-- **轻扫切换**：在卡片区域左右滑动切换大类。
-
-### 4. 手柄图标
-- **内置图标**（10 款）：DeepSeek 鲸鱼娘、Claude 官方星芒、DeepSeek 官方鲸鱼、超级大脑、闪电脉冲、量子原核、炽热烈焰、璀璨宝石、灵动星火、精准瞄准。
-- **自定义图标**：支持上传本地图片（PNG / JPG / SVG）或直接输入 Emoji 作为手柄图标。
-
-### 5. 配置导入与导出
-- **导出**：将当前所有设置导出为 JSON 文本。
-- **导入**：支持粘贴 JSON 配置并一键应用。
-
----
-
-## 📦 安装与使用
-
-### 方式一：命令行一键安装（推荐）
-
-在终端（PowerShell / CMD / Terminal）中执行以下命令：
+## 安装
 
 ```bash
-# 从 npm 安装
+# 桌面版（npm）
 dsh plugin --profile desktop add dsh-claude-slider
 
-# 或从 GitHub 安装
-dsh plugin --profile desktop add github:yicun0316/dsh-claude-slider
-
-# 网页版 (Web Profile)
+# 网页版（npm）
 dsh plugin --profile web add dsh-claude-slider
-# 或网页版从 GitHub 安装
-dsh plugin --profile web add github:yicun0316/dsh-claude-slider
+
+# 直接从 GitHub 安装
+dsh plugin --profile desktop add github:yicun0316/dsh-claude-slider
 ```
 
-安装完成后，在 DSH 客户端中按下 **`Ctrl + R`** 重新加载即可生效。
+装完在 DSH 客户端按 <kbd>Ctrl</kbd> + <kbd>R</kbd> 重新加载即可。
 
----
+<details>
+<summary>其他安装方式</summary>
 
-### 方式二：通过 dsh-market 安装
-
-在 DSH 中安装应用市场插件后，可在界面内直接搜索 `dsh-claude-slider` 一键安装。
+**插件市场**：先装 `dshmarket`，再在界面内搜索 `dsh-claude-slider` 一键安装。
 
 ```bash
-# 安装插件市场
 dsh plugin --profile desktop add dshmarket
 ```
 
----
+**本地源码挂载**：克隆仓库 → 运行根目录 `install.bat`（自动软链接到 DSH 插件目录）→ `Ctrl + R`。
+打开 `demo/index.html` 可离线预览完整功能。
 
-### 方式三：本地开发者模式（源码挂载）
-
-1. 克隆本仓库后，运行项目根目录的 `install.bat`，自动创建软链接到 DSH 插件目录；
-2. 在 DSH 客户端中按下 `Ctrl + R` 重新加载；
-3. 本地浏览器预览：直接打开 `demo/index.html` 即可预览完整功能。
-
----
-
-### 卸载插件
+**卸载**
 
 ```bash
-# 从桌面版卸载
 dsh plugin --profile desktop remove dsh-claude-slider
-
-# 从网页版卸载
-dsh plugin --profile web remove dsh-claude-slider
 ```
+
+</details>
 
 ---
 
-## 结构说明
+## 特性
+
+**滑块交互**　拖拽吸附换档，点击轨道节点直达，随时可关闭并还原为 DSH 原生下拉菜单。
+
+**13 款动效**　随档位三阶递进解锁视觉层，而不是单纯的量变：
+
+- 🚀 推进 — 火箭尾焰、超载折跃
+- 🌊 流体 — 玻璃水银、火山喷发
+- 🌸 幻境 — 落樱春水、极光织锦、深海鲸跃、萤火微光、落雪狂沙
+- 💻 科技 — 频谱律动、雷达扫描
+- 🎨 质感 — 星流碎钻、流金星河
+
+> Low 出基础层，High 追加高光脊线与扫描线，Max 叠加泛光、能量射线与环绕火花；切入 Max 的瞬间还有一次径向冲击波。
+
+**液态玻璃外观**　原生磨砂玻璃抽屉，10% ~ 100% 无级调节背景透明度；9 款预设主题色 + 原生 Hex 拾色器，动效与光晕跟随主题色联动。
+
+**三轴调校**　流速、亮度、音量实时生效，一键复位。
+
+**吸附音效**　杂鱼、哦鲸鲸、小黄鸭、机械微触感四款内置音，支持上传本地 MP3 / WAV（`assets/sounds/` 下可试听 `zako.mp3`、`ochinchin.mp3`）。
+
+**游标图标**　10 款内置图标，也可上传 PNG / JPG / SVG 或直接填 Emoji。
+
+**灵感搭配**　13 套策展组合随机抽取，采用洗牌袋机制——连点 13 次每款各出现一次，绝不重复。
+
+**配置分享**　一键导出 JSON、粘贴导入，方便复制别人的搭配。
+
+---
+
+## 调校参数
+
+| 参数 | 范围 | 默认 |
+| :--- | :--- | :--- |
+| 背景透明度 | 10% ~ 100% | 85% |
+| 动效流速 | 0.5x ~ 2.0x | 1.0x |
+| 动效亮度 | 0.5x ~ 2.0x | 1.0x |
+| 吸附音量 | 0% ~ 100% | 100% |
+
+---
+
+## 目录结构
 
 ```
 dsh-claude-slider/
-├── package.json          # 插件信息与版本定义
-├── cordis.patch.yml      # DSH 插件插槽声明
-├── assets/               # 截图与资源文件
-│   ├── panel_effect.png  # 动效面板截图
-│   ├── panel_color.png   # 色彩面板截图
-│   ├── panel_tuning.png  # 调校面板截图
-│   ├── panel_icon.png    # 图标面板截图
-│   ├── effect_mercury.png# 玻璃水银实机截图
-│   ├── effect_sakura.png # 落樱春水实机截图
-│   ├── effect_tech.png   # 科技流光实机截图
-│   ├── sound_showcase.svg# 音效展示卡片
-│   ├── color_showcase.svg# 色彩展示卡片
-│   ├── tuning_showcase.svg# 调校展示卡片
-│   └── sounds/           # 音频文件（zako.mp3, ochinchin.mp3）
+├── package.json          # 插件信息与版本
+├── cordis.patch.yml      # DSH 插槽声明
 ├── lib/
 │   ├── index.js          # 服务端入口
 │   └── client.js         # 客户端核心实现
-└── demo/
-    └── index.html        # 本地预览测试页面
+├── assets/               # 面板截图、实机图、音频
+├── demo/index.html       # 离线预览页
+└── install.bat           # 本地软链接安装
 ```
+
+配置保存在 `localStorage` 键 `dsh-claude-slider.config.v2`，插件零网络请求、不读写用户文件。
+
+---
+
+## 许可
+
+[MIT](LICENSE) © yicun0316
