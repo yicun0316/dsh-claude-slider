@@ -15,19 +15,19 @@
 
 ---
 
-## 面板一览
+## 界面实拍
 
-| 动效库 | 外观 |
+<div align="center">
+
+![滑块与动效](assets/ui_hero.png)
+
+</div>
+
+| 外观 · 配色与透明度 | 调校 · 流速与亮度 |
 | :---: | :---: |
-| ![动效库](assets/panel_effect.png) | ![外观](assets/panel_color.png) |
-| 调校 | 游标图标 |
-| ![调校](assets/panel_tuning.png) | ![游标图标](assets/panel_icon.png) |
-
-动效实机效果：
-
-| 玻璃水银 | 落樱春水 | 科技流光 |
-| :---: | :---: | :---: |
-| ![玻璃水银](assets/effect_mercury.png) | ![落樱春水](assets/effect_sakura.png) | ![科技流光](assets/effect_tech.png) |
+| ![外观](assets/ui_look.png) | ![调校](assets/ui_tuning.png) |
+| **音效 · 吸附反馈** | **游标 · 图标选择** |
+| ![音效](assets/ui_sound.png) | ![游标](assets/ui_cursor.png) |
 
 ---
 
