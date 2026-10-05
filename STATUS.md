@@ -140,7 +140,7 @@ const L3 = Math.min(1, Math.max(0, tierT - 2));       // Max  解锁：高能层
       这与 AGENTS.md 第五节「不要写脚本改源码的工具」相抵触——脚本没进仓库，
       但下次改动建议回到 `lib/client.js` 直接精确编辑，或先把同步方案确认清楚。
 - [ ] 效果 id 已冻结；今后只允许通过 `LEGACY_EFFECT_MAP` 改名
-- [ ] npm 发布（包名 `dsh-claude-slider` 在 npm 上仍为空闲）
+- [x] npm 发布（已成功发布 v2.11.0 到 npm 官方源）
 - [ ] 可选：给 demo 加入「档位递进」的自动化回归脚本（现有关卡：Off 档会休眠，脚本必须先派发 `pointermove`）
 
 ## 六、已知问题 / 可继续做的方向
