@@ -7,9 +7,10 @@
 | 项 | 状态 |
 |---|---|
 | 代码 / 文档 | ✅ 完成，全部校验通过 |
-| git commit | ✅ `817eedd`（6 文件，1747+/1406-） |
-| git push | ✅ `0650abb..817eedd main -> main` |
-| git tag | ✅ `v2.12.0`（annotated，已 push） |
+| git commit | ✅ `817eedd`（6 文件，1747+/1406-）+ `a501275` + `230dccf`（护栏修复）+ `b3806cd`（README） |
+| git push | ✅ 已同步 `origin/main`（`b3806cd`） |
+| git tag | ✅ `v2.12.0`（annotated）指向 `b3806cd`，已 push |
+| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114371 B，SHA256 `BD7587…BD242A`，7 files） |
 | npm publish | ❌ **被凭据阻断** —— 见下 |
 
 ### npm 发布受阻的具体原因
@@ -34,12 +35,14 @@ dist-tags: {"latest":"2.11.0"}
 published versions: 2.9.7, 2.9.8, 2.11.0
 ```
 
-**需要用户操作**：`npm login`（或换一个有效 token 写进 `.npmrc`），然后：
+**需要用户操作**：`npm login`（或换一个有效 token 写进 `.npmrc`），然后二选一：
 ```bash
 cd C:\Users\王文岩\.gemini\antigravity\scratch\dsh-claude-slider
 npm publish --access public --registry=https://registry.npmjs.org/
+
+# 或者直接发已经打好的包（等价）
+npm publish D:\deepseek\dsh-claude-slider-2.12.0.tgz --access public --registry=https://registry.npmjs.org/
 ```
-`npm pack --dry-run` 已验证可用：`dsh-claude-slider-2.12.0.tgz`，7 files，113.8 kB。
 
 ## 当前任务（用户 m00001 提出，四项）
 
