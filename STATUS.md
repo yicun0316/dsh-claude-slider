@@ -7,10 +7,10 @@
 | 项 | 状态 |
 |---|---|
 | 代码 / 文档 | ✅ 完成，全部校验通过 |
-| git commit | ✅ 7 个提交：`817eedd`（主体 1747+/1406-）→ `a501275` → `230dccf`（rAF 护栏）→ `b3806cd`（README）→ `83878df`（STATUS）→ `df35474`（删死 CSS 变量）→ `c011899`（思考图标实时预览），之后仅有文档提交 |
-| git push | ✅ 已同步 `origin/main`（`0 0` ahead/behind） |
-| git tag | ✅ `v2.12.0`（annotated）指向 `main` 最新提交，已 push |
-| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114773 B，SHA256 `D1D41015…6B6E8C`，7 files；从 `c011899` 打包，之后仅文档改动） |
+| git commit | ✅ 8 个功能提交：`817eedd`（主体 1747+/1406-）→ `a501275` → `230dccf`（rAF 护栏）→ `b3806cd`（README）→ `83878df`（STATUS）→ `df35474`（删死 CSS 变量）→ `c011899`（思考图标实时预览）→ `243c975`（ICONS 别名去重），中间夹若干纯文档提交 |
+| git push | ✅ 已同步 `origin/main`（`0 0` ahead/behind），HEAD = `243c975` |
+| git tag | ✅ `v2.12.0`（annotated，`8a15f40`）指向 `243c975`，已 push |
+| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（115034 B，SHA256 `A3BDD745D70BC2550FC7863A385ECC8649839E402B301996B6343093E79E5121`，7 files；从 `git archive HEAD` 的干净树打包，与 `243c975` 逐字节一致） |
 | npm publish | ❌ **被凭据阻断** —— 见下 |
 
 ### npm 发布受阻的具体原因
@@ -460,6 +460,63 @@ node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 21 个�
 真实 React 渲染测试                              → registered:2 / windowErrors:[] / 7 tab 全 active
                                                   finalNotFunction:[] / finalBoundary:false
 ```
+
+## 2026-10-17 收尾补齐 6：`ICONS.maid_chibi` 别名去重（React 重复 key）
+
+### 问题（真实产品缺陷，非测试假象）
+把渲染测试从 React **production** 换成 **development** 构建后（production 会剥掉
+prop/children 校验告警，之前「0 告警」是假阴性），页面加载期立刻报：
+
+```
+Encountered two children with the same key, `whale_chibi`.
+```
+
+根因是 `ICONS` 收尾那行历史别名：
+```js
+ICONS.maid_chibi = ICONS.whale_chibi;   // 同一对象引用 → 第二个可枚举键
+```
+而游标页用 `Object.values(ICONS).map(item => ..., key: item.id)` 渲染，
+于是同一个对象被遍历出两次，生成**两个 `id` 都是 `whale_chibi` 的按钮**；
+标签又都走 `item.name.split(" ")[0]`，两个都显示成「DeepSeek」。
+
+打进 tarball 的也是这份代码 —— 真实宿主里同样会多出一个重复按钮，
+所以这是发布前必须修的产品问题。
+
+### 修复（`lib/client.js`，+9/-1）
+```js
+// 历史别名：老配置里可能还残留 icon:"maid_chibi"。必须设成不可枚举，
+// 否则 Object.values(ICONS) 会把同一个对象返回两次 → 游标页多出一个
+// 同名「DeepSeek」按钮，React 也会报 "Encountered two children with the same key"。
+Object.defineProperty(ICONS, "maid_chibi", {
+  value: ICONS.whale_chibi,
+  enumerable: false,
+  configurable: true,
+  writable: true
+});
+```
+`loadSavedConfig()` 里的 `if (saved.icon === "maid_chibi") saved.icon = "whale_chibi";`
+保留，老配置照常迁移；别名本身仍在，任何按名取 `ICONS.maid_chibi` 的代码不受影响。
+
+### 实测（`D:\deepseek\_cdp_audit.mjs` + React 19.3.0 development 构建）
+```
+修复前  iconGrid => { count:11, labels:["DeepSeek","Claude","DeepSeek",...] }
+        page load console => 1 条 error: two children with the same key `whale_chibi`
+修复后  iconGrid => { count:10, labels:["DeepSeek","Claude","DeepSeek",...] }   # 少一个重复项
+        page load console => 0 error / 0 warning（只剩 1 条 React DevTools info）
+        altCount => { imgs:1, alts:["鲸鱼娘"] }
+```
+注：剩下的两个「DeepSeek」标签是 `whale_chibi`（DeepSeek 鲸鱼娘）与
+`whale`（DeepSeek 鲸鱼）的首词截断，属既有文案问题，**未改动**（需用户确认 UI 文案）。
+
+### 校验
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 23 个全大写标识符
+真实 React dev 渲染 + 7 tab 逐个巡检              → 0 error / 0 warning
+```
+
+### 提交
+`243c975 fix: ICONS.maid_chibi 别名改为不可枚举，修掉游标页重复按钮与 React 重复 key`
 
 
 
