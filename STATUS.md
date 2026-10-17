@@ -582,5 +582,118 @@ CRLF / BOM（两个文件）                          → 均无
 ### 文档
 `README.md`：Q 版游标动画段落改为「三种皮肤」；游标图标 `10 款` → `11 款`，说明立绘皮肤用法。
 
+## 2026-10-17 收尾补齐 8：白板根因 + 思考指示器真宿主适配（用户两条新反馈）
 
+### 反馈（用户原话）
+> 为什么周围有一层白色的，这种做不出来吗
+> 然后思考动画图标根本没变
 
+对应两张截图：一张是 README 首图（蓝发鲸鱼娘**无底板**直接站在轨道上），
+一张是本插件实机（游标 = **白色圆角方块 + 圆形头像**，「思考动画」那排胶囊几乎看不见）。
+
+### 问题 A：白板（根因不是 CSS，是配置状态）
+
+实际原因：用户 `icon = "hero_chibi"`，但 `thumbSkin` 还是默认 `"bubble"`，
+于是渲染的是「💧 气泡皮肤 + 18px 圆形头像」，`.dcs-thumb` 的白色底板自然全露出来。
+而用户期望的「小人站在轨道上」只在 `thumbSkin === "art"` 且图标带 `art` 时成立。
+
+三处修复：
+1. **选中即自动切换**：TAB4 图标网格的 `onClick` 改成
+   `configStore.update(item.art ? { icon: item.id, thumbSkin: "art" } : { icon: item.id })`。
+   目前只有 `hero_chibi` 带 `art` 字段，其他图标行为不变（也不影响回落逻辑）。
+2. **老配置一次性迁移**：`DEFAULT_CONFIG` 新增 `artMigrated: false`；
+   `loadSavedConfig()` 里
+   `if (!saved.artMigrated) { if (saved.icon === "hero_chibi" && saved.thumbSkin !== "art") saved.thumbSkin = "art"; saved.artMigrated = true; ...落盘... }`
+   —— 关键是**只迁移一次并立刻写回 localStorage**，否则用户之后手动切回「气泡」会被每次启动覆盖回去。
+3. **demo 同步**：`iconGrid` 的 click 里加同样逻辑（`picked.art && thumbSkin !== "art"` 时切 `art`
+   并同步 `#thumbSkinPills` 的 `is-active`）。
+
+### 问题 B：思考指示器完全不生效（真因 = 宿主 DOM 结构变了）
+
+从 `D:\deepseek harness\resources\app.asar` 里 dump 出真实 JSX（字节偏移 23978470 附近）：
+
+```jsx
+<div className={ChatView.running} data-chat-running={true}>
+  <span className={accessibility.visuallyHidden} role="status" aria-live="polite">深度求索中</span>
+  <span className={ChatView.runningDivider} aria-hidden="true" />
+  <span className={ChatView.runningContent}>
+    <RunningWhaleTail />   // span.runningIcon > span.runningWhaleAnimated + svg.runningWhaleStill
+    <TextShimmer className={ChatView.runningText}>{label}</TextShimmer>
+  </span>
+</div>
+```
+
+两个致命差异：
+- **`role="status"` 挂在 `.visuallyHidden` 的 span 上（1x1，屏幕外）**，不再是可见文字容器。
+  旧代码把图标 `insertBefore(status.firstChild)` 注入进去 → 图标永远在看不见的地方。
+- CSS module 哈希前缀从 `EvIC1a_` 变成 **`xz4KEq_`**，旧代码硬编码的
+  `classList.contains("EvIC1a_turnStatus")` 恒为 false（asar 里 `turnStatus` / `EvIC1a` 计数都是 0）。
+
+修复（`lib/client.js` 的 `installThinkIndicator`）：
+1. 旧 `findStatus()` 拆成三个函数：
+   - `pickStatus()`：查 `[role="status"][aria-live="polite"]`，优先返回 `closest('[data-chat-running="true"]')` 命中的那个；
+   - `isHidden(el)`：class 含 `visuallyHidden`，或 computed `position:absolute` 且宽高 ≤2px；
+   - `resolveHost()`：`{ mount, hide }` —— 在 running 行里用 **子串匹配**
+     `[class*="runningContent"]` / `[class*="runningIcon"]`（哈希前缀变了也不影响），
+     退化为 slot.parentNode，再退化为「旧宿主 status 可见时」注入 status，否则 null。
+2. `sync()` 改用 `resolveHost()`，并**隐藏宿主自带那枚鲸鱼尾鳍**
+   （`host.hide.style.display = "none"`），否则会并排出现两个图标。
+3. 新增模块变量 `hiddenEl`，`onMutate()` 增加 `okHide` 判定 ——
+   React 重建 `runningIcon` 后隐藏状态会丢失，必须靠它补救，否则双图标会复现。
+
+### 附带修掉：浅色主题下「思考动画」胶囊隐形
+
+`.dcs-sound-pill` 的基础样式是按深色面板写的（`background: rgba(255,255,255,.05)` +
+`color: var(--dcs-text, #e2e8f0)`），但全文件**从未定义过 `--dcs-text`**，
+于是浅色玻璃面板上就是「近白底 + 近白字」。补一条浅色覆盖：
+
+```css
+.dcs-popover.is-light .dcs-sound-pill,
+.dcs-quick-drawer.is-light .dcs-sound-pill {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #334155;
+}
+```
+（同文件的 `.dcs-family-pill` 早就这么处理了，`.dcs-sound-pill` 是漏网。）
+
+### 校验（全部通过）
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 23 个全大写标识符
+lib/client.js BOM / CRLF                        → false / 0（336905 B）
+demo 两个 <script> 块 node --check              → 1840 OK / 430195 OK（无 BOM / 无 CRLF）
+```
+
+**真宿主 DOM 复刻测试**（`D:\deepseek\_render_think.cjs`：在插件脚本前插入按上面 JSX 复刻的
+`data-chat-running` 行，preset = `thinkIcon:"brain"` / `thinkAnim:"spin"`）：
+```
+thinkInfo => { found:true, inContent:true, isFirstChild:true,
+               anim:"spin", sig:"brain||#4D6BFE", svgPathCount:2,
+               hostIconHidden:"none" }   // 宿主尾鳍已被隐藏，只剩我们这一枚
+换图标 flame → sig "flame||#4D6BFE"、节点被替换
+换动画 spin → bounce → none → data-anim 跟随、computed animationName 依次
+             dcsThinkSpin → dcsThinkBounce → none
+七个 tab 全点一遍                          → problems:[]，0 error / 0 warning
+```
+
+**迁移与自动切换测试**（`D:\deepseek\_render_migrate.cjs`，preset 故意写老配置
+`icon:"hero_chibi" + thumbSkin:"bubble"` 且无 `artMigrated`）：
+```
+migratedSkin:"art" / migratedFlag:true       // 老配置被正确迁移
+点 Claude → { icon:"claude", skin:"art" }     // 普通图标不改皮肤
+点 粉发少女 → { icon:"hero_chibi", skin:"art" }
+thumb => cls "dcs-thumb   is-free  is-art", imgH 44px
+```
+
+**demo 端**（headless Chrome + CDP）：
+```
+点 data-icon="hero_chibi" → { skin:"art", cls:"slider-thumb is-max is-free is-art",
+                              imgCls:"thumb-art-img", imgH:"44px",
+                              bg:"rgba(0,0,0,0)", bs:"none", br:"0px" }
+点回 whale_chibi         → cls 不含 is-art（回落正常，不残留立绘）
+```
+
+### 仍未做
+- 未提交（工作区 ` M demo/index.html` / ` M lib/client.js`，HEAD 仍是 `e00ab0b`）。
+- 版本号未改（仍是 2.13.0）。

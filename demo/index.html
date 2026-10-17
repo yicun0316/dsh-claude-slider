@@ -2733,6 +2733,15 @@
       const btn = e.target.closest(".icon-option-btn");
       if (!btn) return;
       selectedIcon = btn.dataset.icon;
+      // 选中自带立绘的形象（「粉发少女」）时自动切到「立绘」皮肤，
+      // 否则会看到「白色圆盘底板 + 圆形头像」而不是全身小人站在轨道上（同插件端逻辑）。
+      const picked = ICONS[selectedIcon];
+      if (picked && picked.art && thumbSkin !== "art") {
+        thumbSkin = "art";
+        document.querySelectorAll("#thumbSkinPills .sound-pill").forEach((p) => {
+          p.classList.toggle("is-active", p.dataset.skin === "art");
+        });
+      }
       updateUI();
     });
 
