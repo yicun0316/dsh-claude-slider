@@ -392,4 +392,37 @@ dangling ids                                    → MISSING: NONE（94 声明 / 
 编码                                            → lib/client.js 305510 B、demo 478761 B，均无 BOM、纯 LF
 ```
 
+---
+
+## 2026-10-17 收尾补齐 4：清掉只写不读的死 CSS 变量
+
+### 问题
+`--dcs-thumb-spd`（client.js）与 `--thumb-spd`（demo）这两个自定义属性**只被 setProperty 写入，
+全仓库没有任何 `var(--dcs-thumb-spd)` / `var(--thumb-spd)` 读取**，
+每帧都白做一次 style 写入（且 setProperty 走的是比 `style.transform =` 更慢的路径）。
+
+验证：
+```
+Select-String -Path lib\client.js,demo\index.html -Pattern 'var\(--dcs-thumb|var\(--thumb' → No matches found
+Select-String -Path lib\client.js,demo\index.html -Pattern 'thumb-spd'                   → 2 处，均在 setProperty 侧
+```
+
+### 修复
+- `lib/client.js`：删掉 `let lastSpd = ""` 与 step() 内的 `nextSpd` 写回块（连带上一轮加的脏值比对）
+- `demo/index.html`：删掉 `thumbBody.style.setProperty("--thumb-spd", st.spd.toFixed(3));`
+
+`st.spd` 本身仍在使用（驱动步频、刹车判定、running 动画幅度），只是不再往 DOM 上写。
+
+### 回归（两个最终产物都重跑）
+```
+真实 React 渲染测试  → registered:2 / windowErrors:[] / 7 tab 全 active / finalBoundary:false
+                       sample_anim_default => { present:8, frames:8, uniqueTransforms:8, distinct:true }
+                       check_frozen_when_hidden => { frozen:true }
+                       check_resumed => { resumed:true }
+demo                 → sample_running => { frames:6, unique:6, distinct:true }
+                       confirm_frozen => { frozen:true } / confirm_resumed => { resumed:true }
+thumb-spd 残留引用   → 0
+```
+
+
 
