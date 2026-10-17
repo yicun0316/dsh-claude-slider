@@ -7,10 +7,10 @@
 | 项 | 状态 |
 |---|---|
 | 代码 / 文档 | ✅ 完成，全部校验通过 |
-| git commit | ✅ `817eedd`（6 文件，1747+/1406-）+ `a501275` + `230dccf`（护栏修复）+ `b3806cd`（README） |
-| git push | ✅ 已同步 `origin/main`（`b3806cd`） |
-| git tag | ✅ `v2.12.0`（annotated）指向 `b3806cd`，已 push |
-| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114371 B，SHA256 `BD7587…BD242A`，7 files） |
+| git commit | ✅ 5 个提交：`817eedd`（主体 1747+/1406-）→ `a501275` → `230dccf`（rAF 护栏）→ `b3806cd`（README）→ `83878df`（STATUS）→ `df35474`（删死 CSS 变量） |
+| git push | ✅ 已同步 `origin/main`（`df35474`，`0 0` ahead/behind） |
+| git tag | ✅ `v2.12.0`（annotated）指向 `df35474`，已 push |
+| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114311 B，SHA256 `050221BE…92BB80`，7 files） |
 | npm publish | ❌ **被凭据阻断** —— 见下 |
 
 ### npm 发布受阻的具体原因
