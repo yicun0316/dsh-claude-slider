@@ -2319,8 +2319,12 @@
       stAmp: 0, stT: 0, stDir: 1, spin: 0, lastSign: 1, prevVel: 0, lastT: 0
     };
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let thumbRigPaused = false;
 
     function thumbRigLoop(now) {
+      // 性能护栏：页面不可见时不再排下一帧，由 visibilitychange 唤回
+      if (typeof document !== "undefined" && document.hidden) { thumbRigPaused = true; return; }
+      thumbRigPaused = false;
       requestAnimationFrame(thumbRigLoop);
       if (!thumbBody) return;
       const st = thumbRig;
@@ -8763,6 +8767,12 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       if (isPageVisible) {
         lastTime = performance.now();
         animLoop();
+        // 游标骨架同样在隐藏时被暂停，恢复可见后重新起转
+        if (thumbRigPaused) {
+          thumbRigPaused = false;
+          thumbRig.lastT = 0; // 重新计时，避免把整段隐藏时长当成一帧
+          requestAnimationFrame(thumbRigLoop);
+        }
       }
     });
 

@@ -315,3 +315,78 @@ new ids present                                 => thinkColorPicker=true thinkCo
 `#drawerToggle` 点击切换 `style.display`；直接点 tab 不会打开抽屉。CDP 里必须先
 `document.getElementById('quickDrawer').style.display='block'` 再点 tab。
 
+---
+
+## 2026-10-17 收尾补齐 3：ThumbRig 补齐 `visibilitychange` 性能护栏
+
+### 背景（违反自家护栏）
+`AGENTS.md` 第五十四行明确要求「页面不可见（`visibilitychange`）时必须停掉 `requestAnimationFrame`」。
+Canvas 粒子引擎遵守了（`lib/client.js:1010` / demo `:3552`），但**任务②新增的两个游标动画循环都漏了**：
+
+- `lib/client.js` `ThumbRig` 的 `useEffect` 里 `step()` 无条件自续帧，`cleanup` 只 `cancelAnimationFrame`
+  → 窗口最小化 / 切到别的标签页时 rAF 仍在跑（浏览器会降频但并非停止，且我们每秒仍在做
+  浮点物理计算 + `style.transform` 字符串拼接）。
+- `demo/index.html:2323` 的 `thumbRigLoop` 同样是首行就 `requestAnimationFrame(thumbRigLoop)`，
+  早于所有提前 return。
+
+### 修复（双端，纯增量）
+
+**`lib/client.js`（`ThumbRig`，+39/-2）**
+```js
+const isHidden = () => typeof document !== "undefined"
+  && (document.visibilityState === "hidden" || document.hidden === true);
+
+const onVisibilityChange = () => {
+  if (stopped) return;
+  if (isHidden()) {
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    return;
+  }
+  if (!raf) {
+    lastT = 0; // 重新计时，避免恢复瞬间把整段隐藏时长当成一帧
+    raf = requestAnimationFrame(step);
+  }
+};
+```
+- `step()` 末尾改为：`if (isHidden()) { raf = 0; return; } raf = requestAnimationFrame(step);`
+- 订阅 `document.addEventListener("visibilitychange", onVisibilityChange)`，cleanup 里 `removeEventListener`
+- 顺带把每帧的 `node.style.transform = ...` / `setProperty("--dcs-thumb-spd", ...)` 加了
+  `lastTransform` / `lastSpd` 脏值比对，值没变就不写 DOM
+
+**`demo/index.html`（+10）**
+- 新增模块级 `let thumbRigPaused = false;`
+- `thumbRigLoop` 首行改为在 `document.hidden` 时不排下一帧并置 `thumbRigPaused = true`
+- 已有的 `visibilitychange` 监听里补：恢复可见且 `thumbRigPaused` 时，`thumbRig.lastT = 0` 后重新起转
+
+### 实测（真实 Chrome + CDP，`D:\deepseek\_cdp.mjs`，用 `Object.defineProperty` 覆写 `document.hidden`）
+
+真实宿主插件（`dcs_render_browser.html` 里的真 React 组件）：
+```
+sample_anim_default     => { present:8, frames:8, uniqueTransforms:8, distinct:true }
+visibility_sim          => { ok:true, simulated:"hidden" }
+check_frozen_when_hidden=> { frozen:true }      ← 隐藏后 transform 不再变化
+restore_visible         => { restored:true }
+check_resumed           => { resumed:true }     ← 恢复后重新动起来
+```
+demo（`demo/index.html`）：
+```
+open_demo        => { hasThumbBody:true, transform:"translate(0px, -1.3px) rotate(0.15deg) scale(1, 1.03)" }
+sample_running   => { frames:6, present:6, unique:6, distinct:true }
+force_hidden     => { state:"hidden" }
+confirm_frozen   => { frozen:true }
+force_visible    => { state:"visible" }
+confirm_resumed  => { resumed:true }
+```
+
+### 校验
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 21 个全大写标识符
+demo 2 个 <script> 块 new Function()            → block1 OK (1840) / block2 OK (406236)
+dangling ids                                    → MISSING: NONE（94 声明 / 78 引用）
+真实 React 渲染测试（重新生成后跑）              → registered:2 / windowErrors:[] / 7 tab 全 active
+                                                  finalNotFunction:[] / finalBoundary:false
+编码                                            → lib/client.js 305510 B、demo 478761 B，均无 BOM、纯 LF
+```
+
+
