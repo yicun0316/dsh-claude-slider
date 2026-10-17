@@ -421,7 +421,44 @@ Select-String -Path lib\client.js,demo\index.html -Pattern 'thumb-spd'          
                        check_resumed => { resumed:true }
 demo                 → sample_running => { frames:6, unique:6, distinct:true }
                        confirm_frozen => { frozen:true } / confirm_resumed => { resumed:true }
-thumb-spd 残留引用   → 0
+## 2026-10-17 收尾补齐 5：把「思考图标自检」行改成真正的实时预览
+
+### 问题（真实的文案/功能错配）
+「🧠 思考」tab 最后一行标题写着 **思考图标自检**，按钮文字却是 **试听音效**，
+点击执行的是 `playDialTick()` —— 这是从「🔊 音效」tab 复制粘贴时留下的残骸。
+更关键的是：它**什么也没自检**。用户换完图标/动画/颜色后，只有等
+宿主真的进入「深度求索中…」才能看到效果，抽屉里没有任何即时反馈。
+
+### 修复（`lib/client.js`，纯增量 +20/-8）
+把这一行换成 **思考图标预览**：用与 `buildThinkIconDom()` 完全同源的方式
+（`THINK_ICONS[...].svg(safeSvgColor(...))` + `data-anim` + `style.color`）
+渲染一枚 `<span class="dcs-think-icon dcs-think-icon-preview">`，
+所以换图标、换动画、换颜色都会**立刻**在同一枚图标上生效：
+- 自定义图标走 `<img src={config.thinkCustomIcon}>`，与宿主注入分支一致
+- `data-anim` 直接取 `config.thinkAnim`，CSS 里的 7 组 keyframes 全部复用
+- `style.marginRight = 0` —— `.dcs-think-icon` 的 6px 是给宿主文字旁留的间距，抽屉里多余
+- 未新增任何 CSS
+
+### 实测（headless Chrome + 真实 `react-dom/client`，`D:\deepseek\_cdp.mjs`）
+```
+rowPreview   => { tag:"SPAN", anim:"tail_wag", animName:"dcsThinkTail", dur:"0.86s",
+                  iter:"infinite", svgFill:"#4D6BFE", svgViewBox:"0 0 24 24" }
+animates     => { a:"matrix(0.993189,0.116514,...)", b:"matrix(0.996822,0.0796601,...)",
+                  changed:true }                       # 动画真的在跑，不是静态图标
+toSpin       => { anim:"spin", animName:"dcsThinkSpin", dur:"1.6s", timing:"linear" }
+toBrain      => { hasSvg:true, animName:"dcsThinkSpin" }   # 换图标后动画保持
+colorLive    => { styleColor:"rgb(34, 204, 136)", svgFill:"none" }  # 描边类图标 fill=none 正常
+previewMargin=> { marginRight:"0px", w:30 }               # 6px 已归零
+tabSwitch    => 离开「思考」再回来，预览行仍在且动画/颜色保持
+oldLabelGone => { selfCheck:-1, audition:-1 }             # 旧文案已彻底消失
+```
+
+### 校验
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 21 个全大写标识符
+真实 React 渲染测试                              → registered:2 / windowErrors:[] / 7 tab 全 active
+                                                  finalNotFunction:[] / finalBoundary:false
 ```
 
 
