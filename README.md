@@ -4,7 +4,7 @@
 
 把 DeepSeek Harness 的「推理强度」下拉框，换成一条会呼吸的滑块。
 
-![version](https://img.shields.io/badge/version-2.11.0-4D6BFE?style=flat-square)
+![version](https://img.shields.io/badge/version-2.12.0-4D6BFE?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![build](https://img.shields.io/badge/build-零构建-orange?style=flat-square)
 ![network](https://img.shields.io/badge/网络请求-0-lightgrey?style=flat-square)
@@ -70,7 +70,11 @@ dsh plugin --profile desktop remove dsh-claude-slider
 
 ## 特性
 
-**滑块交互**　拖拽吸附换档，点击轨道节点直达，随时可关闭并还原为 DSH 原生下拉菜单。
+**滑块交互**　两种拖拽手感可切换：默认「直接拖」连续跟手、松手弹性吸附；也可切到「吸附换档」按档位硬吸附。点击轨道节点直达，随时可关闭并还原为 DSH 原生下拉菜单。
+
+**Q 版游标动画**　6 套角色动作（奔跑 / 蹦跳 / 惯性倾斜 / 漂浮 / 旋转 / 静止），带 rAF 物理引擎：一阶速度低通估计加速度，骤减速或反向时触发趔趄 `wob = sin(stT*27) * exp(-stT*4.4) * stAmp`，大力拖拽刹车会站不稳。可选水滴球体或裸人物两种皮肤，`prefers-reduced-motion` 下自动静止。
+
+**思考指示器**　在宿主「深度求索中…」状态文字前注入 16×16 动画图标，8 款内置（鲸鱼尾鳍 / DeepSeek 鲸鱼 / Claude 星芒 / 超级大脑 / 灵动星火 / 闪电脉冲 / 量子原核 / 炽热烈焰）+ 自定义上传，7 套动画（尾鳍轻摆、深海潜游、呼吸脉动、旋转光环、弹跳律动、漂浮游移、静止），图标颜色可独立指定或跟随主题色。宿主重渲染后 MutationObserver 自愈重挂（含 60ms 节流与节点守卫）。
 
 **13 款动效**　随档位三阶递进解锁视觉层，而不是单纯的量变：
 
@@ -90,9 +94,7 @@ dsh plugin --profile desktop remove dsh-claude-slider
 
 **游标图标**　10 款内置图标，也可上传 PNG / JPG / SVG 或直接填 Emoji。
 
-**灵感搭配**　13 套策展组合随机抽取，采用洗牌袋机制——连点 13 次每款各出现一次，绝不重复。
-
-**配置分享**　一键导出 JSON、粘贴导入，方便复制别人的搭配。
+**档位递进**　Low 接近静止图像（自由拖下 idle 衰减降到 0.08/0.45），High 追加高光脊线与扫描线，Max 叠加泛光、能量射线与环绕火花；切换瞬间有一次径向冲击波。
 
 ---
 
@@ -104,6 +106,10 @@ dsh plugin --profile desktop remove dsh-claude-slider
 | 动效流速 | 0.5x ~ 2.0x | 1.0x |
 | 动效亮度 | 0.5x ~ 2.0x | 1.0x |
 | 吸附音量 | 0% ~ 100% | 100% |
+
+拖拽与指示器相关项（`dragMode` / `thumbAnim` / `thumbSkin` / `thumbInertia` /
+`thinkEnabled` / `thinkIcon` / `thinkCustomIcon` / `thinkAnim` / `thinkColor`）在抽屉的
+「🏃 拖拽」与「🧠 思考」页调整，同样保存在同一 `localStorage` 键下。
 
 ---
 

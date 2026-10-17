@@ -1,7 +1,7 @@
 {
   "name": "dsh-claude-slider",
-  "version": "2.11.0",
-  "description": "Claude 风格推理强度滑块插件：一体化液态玻璃面板、背景透明度与动效亮度双轴调校、无感平滑跟手、纯净工坊预设分享",
+  "version": "2.12.0",
+  "description": "Claude 风格推理强度滑块插件：一体化液态玻璃面板、背景透明度与动效亮度双轴调校、直接拖 / 吸附双模式、Q 版游标物理动画与宿主思考指示器注入",
   "keywords": [
     "dsh",
     "dsh-plugin",

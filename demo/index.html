@@ -831,6 +831,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
+      min-width: 0;
     }
     .drawer-random-btn {
       padding: 2px 8px;
@@ -1134,7 +1135,9 @@
 
     .drawer-tabs {
       display: flex;
-      gap: 2px;
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: 1px;
       margin-bottom: 14px;
       background: rgba(0, 0, 0, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -1148,17 +1151,23 @@
     }
 
     .drawer-tab-btn {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 0;
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 500;
-      padding: 6px 10px;
+      letter-spacing: -0.3px;
+      padding: 5px 0;
       border-radius: 9px;
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       text-align: center;
+      white-space: nowrap;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: clip;
     }
 
     .drawer-tab-btn:hover {
@@ -1180,6 +1189,13 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
     }
 
+    @media (max-width: 420px) {
+      .drawer-tab-btn {
+        font-size: 9px;
+        letter-spacing: -0.4px;
+      }
+    }
+
     .color-swatch {
       border-radius: 50% !important;
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
@@ -1193,6 +1209,186 @@
 
     body:not(.light-theme) .color-swatch.selected {
       box-shadow: 0 0 0 2px #1f232b, 0 0 0 5px var(--accent) !important;
+    }
+
+    /* =====================================================================
+       任务②③：游标通用动画骨架 + 直接拖拽模式 (Thumb Rig & Free Drag)
+       ===================================================================== */
+    .slider-thumb-body {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      transform-origin: 50% 76%;
+      will-change: transform;
+      pointer-events: none;
+    }
+    .slider-thumb-bubble {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 62%);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.55), inset 0 0 6px rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+      animation: dcs-thumb-bubble-idle 3.2s ease-in-out infinite;
+    }
+    body:not(.light-theme) .slider-thumb-bubble {
+      background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 62%);
+      box-shadow: 0 0 10px rgba(140, 180, 255, 0.45), inset 0 0 6px rgba(255, 255, 255, 0.3);
+    }
+    @keyframes dcs-thumb-bubble-idle {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    /* 任务③：直接拖拽模式下必须让手柄严格跟手 —— 干掉 left 过渡 */
+    .slider-track-wrap.is-free-drag .slider-thumb {
+      transition-property: transform, box-shadow !important;
+      transition-duration: 0.1s, 0.2s !important;
+      transition-timing-function: ease-out, ease !important;
+    }
+    .slider-track-wrap.is-free-drag .slider-thumb.dragging {
+      transition: none !important;
+    }
+    .slider-thumb.is-free.dragging .slider-thumb-body {
+      filter: drop-shadow(0 0 6px var(--accent, #4D6BFE));
+    }
+
+    /* =====================================================================
+       任务④：思考指示器图标 + 动画 (TurnStatus Enhancer)
+       ===================================================================== */
+    .dcs-think-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-right: 6px;
+      flex: none;
+      color: var(--accent, #4D6BFE);
+      -webkit-text-fill-color: currentColor;
+      will-change: transform;
+      transform-origin: 50% 30%;
+    }
+    .dcs-think-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    .dcs-think-icon img {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+    .dcs-think-icon[data-anim="tail_wag"] {
+      animation: dcsThinkTail 0.86s ease-in-out infinite;
+    }
+    @keyframes dcsThinkTail {
+      0%, 100% { transform: rotate(-13deg) translateY(0); }
+      50% { transform: rotate(13deg) translateY(-0.5px); }
+    }
+    .dcs-think-icon[data-anim="swim"] {
+      animation: dcsThinkSwim 1.5s ease-in-out infinite;
+    }
+    @keyframes dcsThinkSwim {
+      0% { transform: translate(-2px, 0) rotate(-8deg); }
+      25% { transform: translate(0, -1.6px) rotate(0deg); }
+      50% { transform: translate(2px, 0) rotate(8deg); }
+      75% { transform: translate(0, 1.4px) rotate(0deg); }
+      100% { transform: translate(-2px, 0) rotate(-8deg); }
+    }
+    .dcs-think-icon[data-anim="pulse"] {
+      animation: dcsThinkPulse 1.25s ease-in-out infinite;
+    }
+    @keyframes dcsThinkPulse {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.14); opacity: 1; }
+    }
+    .dcs-think-icon[data-anim="spin"] {
+      animation: dcsThinkSpin 1.6s linear infinite;
+    }
+    @keyframes dcsThinkSpin {
+      to { transform: rotate(360deg); }
+    }
+    .dcs-think-icon[data-anim="bounce"] {
+      animation: dcsThinkBounce 0.72s cubic-bezier(0.3, 0, 0.4, 1) infinite;
+    }
+    @keyframes dcsThinkBounce {
+      0%, 100% { transform: translateY(0) scale(1, 1); }
+      35% { transform: translateY(-3.2px) scale(0.94, 1.06); }
+      70% { transform: translateY(0) scale(1.06, 0.94); }
+    }
+    .dcs-think-icon[data-anim="drift"] {
+      animation: dcsThinkDrift 2.6s ease-in-out infinite;
+    }
+    @keyframes dcsThinkDrift {
+      0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+      33% { transform: translate(1.6px, -1.6px) rotate(3deg); }
+      66% { transform: translate(-1.4px, 1.2px) rotate(-2deg); }
+    }
+    .dcs-think-icon[data-anim="none"] {
+      animation: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dcs-think-icon {
+        animation: none !important;
+      }
+    }
+    .dcs-think-icon-preview {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      pointer-events: none;
+    }
+    .dcs-think-icon-preview svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+
+    /* 抽屉新增分段标题 */
+    .drawer-sub-title {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: 0.75;
+      margin: 12px 0 6px;
+    }
+
+    /* =====================================================================
+       任务④：思考指示器演示卡片
+       ===================================================================== */
+    .think-showcase-card {
+      margin-top: 24px;
+      padding: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    .think-showcase-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .think-showcase-desc {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    .think-status-demo {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(77, 107, 254, 0.08);
+      border: 1px solid rgba(77, 107, 254, 0.2);
     }
 </style>
 </head>
@@ -1286,10 +1482,11 @@
               <div class="drawer-tabs">
                 <button class="drawer-tab-btn active" id="tabEffectBtn">✨ 动效</button>
                 <button class="drawer-tab-btn" id="tabColorBtn">🎨 色彩</button>
+                <button class="drawer-tab-btn" id="tabDragBtn">🏃 拖拽</button>
                 <button class="drawer-tab-btn" id="tabTuningBtn">⚡ 调校</button>
                 <button class="drawer-tab-btn" id="tabIconBtn">🐳 图标</button>
+                <button class="drawer-tab-btn" id="tabThinkBtn">🧠 思考</button>
               </div>
-              <button type="button" class="drawer-random-btn" id="drawerRandomBtn" title="随机搭配一套灵感主题">🎲 随机</button>
             </div>
 
             <!-- TAB 1: 动效模式 -->
@@ -1305,6 +1502,37 @@
                 <span style="font-size: 11px; opacity: 0.8;">自定义拾色器:</span>
                 <input type="color" id="nativeColorPicker" class="native-color-picker" value="#4D6BFE" />
                 <span id="colorHexText" style="font-size: 11px; font-family: monospace; font-weight: 600;">#4D6BFE</span>
+              </div>
+            </div>
+
+            <!-- TAB 2.5: 拖拽手感与游标动画 (任务②③) -->
+            <div id="drawerDragContent" style="display: none;">
+              <div class="drawer-switch-row">
+                <div class="drawer-switch-info">
+                  <div class="drawer-switch-title">🧲 档位吸附</div>
+                  <div class="drawer-switch-desc">关闭后手柄可直接拖到任意比例（自由拖拽）</div>
+                </div>
+                <label class="toggle-switch" style="width: 40px; height: 22px;">
+                  <input type="checkbox" id="dragSnapToggle" />
+                  <span class="toggle-slider" id="dragSnapSlider" style="border-radius: 22px;"></span>
+                </label>
+              </div>
+              <div class="drawer-switch-row">
+                <div class="drawer-switch-info">
+                  <div class="drawer-switch-title">🛞 惯性物理</div>
+                  <div class="drawer-switch-desc">加速倾斜，急停或反向时会趔趄一下</div>
+                </div>
+                <label class="toggle-switch" style="width: 40px; height: 22px;">
+                  <input type="checkbox" id="thumbInertiaToggle" checked />
+                  <span class="toggle-slider active" id="thumbInertiaSlider" style="border-radius: 22px;"></span>
+                </label>
+              </div>
+              <div class="drawer-sub-title">游标动画</div>
+              <div class="sound-type-pills" id="thumbAnimPills"></div>
+              <div class="drawer-sub-title">游标皮肤</div>
+              <div class="sound-type-pills" id="thumbSkinPills">
+                <button type="button" class="sound-pill is-active" data-skin="bubble">💧 气泡</button>
+                <button type="button" class="sound-pill" data-skin="bare">🫧 裸核</button>
               </div>
             </div>
 
@@ -1386,6 +1614,35 @@
                 </div>
               </div>
             </div>
+            <!-- TAB 4.5: 思考指示器 (任务④) -->
+            <div id="drawerThinkContent" style="display: none;">
+              <div class="drawer-switch-row">
+                <div class="drawer-switch-info">
+                  <div class="drawer-switch-title">🧠 思考指示器增强</div>
+                  <div class="drawer-switch-desc">在「深度求索中…」前挂载自带动画的思考图标</div>
+                </div>
+                <label class="toggle-switch" style="width: 40px; height: 22px;">
+                  <input type="checkbox" id="thinkEnabledToggle" checked />
+                  <span class="toggle-slider active" id="thinkEnabledSlider" style="border-radius: 22px;"></span>
+                </label>
+              </div>
+              <div class="drawer-sub-title">思考图标</div>
+              <div class="icon-grid" id="thinkIconGrid"></div>
+              <input type="file" id="thinkFileInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" style="display: none;">
+              <button type="button" class="upload-btn" id="thinkUploadBtn">📁 上传本地思考图标 (PNG / JPG)</button>
+              <div id="thinkPreviewBox" style="display: none; align-items: center; gap: 4px;">
+                <img id="thinkPreviewImg" class="avatar-preview" alt="思考图标预览" />
+                <button type="button" class="clear-icon-btn" id="thinkClearIconBtn">清除</button>
+              </div>
+              <div class="drawer-sub-title">思考动画</div>
+              <div class="sound-type-pills" id="thinkAnimPills"></div>
+              <div class="drawer-sub-title">图标颜色</div>
+              <div class="color-picker-row">
+                <span id="thinkColorText" style="font-size: 11px; font-family: monospace; font-weight: 600;">跟随主题色</span>
+                <input type="color" id="thinkColorPicker" class="native-color-picker" value="#4D6BFE" />
+                <button type="button" class="sound-pill" id="thinkColorReset" title="清除自定义颜色，恢复跟随主题色">跟随主题色</button>
+              </div>
+            </div>
           </div>
 
           <!-- 算力预算悬浮胶囊 -->
@@ -1405,7 +1662,10 @@
             <canvas class="effect-canvas" id="effectCanvas"></canvas>
             <div class="snap-dots" id="snapDots"></div>
             <div class="slider-thumb is-max" id="sliderThumb">
-              <div class="thumb-icon-container" id="thumbIconContainer"></div>
+              <span class="slider-thumb-bubble" id="thumbBubble" aria-hidden="true"></span>
+              <div class="slider-thumb-body" id="thumbBody">
+                <div class="thumb-icon-container" id="thumbIconContainer"></div>
+              </div>
             </div>
           </div>
 
@@ -1477,12 +1737,24 @@
       </div>
     </div>
 
+    <!-- 🧠 思考指示器演示 (任务④) -->
+    <div class="think-showcase-card">
+      <div class="think-showcase-title">🧠 思考指示器演示</div>
+      <div class="think-showcase-desc">此处模拟 DSH 对话区的「深度求索中…」状态栏。插件会向真实状态栏注入同一套图标与动画（可在上方抽屉「🧠 思考」页调整）。</div>
+      <div class="think-status-demo" role="status" aria-live="polite">
+        <span class="dcs-think-icon" id="thinkStatusIcon" data-anim="tail_wag"></span>
+        <span class="think-status-text">深度求索中，用时 1秒 …</span>
+      </div>
+    </div>
+
     <!-- 演示说明 -->
     <div class="instructions-card" style="margin-top: 16px;">
       <h4>📋 功能速览</h4>
       <ul style="margin: 0; padding-left: 20px; font-size: 12px; line-height: 1.8; color: var(--text-muted);">
-        <li><strong>推理滑块交互</strong>：4 档位（Off / Low / High / Max）吸附与快速切换，支持拖拽和文字点击。</li>
-        <li><strong>5 大类 19 款动效 + 定制动效</strong>：推进、流体、幻境、科技、质感；支持 10 种粒子微元与 8 种运动动力学混搭。</li>
+        <li><strong>推理滑块交互</strong>：4 档位（Off / Low / High / Max）；支持吸附模式与「直接拖」自由拖拽模式一键切换。</li>
+        <li><strong>游标角色动画</strong>：手柄可选奔跑 / 蹦跳 / 惯性倾斜 / 漂浮 / 旋转等动作，带速度感知的步频与急停趔趄。</li>
+        <li><strong>思考指示器</strong>：为「深度求索中…」挂载可换图标的思考动画（鲸鱼尾鳍轻摆等 7 套）。</li>
+        <li><strong>5 大类 13 款动效 + 定制动效</strong>：推进、流体、幻境、科技、质感；支持 10 种粒子微元与 8 种运动动力学混搭。</li>
         <li><strong>全局色彩联动</strong>：动效粒子与流体颜色全局跟随自选主题色改变。</li>
         <li><strong>分类栏灵活操控</strong>：支持鼠标拖拽滑动、鼠标滚轮横滚、两侧 ‹ / › 微翻页按钮、激活自动居中与动效网格左右轻扫。</li>
         <li><strong>10 款矢量图标 + 自定义</strong>：内置 DeepSeek 鲸鱼娘、Claude 官方星芒等 10 款图标，支持上传本地图片或输入 Emoji。</li>
@@ -1688,6 +1960,93 @@
       }
     };
 
+    // =====================================================================
+    // 任务④：思考指示器图标与动画 (THINK_ICONS / THINK_ANIMATIONS)
+    // 任务②：游标通用动画清单 (THUMB_ANIMATIONS)
+    // =====================================================================
+    const THINK_ICONS = {
+      fish_tail: {
+        id: "fish_tail",
+        name: "鲸鱼尾鳍",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M12 22C7.2 17.6 3.4 12.6 3 6.2c3.4 1.4 6.3 4.4 9 7.8 2.7-3.4 5.6-6.4 9-7.8-.4 6.4-4.2 11.4-9 15.8Z"/></svg>`
+      },
+      whale: {
+        id: "whale",
+        name: "DeepSeek 鲸鱼",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M19.5 10.5C18.2 8.2 15.5 7 12 7C8.5 7 5.8 8.2 4.5 10.5C3.2 12.8 3.5 15.5 5.5 17C7.2 18.2 9.5 18.5 12 18.5C14.5 18.5 16.8 18.2 18.5 17C20.5 15.5 20.8 12.8 19.5 10.5ZM8.5 13C7.7 13 7 12.3 7 11.5C7 10.7 7.7 10 8.5 10C9.3 10 10 10.7 10 11.5C10 12.3 9.3 13 8.5 13ZM12 4C12 2.9 12.9 2 14 2C14.6 2 15.1 2.2 15.4 2.6L16.5 1.5C15.8 0.8 15 0.5 14 0.5C12.1 0.5 10.5 2.1 10.5 4H12ZM19 14.5C18.2 15.5 16.5 16.2 14.5 16.5V15C15.8 14.8 17 14.2 17.5 13.5L19 14.5Z"/></svg>`
+      },
+      claude: {
+        id: "claude",
+        name: "Claude 星芒",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M12 2C12.5 7.5 16.5 11.5 22 12C16.5 12.5 12.5 16.5 12 22C11.5 16.5 7.5 12.5 2 12C7.5 11.5 11.5 7.5 12 2Z"/></svg>`
+      },
+      brain: {
+        id: "brain",
+        name: "超级大脑",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/></svg>`
+      },
+      sparkles: {
+        id: "sparkles",
+        name: "灵动星火",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M9 2L10.5 7.5L16 9L10.5 10.5L9 16L7.5 10.5L2 9L7.5 7.5L9 2Z"/><path d="M17 14L17.8 16.8L20.6 17.6L17.8 18.4L17 21.2L16.2 18.4L13.4 17.6L16.2 16.8L17 14Z"/></svg>`
+      },
+      lightning: {
+        id: "lightning",
+        name: "闪电脉冲",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/></svg>`
+      },
+      atom: {
+        id: "atom",
+        name: "量子原核",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="${c}" stroke-width="1.8"><circle cx="12" cy="12" r="2.5" fill="${c}"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(-30 12 12)"/></svg>`
+      },
+      flame: {
+        id: "flame",
+        name: "炽热烈焰",
+        svg: (c = "currentColor") => `<svg viewBox="0 0 24 24" width="16" height="16" fill="${c}"><path d="M12 2C10.5 5 8 7.5 8 11C8 13.2 9.8 15 12 15C14.2 15 16 13.2 16 11C16 7.5 13.5 5 12 2ZM12 17C8.7 17 6 14.3 6 11C6 6.8 9.5 3.5 11.2 1.3C11.5 0.9 12.1 0.9 12.4 1.3C14.1 3.5 17.6 6.8 17.6 11C17.6 14.3 14.9 17 12 17Z"/></svg>`
+      }
+    };
+
+    const THINK_ANIMATIONS = [
+      { id: "tail_wag", name: "尾鳍轻摆", desc: "左右轻摆，最贴近原版观感" },
+      { id: "swim", name: "深海潜游", desc: "上下起伏 + 微幅转向" },
+      { id: "pulse", name: "呼吸脉动", desc: "缩放呼吸，安静耐看" },
+      { id: "spin", name: "旋转光环", desc: "匀速自转" },
+      { id: "bounce", name: "弹跳律动", desc: "带挤压拉伸的弹跳" },
+      { id: "drift", name: "漂浮游移", desc: "随机漂移，慵懒感" },
+      { id: "none", name: "静止", desc: "不播任何动画" }
+    ];
+
+    const THUMB_ANIMATIONS = [
+      { id: "run", name: "奔跑", desc: "迈步 + 上下弹跳 + 前倾" },
+      { id: "hop", name: "蹦跳", desc: "单次弹跳，节奏更慢" },
+      { id: "lean", name: "惯性倾斜", desc: "只做速度倾斜，幅度更大" },
+      { id: "float", name: "漂浮", desc: "缓慢上下 + 轻微摇晃" },
+      { id: "spin", name: "旋转", desc: "随速度变化的整圈自转" },
+      { id: "none", name: "静止", desc: "只保留惯性趔趄" }
+    ];
+
+    function safeSvgColor(c) {
+      const v = String(c == null ? "" : c);
+      return /^[#a-zA-Z0-9(),.% -]{1,40}$/.test(v) ? v : "currentColor";
+    }
+
+    function buildThinkIconDom(iconId, color, customIcon) {
+      const wrap = document.createElement("span");
+      wrap.className = "dcs-think-icon";
+      wrap.setAttribute("aria-hidden", "true");
+      if (iconId === "custom" && customIcon) {
+        const img = document.createElement("img");
+        img.src = customIcon;
+        img.alt = "";
+        wrap.appendChild(img);
+        return wrap;
+      }
+      const item = THINK_ICONS[iconId] || THINK_ICONS.fish_tail;
+      wrap.innerHTML = item.svg(safeSvgColor(color || "currentColor"));
+      return wrap;
+    }
+
     const TIERS = [
       { id: "off", name: "Off", ratio: 0.0 },
       { id: "low", name: "Low", ratio: 0.333 },
@@ -1704,6 +2063,17 @@
     let selectedAccentColor = "#4D6BFE";
     let selectedSpeed = 1.0;
     let selectedBrightness = 1.0;
+
+    // ---- 任务②③④新增状态 ----
+    let dragMode = "free";          // "free" 直接拖 | "snap" 档位吸附
+    let thumbAnim = "run";          // 游标动画
+    let thumbInertia = true;        // 惯性物理
+    let thumbSkin = "bubble";       // "bubble" 气泡 | "bare" 裸核
+    let thinkEnabled = true;        // 思考指示器增强
+    let thinkIcon = "fish_tail";    // 思考图标
+    let thinkCustomIcon = "";       // 自定义思考图标
+    let thinkAnim = "tail_wag";     // 思考动画
+    let thinkColor = "";            // 思考图标颜色（空则跟随主题色）
 
     const canvas = document.getElementById("effectCanvas");
     const ctx = canvas.getContext("2d");
@@ -1723,6 +2093,11 @@
     const iconGrid = document.getElementById("iconGrid");
     const themeToggleBtn = document.getElementById("themeToggleBtn");
 
+    // ---- 任务②③④新增元素引用 ----
+    const thumbBody = document.getElementById("thumbBody");
+    const thumbBubble = document.getElementById("thumbBubble");
+    let thinkStatusIcon = document.getElementById("thinkStatusIcon");
+
     const speedSlider = document.getElementById("speedSlider");
     const speedValText = document.getElementById("speedValText");
     const speedResetBtn = document.getElementById("speedResetBtn");
@@ -1738,6 +2113,9 @@
       colorHexText.textContent = hex;
       nativeColorPicker.value = hex;
       updateUI();
+      // 思考图标颜色为空时跟随主题色，主题色变了要重挂一次
+      syncThinkColor();
+      if (!thinkColor) updateThinkIcon();
     }
 
     // 渲染档位圆点
@@ -1933,9 +2311,186 @@
       thumbIconContainer.innerHTML = ic.render(isMax ? selectedAccentColor : (document.body.classList.contains("light-theme") ? "#475569" : "#e2e8f0"));
     }
 
+    // =====================================================================
+    // 任务②：游标通用动画骨架（步频 + 惯性 + 急停趔趄）
+    // =====================================================================
+    const thumbRig = {
+      last: currentRatio, vel: 0, acc: 0, phase: 0, spd: 0, prevSpd: 0,
+      stAmp: 0, stT: 0, stDir: 1, spin: 0, lastSign: 1, prevVel: 0, lastT: 0
+    };
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function thumbRigLoop(now) {
+      requestAnimationFrame(thumbRigLoop);
+      if (!thumbBody) return;
+      const st = thumbRig;
+      if (prefersReducedMotion) { thumbBody.style.transform = ""; return; }
+      if (!st.lastT) { st.lastT = now; st.last = currentRatio; return; }
+
+      const dt = Math.min(Math.max((now - st.lastT) / 1000, 0.004), 0.06);
+      st.lastT = now;
+
+      const animId = thumbAnim || "run";
+      const inertiaOn = thumbInertia !== false;
+      if (animId === "none" && !inertiaOn) { thumbBody.style.transform = ""; return; }
+
+      // 速度 / 加速度一阶低通
+      const target = currentRatio;
+      const instVel = (target - st.last) / dt;
+      st.last = target;
+      st.vel += (instVel - st.vel) * Math.min(1, dt * 14);
+      const instAcc = (st.vel - st.prevVel) / dt;
+      st.prevVel = st.vel;
+      st.acc += (instAcc - st.acc) * Math.min(1, dt * 11);
+
+      const rawSpd = Math.min(1, Math.abs(st.vel) / 2.2);
+      st.prevSpd = st.spd;
+      st.spd += (rawSpd - st.spd) * Math.min(1, dt * 12);
+
+      // 急停 / 反向 → 趔趄
+      const braking = st.prevSpd > 0.3 && st.spd < st.prevSpd * 0.62;
+      const reversed = st.prevSpd > 0.22 && st.vel * st.lastSign < 0;
+      if (inertiaOn && (braking || reversed) && st.stAmp < 0.2) {
+        st.stAmp = Math.min(1, 0.3 + st.prevSpd * 0.95);
+        st.stT = 0;
+        st.stDir = st.vel >= 0 ? -1 : 1;
+      }
+      if (st.stAmp > 0) {
+        st.stT += dt;
+        if (Math.exp(-st.stT * 4.4) < 0.03) st.stAmp = 0;
+      }
+      if (Math.abs(st.vel) > 0.001) st.lastSign = st.vel >= 0 ? 1 : -1;
+
+      st.phase += dt * (2.2 + st.spd * 30 + Math.abs(st.spin) * 5);
+      const lean = Math.max(-1, Math.min(1, st.vel * 1.1));
+
+      let tx = 0, ty = 0, rot = 0, sx = 1, sy = 1;
+
+      // 趔趄摆动
+      if (st.stAmp > 0) {
+        const decay = Math.exp(-st.stT * 4.4);
+        const wob = Math.sin(st.stT * 27) * decay * st.stAmp;
+        rot += st.stDir * wob * 17;
+        ty += Math.abs(wob) * 2.2;
+        tx += st.stDir * Math.abs(wob) * 2.6;
+        sx = 1 + Math.abs(wob) * 0.07;
+      }
+
+      if (animId === "run") {
+        ty -= Math.abs(Math.sin(st.phase)) * (1.3 + st.spd * 2.8);
+        rot += Math.sin(st.phase * 2) * (0.9 + st.spd * 4.6);
+        sy = 1 + Math.abs(Math.sin(st.phase)) * 0.03;
+      } else if (animId === "hop") {
+        ty -= Math.max(0, Math.sin(st.phase)) * (2.6 + st.spd * 5.4);
+        sy = 1 - Math.max(0, Math.sin(st.phase)) * 0.03;
+      } else if (animId === "float") {
+        ty += Math.sin(st.phase * 0.62) * 1.9;
+        rot += Math.sin(st.phase * 0.44) * 2.2;
+      } else if (animId === "spin") {
+        st.spin += dt * (0.6 + st.spd * 3.4);
+        rot += st.spin * 330;
+      }
+
+      rot += lean * (animId === "lean" ? 19 : 8);
+
+      thumbBody.style.transform =
+        "translate(" + tx.toFixed(2) + "px," + ty.toFixed(2) + "px) rotate(" +
+        rot.toFixed(2) + "deg) scale(" + sx.toFixed(3) + "," + sy.toFixed(3) + ")";
+      thumbBody.style.setProperty("--thumb-spd", st.spd.toFixed(3));
+    }
+
+    function syncDragVisuals() {
+      sliderTrack.classList.toggle("is-free-drag", dragMode === "free");
+      sliderThumb.classList.toggle("is-free", dragMode === "free");
+      sliderThumb.classList.toggle("has-bubble", thumbSkin === "bubble");
+      if (thumbBubble) thumbBubble.style.display = thumbSkin === "bubble" ? "" : "none";
+    }
+
+    // =====================================================================
+    // 任务④：思考指示器图标刷新
+    // =====================================================================
+    function updateThinkIcon() {
+      if (!thinkStatusIcon || !thinkStatusIcon.parentNode) return;
+      const color = thinkColor || selectedAccentColor;
+      const fresh = buildThinkIconDom(thinkIcon, color, thinkCustomIcon);
+      fresh.id = "thinkStatusIcon";
+      fresh.setAttribute("data-anim", thinkAnim);
+      thinkStatusIcon.parentNode.replaceChild(fresh, thinkStatusIcon);
+      thinkStatusIcon = fresh;
+    }
+
+    function renderThinkIconGrid() {
+      const grid = document.getElementById("thinkIconGrid");
+      if (!grid) return;
+      const items = Object.values(THINK_ICONS).map((item) => {
+        const isSel = thinkIcon === item.id;
+        return '<button type="button" class="icon-option-btn ' + (isSel ? "selected" : "") +
+          '" data-think-icon="' + item.id + '">' +
+          item.svg(isSel ? selectedAccentColor : "currentColor") +
+          '<span>' + item.name.split(" ")[0] + '</span></button>';
+      });
+      grid.innerHTML = items.join("");
+    }
+
+    function renderThinkAnimPills() {
+      const box = document.getElementById("thinkAnimPills");
+      if (!box) return;
+      box.innerHTML = THINK_ANIMATIONS.map((item) =>
+        '<button type="button" class="sound-pill ' + (thinkAnim === item.id ? "is-active" : "") +
+        '" data-think-anim="' + item.id + '" title="' + item.desc + '">' + item.name + '</button>'
+      ).join("");
+    }
+
+    function renderThumbAnimPills() {
+      const box = document.getElementById("thumbAnimPills");
+      if (!box) return;
+      box.innerHTML = THUMB_ANIMATIONS.map((item) =>
+        '<button type="button" class="sound-pill ' + (thumbAnim === item.id ? "is-active" : "") +
+        '" data-thumb-anim="' + item.id + '" title="' + item.desc + '">' + item.name + '</button>'
+      ).join("");
+    }
+
+    function syncThinkToggle() {
+      const t = document.getElementById("thinkEnabledToggle");
+      const sl = document.getElementById("thinkEnabledSlider");
+      if (t) t.checked = thinkEnabled;
+      if (sl) sl.classList.toggle("active", thinkEnabled);
+      const card = document.querySelector(".think-showcase-card");
+      if (card) card.style.opacity = thinkEnabled ? "1" : "0.45";
+      syncThinkColor();
+    }
+
+    // 思考图标颜色：空串表示跟随主题色
+    function syncThinkColor() {
+      const picker = document.getElementById("thinkColorPicker");
+      const text = document.getElementById("thinkColorText");
+      const reset = document.getElementById("thinkColorReset");
+      if (picker) picker.value = thinkColor || selectedAccentColor || "#4D6BFE";
+      if (text) text.textContent = thinkColor ? thinkColor.toUpperCase() : "跟随主题色";
+      if (reset) reset.style.display = thinkColor ? "" : "none";
+    }
+
+    function syncDragToggles() {
+      const st = document.getElementById("dragSnapToggle");
+      const ss = document.getElementById("dragSnapSlider");
+      if (st) st.checked = dragMode === "snap";
+      if (ss) ss.classList.toggle("active", dragMode === "snap");
+      const it = document.getElementById("thumbInertiaToggle");
+      const isl = document.getElementById("thumbInertiaSlider");
+      if (it) it.checked = thumbInertia !== false;
+      if (isl) isl.classList.toggle("active", thumbInertia !== false);
+      const skinBox = document.getElementById("thumbSkinPills");
+      if (skinBox) {
+        skinBox.querySelectorAll(".sound-pill").forEach((p) => {
+          p.classList.toggle("is-active", p.dataset.skin === thumbSkin);
+        });
+      }
+      syncDragVisuals();
+    }
+
     function updateUI() {
       const activeTier = TIERS[currentTierIdx];
-      const isMax = currentTierIdx === TIERS.length - 1;
+      const isMax = currentRatio >= 0.98;
 
       levelBadge.textContent = activeTier.name;
       triggerEffortText.textContent = `推理 ${activeTier.name}`;
@@ -1993,6 +2548,7 @@
       brightnessValText.textContent = Math.round(selectedBrightness * 100) + "%";
 
       updateThumbIcon();
+      syncDragVisuals();
     }
 
     function snapToRatio(rawRatio) {
@@ -2003,11 +2559,24 @@
       updateUI();
     }
 
-    function handlePointer(clientX) {
+    function ratioFromClientX(clientX) {
       const rect = sliderTrack.getBoundingClientRect();
+      if (rect.width <= 0) return 0;
       const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
-      const raw = x / rect.width;
-      snapToRatio(raw);
+      return x / rect.width;
+    }
+
+    // 任务③：档位吸附 / 直接拖 双模式
+    function handlePointer(clientX) {
+      const raw = ratioFromClientX(clientX);
+      const steps = TIERS.length - 1;
+      if (dragMode === "free") {
+        currentRatio = Math.min(1, Math.max(0, raw));
+        currentTierIdx = Math.min(steps, Math.max(0, Math.round(currentRatio * steps)));
+        updateUI();
+      } else {
+        snapToRatio(raw);
+      }
     }
 
     sliderTrack.addEventListener("pointerdown", (e) => {
@@ -2021,9 +2590,12 @@
         sliderThumb.classList.remove("dragging");
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        if (dragMode !== "free") snapToRatio(currentRatio);
       };
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
     });
 
     tierLabels.addEventListener("click", (e) => {
@@ -2042,7 +2614,7 @@
 
     // 抽屉标签切换
     function setDrawerTab(name) {
-      const tabs = ["Effect", "Color", "Tuning", "Icon"];
+      const tabs = ["Effect", "Color", "Drag", "Tuning", "Icon", "Think"];
       tabs.forEach((t) => {
         const btn = document.getElementById(`tab${t}Btn`);
         const content = document.getElementById(`drawer${t}Content`);
@@ -2056,6 +2628,8 @@
     document.getElementById("tabColorBtn").addEventListener("click", () => setDrawerTab("Color"));
     document.getElementById("tabTuningBtn").addEventListener("click", () => setDrawerTab("Tuning"));
     document.getElementById("tabIconBtn").addEventListener("click", () => setDrawerTab("Icon"));
+    document.getElementById("tabDragBtn").addEventListener("click", () => setDrawerTab("Drag"));
+    document.getElementById("tabThinkBtn").addEventListener("click", () => setDrawerTab("Think"));
 
     effectList.addEventListener("click", (e) => {
       const btn = e.target.closest(".effect-option-btn");
@@ -2101,6 +2675,143 @@
       selectedIcon = btn.dataset.icon;
       updateUI();
     });
+
+    // =====================================================================
+    // 任务②③④：拖拽 / 思考 面板事件
+    // =====================================================================
+    (function bindNewPanels() {
+      const dragSnapToggle = document.getElementById("dragSnapToggle");
+      const thumbInertiaToggle = document.getElementById("thumbInertiaToggle");
+      const thumbAnimPills = document.getElementById("thumbAnimPills");
+      const thumbSkinPills = document.getElementById("thumbSkinPills");
+      const thinkEnabledToggle = document.getElementById("thinkEnabledToggle");
+      const thinkIconGrid = document.getElementById("thinkIconGrid");
+      const thinkAnimPills = document.getElementById("thinkAnimPills");
+
+      if (dragSnapToggle) {
+        dragSnapToggle.addEventListener("change", (e) => {
+          dragMode = e.target.checked ? "snap" : "free";
+          syncDragToggles();
+        });
+      }
+      if (thumbInertiaToggle) {
+        thumbInertiaToggle.addEventListener("change", (e) => {
+          thumbInertia = e.target.checked;
+          syncDragToggles();
+        });
+      }
+      if (thumbAnimPills) {
+        thumbAnimPills.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-thumb-anim]");
+          if (!btn) return;
+          thumbAnim = btn.dataset.thumbAnim;
+          renderThumbAnimPills();
+        });
+      }
+      if (thumbSkinPills) {
+        thumbSkinPills.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-skin]");
+          if (!btn) return;
+          thumbSkin = btn.dataset.skin;
+          syncDragToggles();
+        });
+      }
+      if (thinkEnabledToggle) {
+        thinkEnabledToggle.addEventListener("change", (e) => {
+          thinkEnabled = e.target.checked;
+          syncThinkToggle();
+        });
+      }
+      if (thinkIconGrid) {
+        thinkIconGrid.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-think-icon]");
+          if (!btn) return;
+          thinkIcon = btn.dataset.thinkIcon;
+          thinkCustomIcon = "";
+          renderThinkIconGrid();
+          updateThinkIcon();
+        });
+      }
+      if (thinkAnimPills) {
+        thinkAnimPills.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-think-anim]");
+          if (!btn) return;
+          thinkAnim = btn.dataset.thinkAnim;
+          renderThinkAnimPills();
+          updateThinkIcon();
+        });
+      }
+
+      const thinkColorPicker = document.getElementById("thinkColorPicker");
+      const thinkColorReset = document.getElementById("thinkColorReset");
+      if (thinkColorPicker) {
+        thinkColorPicker.addEventListener("input", (e) => {
+          thinkColor = e.target.value;
+          syncThinkColor();
+          updateThinkIcon();
+        });
+      }
+      if (thinkColorReset) {
+        thinkColorReset.addEventListener("click", () => {
+          thinkColor = "";
+          syncThinkColor();
+          updateThinkIcon();
+        });
+      }
+
+      const thinkUploadBtn = document.getElementById("thinkUploadBtn");
+      const thinkFileInput = document.getElementById("thinkFileInput");
+      const thinkClearIconBtn = document.getElementById("thinkClearIconBtn");
+      const thinkPreviewBox = document.getElementById("thinkPreviewBox");
+      const thinkPreviewImg = document.getElementById("thinkPreviewImg");
+
+      if (thinkUploadBtn && thinkFileInput) {
+        thinkUploadBtn.addEventListener("click", () => thinkFileInput.click());
+        thinkFileInput.addEventListener("change", (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (loadEvt) => {
+            const img = new Image();
+            img.onload = () => {
+              const maxDim = 96;
+              let w = img.width, h = img.height;
+              if (w > maxDim || h > maxDim) {
+                if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                else { w = Math.round((w * maxDim) / h); h = maxDim; }
+              }
+              const oc = document.createElement("canvas");
+              oc.width = w; oc.height = h;
+              oc.getContext("2d").drawImage(img, 0, 0, w, h);
+              thinkCustomIcon = oc.toDataURL("image/png");
+              thinkIcon = "custom";
+              if (thinkPreviewImg) thinkPreviewImg.src = thinkCustomIcon;
+              if (thinkPreviewBox) thinkPreviewBox.style.display = "flex";
+              renderThinkIconGrid();
+              updateThinkIcon();
+            };
+            img.src = loadEvt.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      if (thinkClearIconBtn) {
+        thinkClearIconBtn.addEventListener("click", () => {
+          thinkCustomIcon = "";
+          thinkIcon = "fish_tail";
+          if (thinkPreviewBox) thinkPreviewBox.style.display = "none";
+          renderThinkIconGrid();
+          updateThinkIcon();
+        });
+      }
+
+      renderThumbAnimPills();
+      renderThinkIconGrid();
+      renderThinkAnimPills();
+      syncDragToggles();
+      syncThinkToggle();
+      updateThinkIcon();
+    })();
 
     document.getElementById("uploadFileBtn").addEventListener("click", () => {
       document.getElementById("localFileInput").click();
@@ -2622,67 +3333,6 @@
       return refCallback;
     }
 
-    // 随机搭配：洗牌袋 —— 一轮 13 款各抽到一次，抽完才重洗，避免"点两下就重复"
-    let _dcsRandomBag = [];
-    let _dcsLastRandomEffect = "";
-
-    function shuffleList(list) {
-      const arr = list.slice();
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-      }
-      return arr;
-    }
-
-    function drawRandomEffect() {
-      const pool = EFFECT_MODES.filter((m) => m.id !== "custom_flow").map((m) => m.id);
-      if (_dcsRandomBag.length === 0) {
-        _dcsRandomBag = shuffleList(pool);
-        // 跨轮不重复：重洗后若首抽与上一轮最后一个相同，就与中间一张对调
-        const tail = _dcsRandomBag.length - 1;
-        if (_dcsRandomBag.length > 2 && _dcsRandomBag[tail] === _dcsLastRandomEffect) {
-          const j = Math.floor(Math.random() * tail);
-          const tmp = _dcsRandomBag[tail];
-          _dcsRandomBag[tail] = _dcsRandomBag[j];
-          _dcsRandomBag[j] = tmp;
-        }
-      }
-      // 兜底：绝不与当前正在展示的效果相同
-      const tail = _dcsRandomBag.length - 1;
-      if (_dcsRandomBag.length > 1 && _dcsRandomBag[tail] === globalConfig.effect) {
-        const j = Math.floor(Math.random() * tail);
-        const tmp = _dcsRandomBag[tail];
-        _dcsRandomBag[tail] = _dcsRandomBag[j];
-        _dcsRandomBag[j] = tmp;
-      }
-      const effectId = _dcsRandomBag.pop();
-      _dcsLastRandomEffect = effectId;
-      return effectId;
-    }
-
-    function applyRandomCombo() {
-      const effectId = drawRandomEffect();
-      const matched = CURATED_COMBOS.filter((c) => resolveEffect(c.effect) === effectId);
-      const pick = matched.length
-        ? matched[Math.floor(Math.random() * matched.length)]
-        : {
-            color: globalConfig.accentColor,
-            icon: globalConfig.icon,
-            speed: globalConfig.speedMultiplier,
-            glow: globalConfig.glowIntensity
-          };
-      configStore.update({
-        effect: effectId,
-        accentColor: pick.color,
-        icon: pick.icon,
-        speedMultiplier: pick.speed,
-        glowIntensity: pick.glow
-      });
-    }
-
     const DEFAULT_CONFIG = {
       enabled: true,
       themeMode: "system", // "system" | "light" | "dark"
@@ -2959,8 +3609,9 @@
 
           const pal = getColorPalette(currentColor, brightness);
 
-          // 无交互静止收敛
-          const targetDecay = idleElapsed > 1500 ? 0.6 : 1.0;
+          // 无交互静止收敛（任务③：Low 档趋于静止图像）
+          const lowTierStill = currentRatio < 0.34;
+          const targetDecay = cur.isDragging ? 1.0 : (idleElapsed > 1500 ? (lowTierStill ? 0.08 : 0.6) : (lowTierStill ? 0.45 : 1.0));
           idleDecayFactor += (targetDecay - idleDecayFactor) * (1 - Math.pow(0.88, dt));
 
           // 时间与物理量积分
@@ -4493,283 +5144,11 @@
     // 7. 快捷抽屉组件 (Quick Customizer Drawer with 4 Tabs: 动效, 色彩, 调校, 图标)
     // =========================================================================
     
-    const SHARE_PRESETS = [
-      {
-        name: "⚡ 极速霓虹",
-        effect: "rocket_thrust",
-        accentColor: "#00F0FF",
-        speedMultiplier: 1.4,
-        glowIntensity: 1.6,
-        icon: "rocket"
-      },
-      {
-        name: "🔮 量子折跃",
-        effect: "warp_boost",
-        accentColor: "#9333EA",
-        speedMultiplier: 1.3,
-        glowIntensity: 1.5,
-        icon: "atom"
-      },
-      {
-        name: "🌊 幽海潮涌",
-        effect: "deep_whale",
-        accentColor: "#06B6D4",
-        speedMultiplier: 0.9,
-        glowIntensity: 1.2,
-        icon: "whale_chibi"
-      },
-      {
-        name: "🌸 绯樱之舞",
-        effect: "sakura_flutter",
-        accentColor: "#F43F5E",
-        speedMultiplier: 1.0,
-        glowIntensity: 1.1,
-        icon: "sparkle"
-      },
-      {
-        name: "💥 龟派神光",
-        effect: "kamehameha",
-        accentColor: "#38BDF8",
-        speedMultiplier: 1.2,
-        glowIntensity: 1.7,
-        icon: "flame"
-      }
-    ];
-
-    function applyParsedConfig(store, parsed) {
-      if (!parsed || typeof parsed !== "object") return;
-      store.update({
-        ...parsed.effect ? { effect: resolveEffect(parsed.effect) } : {},
-        ...parsed.accentColor ? { accentColor: parsed.accentColor } : {},
-        ...parsed.glowIntensity !== undefined ? { glowIntensity: Number(parsed.glowIntensity) || 1.0 } : {},
-        ...parsed.soundVolume !== undefined ? { soundVolume: Number(parsed.soundVolume) || 1.0 } : {},
-        ...parsed.speedMultiplier !== undefined ? { speedMultiplier: Number(parsed.speedMultiplier) || 1.0 } : {},
-        ...parsed.icon ? { icon: parsed.icon } : {},
-        ...parsed.customIcon ? { customIcon: parsed.customIcon } : {}
-      });
-    }
-
-    // =========================================================================
-    // 7.1 液态玻璃动效工坊弹窗 (Liquid Glass Preset & Workshop Modal)
-    // 聚合导入、导出分享、制作教程与标准模板，简洁纯粹，三步上手
-    // =========================================================================
-    function LiquidGlassShareModal({ mode: initialMode = "import", config, onClose, onApply }) {
-      const [tab, setTab] = useState(initialMode || "import"); // "import" | "export" | "guide"
-      const [text, setText] = useState(() => {
-        if (initialMode === "export") {
-          return JSON.stringify({
-            name: "我的流光预设",
-            effect: config.effect || "rocket_thrust",
-            accentColor: config.accentColor || "#4D6BFE",
-            speedMultiplier: config.speedMultiplier || 1.0,
-            glowIntensity: config.glowIntensity || 1.0,
-            icon: config.icon || "whale_chibi"
-          }, null, 2);
-        }
-        return "";
-      });
-      const [copied, setCopied] = useState(false);
-      const [status, setStatus] = useState(null);
-
-      useEffect(() => {
-        if (tab === "export") {
-          setText(JSON.stringify({
-            name: "我的流光预设",
-            effect: config.effect || "rocket_thrust",
-            accentColor: config.accentColor || "#4D6BFE",
-            speedMultiplier: config.speedMultiplier || 1.0,
-            glowIntensity: config.glowIntensity || 1.0,
-            icon: config.icon || "whale_chibi"
-          }, null, 2));
-          setStatus(null);
-        }
-      }, [tab, config]);
-
-      // 实时解析导入文本，生成预览胶囊
-      let parsedPreview = null;
-      let parseError = false;
-      if (tab === "import" && text.trim()) {
-        try {
-          const p = JSON.parse(text.trim());
-          if (p && typeof p === "object") {
-            parsedPreview = {
-              name: p.name || "未命名配置",
-              effectName: EFFECT_MODES.find(m => m.id === resolveEffect(p.effect))?.name || "火箭尾焰",
-              accentColor: p.accentColor || config.accentColor || "#4D6BFE",
-              speed: typeof p.speedMultiplier === "number" ? p.speedMultiplier : 1.0,
-              glow: typeof p.glowIntensity === "number" ? p.glowIntensity : 1.0
-            };
-          }
-        } catch (_) {
-          parseError = true;
-        }
-      }
-
-      const handleCopyText = (contentToCopy, successMsg = "✓ 已成功复制到剪贴板！") => {
-        if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(contentToCopy).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2200);
-            setStatus({ type: "success", msg: successMsg });
-          }).catch(() => {
-            setCopied(true);
-            setStatus({ type: "success", msg: successMsg });
-          });
-        } else {
-          setCopied(true);
-          setStatus({ type: "success", msg: successMsg });
-        }
-      };
-
-      const handlePasteFromClipboard = () => {
-        if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.readText) {
-          navigator.clipboard.readText().then((clipText) => {
-            if (clipText && clipText.trim()) {
-              setText(clipText.trim());
-              setStatus({ type: "info", msg: "✓ 已读取剪贴板，请点击「一键应用配置」" });
-            } else {
-              setStatus({ type: "error", msg: "剪贴板为空，请先复制他人分享的配置代码" });
-            }
-          }).catch(() => {
-            setStatus({ type: "info", msg: "请直接在文本框内使用 Ctrl+V 快捷键粘贴" });
-          });
-        } else {
-          setStatus({ type: "info", msg: "请直接在文本框内使用 Ctrl+V 快捷键粘贴" });
-        }
-      };
-
-      const handleApply = () => {
-        if (!text.trim()) {
-          setStatus({ type: "error", msg: "请先粘贴特效配置 JSON 内容" });
-          return;
-        }
-        try {
-          const parsed = JSON.parse(text.trim());
-          if (!parsed || typeof parsed !== "object") {
-            throw new Error("配置必须为有效 JSON 对象");
-          }
-          onApply(parsed);
-          setStatus({ type: "success", msg: "✨ 特效配置已成功应用！" });
-          setTimeout(() => {
-            onClose();
-          }, 650);
-        } catch (e) {
-          setStatus({ type: "error", msg: "❌ JSON 格式有误，请确保复制了完整的配置内容" });
-        }
-      };
-
-      const loadPreset = (p) => {
-        setText(JSON.stringify(p, null, 2));
-        setStatus({ type: "info", msg: `已载入预设「${p.name}」，点击下方一键应用即可生效` });
-      };
-
-      return h("div", {
-        className: "dcs-share-modal-overlay",
-        onClick: onClose
-      },
-        h("div", {
-          className: "dcs-share-modal-card dcs-liquid-card",
-          onClick: (e) => e.stopPropagation()
-        },
-          // 头部液态玻璃顶栏与标签页切换
-          h("div", { className: "dcs-share-modal-header" },
-            h("div", { className: "dcs-modal-tab-bar dcs-liquid-tabs" },
-              h("button", {
-                type: "button",
-                className: `dcs-modal-tab-btn ${tab === "import" ? "is-active" : ""}`,
-                onClick: () => { setTab("import"); setStatus(null); }
-              }, "📥 导入动效"),
-              h("button", {
-                type: "button",
-                className: `dcs-modal-tab-btn ${tab === "export" ? "is-active" : ""}`,
-                onClick: () => { setTab("export"); setStatus(null); }
-              }, "📤 导出分享")
-            ),
-            h("button", {
-              type: "button",
-              className: "dcs-share-modal-close",
-              onClick: onClose,
-              title: "关闭"
-            }, "✕")
-          ),
-
-          // TAB 1: 导入动效
-          tab === "import" && h(react.Fragment, null,
-            h("div", { className: "dcs-share-modal-desc" },
-              "粘贴好友分享的代码，或一键尝试精选流光预设："
-            ),
-            h("div", { className: "dcs-share-presets-bar" },
-              h("span", { className: "dcs-share-presets-label" }, "精选试玩:"),
-              SHARE_PRESETS.map((p, idx) => h("button", {
-                key: idx,
-                type: "button",
-                className: "dcs-share-preset-pill",
-                onClick: () => loadPreset(p)
-              }, p.name))
-            ),
-            h("textarea", {
-              className: `dcs-share-textarea ${parseError ? "is-error" : ""}`,
-              value: text,
-              placeholder: "在此粘贴配置 JSON，或点击下方「从剪贴板粘贴」...",
-              onChange: (e) => {
-                setText(e.target.value);
-                setStatus(null);
-              }
-            }),
-            // 实时识别徽章 (Live recognition badge)
-            parsedPreview && h("div", { className: "dcs-preset-preview-badge" },
-              h("span", { className: "dcs-badge-title" }, `✨ 识别: ${parsedPreview.name}`),
-              h("span", { className: "dcs-badge-chip" }, `动效: ${parsedPreview.effectName}`),
-              h("span", { className: "dcs-badge-chip" },
-                h("span", { className: "dcs-badge-dot", style: { backgroundColor: parsedPreview.accentColor } }),
-                parsedPreview.accentColor
-              ),
-              h("span", { className: "dcs-badge-chip" }, `速度: ${parsedPreview.speed}x`)
-            ),
-            status && h("div", { className: `dcs-share-status is-${status.type}` }, status.msg),
-            h("div", { className: "dcs-share-modal-actions" },
-              h("button", {
-                type: "button",
-                className: "dcs-share-btn-secondary dcs-liquid-action-btn",
-                onClick: handlePasteFromClipboard
-              }, "📋 从剪贴板粘贴"),
-              h("button", {
-                type: "button",
-                className: "dcs-share-btn-primary dcs-liquid-action-btn",
-                style: { background: config.accentColor || "#4D6BFE" },
-                onClick: handleApply
-              }, "✨ 一键应用配置")
-            )
-          ),
-
-          // TAB 2: 导出分享
-          tab === "export" && h(react.Fragment, null,
-            h("div", { className: "dcs-share-modal-desc" },
-              "已将您当前调配的动效、色彩、速度与辉光生成纯净代码卡片："
-            ),
-            h("textarea", {
-              className: "dcs-share-textarea",
-              value: text,
-              readOnly: true
-            }),
-            status && h("div", { className: `dcs-share-status is-${status.type}` }, status.msg),
-            h("div", { className: "dcs-share-modal-actions" },
-              h("button", {
-                type: "button",
-                className: `dcs-share-btn-primary dcs-liquid-action-btn ${copied ? "is-copied" : ""}`,
-                onClick: () => handleCopyText(text, "✓ 配置代码已复制，发给好友即可一键体验！")
-              }, copied ? "✓ 已成功复制到剪贴板！" : "📋 复制分享代码")
-            )
-          )
-        )
-      );
-    }
 
     function QuickDrawer({ config, dark, onClose }) {
       const [tab, setTab] = useState("effect"); // "effect" | "color" | "tuning" | "icon" | "sound" | "share"
       const defaultFamily = EFFECT_MODES.find((e) => e.id === config.effect)?.family || "rocket";
       const [activeFamily, setActiveFamily] = useState(defaultFamily);
-      const [shareModal, setShareModal] = useState(null);
       const fileInputRef = useRef(null);
       const soundFileInputRef = useRef(null);
       const familyPillsRef = useDraggableScroll();
@@ -4876,7 +5255,6 @@
               { id: "tuning", icon: "⚡", label: "调校" },
               { id: "icon", icon: "🐳", label: "游标" },
               { id: "sound", icon: "🔊", label: "音效" },
-              { id: "share", icon: "📤", label: "工坊" }
             ].map((t) => h("button", {
               key: t.id,
               type: "button",
@@ -4888,15 +5266,6 @@
             ))
           ),
           h("div", { className: "dcs-drawer-header-actions" },
-            h("button", {
-              type: "button",
-              className: "dcs-drawer-action-btn",
-              title: "🎲 随机灵感主题搭配",
-              onClick: applyRandomCombo
-            },
-              h("span", { className: "dcs-tab-icon" }, "🎲"),
-              h("span", { className: "dcs-tab-text" }, "随机")
-            ),
             h("button", {
               type: "button",
               className: "dcs-drawer-close",
@@ -5164,34 +5533,6 @@
           })
         ),
 
-        // TAB 6: 工坊
-        tab === "share" && h("div", { className: "dcs-tab-anim-fade" },
-          h("div", { className: "dcs-settings-group-label" }, "预设工坊与分享"),
-          h("div", { className: "dcs-workshop-quick-actions" },
-            h("button", {
-              type: "button",
-              className: "dcs-liquid-action-btn",
-              onClick: applyRandomCombo
-            }, "🎲 灵感洗牌搭配"),
-            h("button", {
-              type: "button",
-              className: "dcs-liquid-action-btn",
-              onClick: () => setShareModal("export")
-            }, "📤 导出分享代码"),
-            h("button", {
-              type: "button",
-              className: "dcs-liquid-action-btn",
-              onClick: () => setShareModal("import")
-            }, "📥 导入配置代码")
-          )
-        ),
-
-        shareModal && h(LiquidGlassShareModal, {
-          mode: shareModal,
-          config,
-          onClose: () => setShareModal(null),
-          onApply: (parsed) => applyParsedConfig(configStore, parsed)
-        })
       );
     }
 
@@ -7318,189 +7659,6 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* 全屏居中内嵌式液态玻璃分享与导入弹窗 (VisionOS Glass Modal) */
-.dcs-share-modal-overlay {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 99999 !important;
-  background: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 16px !important;
-  animation: dcsFadeIn 0.18s ease !important;
-}
-@keyframes dcsFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes dcsScaleIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
-}
-.dcs-share-modal-card {
-  width: 100% !important;
-  max-width: 440px !important;
-  background: rgba(18, 24, 44, 0.94) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-radius: 18px !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
-  padding: 18px 20px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
-  animation: dcsScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  box-sizing: border-box !important;
-  color: #f8fafc !important;
-}
-.dcs-share-modal-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-}
-.dcs-share-modal-title {
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: #ffffff !important;
-  letter-spacing: -0.2px !important;
-}
-.dcs-share-modal-close {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 0 !important;
-  font-size: 13px !important;
-  color: rgba(255, 255, 255, 0.7) !important;
-  cursor: pointer !important;
-  width: 26px !important;
-  height: 26px !important;
-  border-radius: 50% !important;
-  display: grid !important;
-  place-items: center !important;
-  transition: all 0.15s ease !important;
-}
-.dcs-share-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
-  transform: scale(1.08) !important;
-}
-.dcs-share-modal-desc {
-  font-size: 12px !important;
-  color: rgba(255, 255, 255, 0.75) !important;
-  line-height: 1.45 !important;
-}
-.dcs-share-presets-bar {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  flex-wrap: wrap !important;
-  margin-bottom: 2px !important;
-}
-.dcs-share-presets-label {
-  font-size: 11px !important;
-  opacity: 0.7 !important;
-  white-space: nowrap !important;
-}
-.dcs-share-preset-pill {
-  padding: 3px 8px !important;
-  font-size: 11px !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #e2e8f0 !important;
-  cursor: pointer !important;
-  transition: all 0.12s ease !important;
-}
-.dcs-share-preset-pill:hover {
-  background: rgba(77, 107, 254, 0.25) !important;
-  border-color: #4D6BFE !important;
-  color: #ffffff !important;
-  transform: translateY(-1px) !important;
-}
-.dcs-share-textarea {
-  width: 100% !important;
-  height: 96px !important;
-  background: rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-radius: 10px !important;
-  color: #f1f5f9 !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  font-size: 11px !important;
-  padding: 10px !important;
-  resize: none !important;
-  outline: none !important;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-  box-sizing: border-box !important;
-}
-.dcs-share-textarea:focus {
-  border-color: #4D6BFE !important;
-  box-shadow: 0 0 12px rgba(77, 107, 254, 0.4), inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-}
-.dcs-share-status {
-  font-size: 11px !important;
-  padding: 6px 10px !important;
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-}
-.dcs-share-status.is-success {
-  background: rgba(16, 185, 129, 0.18) !important;
-  border: 1px solid rgba(16, 185, 129, 0.4) !important;
-  color: #34d399 !important;
-}
-.dcs-share-status.is-error {
-  background: rgba(239, 68, 68, 0.18) !important;
-  border: 1px solid rgba(239, 68, 68, 0.4) !important;
-  color: #f87171 !important;
-}
-.dcs-share-status.is-info {
-  background: rgba(77, 107, 254, 0.18) !important;
-  border: 1px solid rgba(77, 107, 254, 0.4) !important;
-  color: #93c5fd !important;
-}
-.dcs-share-modal-actions {
-  display: flex !important;
-  gap: 8px !important;
-  justify-content: flex-end !important;
-  margin-top: 4px !important;
-}
-.dcs-share-btn-primary {
-  flex: 1 !important;
-  padding: 8px 14px !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  border: 0 !important;
-  border-radius: 10px !important;
-  background: #4D6BFE !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  box-shadow: 0 2px 10px rgba(77, 107, 254, 0.4) !important;
-  text-align: center !important;
-}
-.dcs-share-btn-primary:hover {
-  filter: brightness(1.15) !important;
-  transform: translateY(-1px) !important;
-}
-.dcs-share-btn-primary.is-copied {
-  background: #10B981 !important;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4) !important;
-}
-.dcs-share-btn-secondary {
-  padding: 8px 12px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #f8fafc !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-}
-.dcs-share-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.16) !important;
-  transform: translateY(-1px) !important;
-}
-
 /* =========================================================================
    液态玻璃 UI 视觉引擎与动效 (True Liquid Glass UI & Micro-Animations)
    复刻原生 DSH 液态玻璃设计规范：磨砂玻璃卡片、微光流转、分段药丸、发光圆环与弹簧微动效
@@ -7956,12 +8114,6 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
 [data-theme="dark"] .dcs-liquid-action-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.dcs-workshop-quick-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
 }
 
 /* 动态玻璃透明度与单层液态玻璃美学体系 (消除内层重复嵌套框，只保留单一外层玻璃框) */
@@ -8452,81 +8604,6 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       }
     };
 
-    const CURATED_COMBOS = [
-      { name: "深海蓝鲸", effect: "aurora_veil", color: "#4D6BFE", icon: "whale_chibi", speed: 1.0, glow: 1.1 },
-      { name: "烈焰突进", effect: "rocket_thrust", color: "#FF6B4A", icon: "flame", speed: 1.5, glow: 1.3 },
-      { name: "幽紫折跃", effect: "warp_boost", color: "#8B5CF6", icon: "atom", speed: 1.4, glow: 1.35 },
-      { name: "晶青海渊", effect: "deep_whale", color: "#00F2FE", icon: "whale", speed: 0.8, glow: 1.1 },
-      { name: "流萤金夜", effect: "firefly_swarm", color: "#F59E0B", icon: "sparkles", speed: 0.9, glow: 1.2 },
-      { name: "霜月流沙", effect: "snow_sandstorm", color: "#E2E8F0", icon: "gem", speed: 1.3, glow: 1.05 },
-      { name: "律动蓝调", effect: "spectrum_bars", color: "#4D6BFE", icon: "lightning", speed: 1.2, glow: 1.25 },
-      { name: "翠幕巡航", effect: "radar_sweep", color: "#10B981", icon: "target", speed: 1.0, glow: 1.2 },
-      { name: "陶火星芒", effect: "jet_stream", color: "#D97757", icon: "sparkles", speed: 1.2, glow: 1.2 },
-      { name: "春日落樱", effect: "sakura_flutter", color: "#F43F5E", icon: "gem", speed: 0.8, glow: 1.0 },
-      { name: "全息水银", effect: "liquid_mercury", color: "#94A3B8", icon: "atom", speed: 1.0, glow: 1.15 },
-      { name: "火山喷发", effect: "volcano_magma", color: "#EF4444", icon: "flame", speed: 1.1, glow: 1.25 },
-      { name: "流金星河", effect: "chrono_gold", color: "#D97706", icon: "sparkles", speed: 0.9, glow: 1.2 }
-    ];
-
-    // 随机搭配：洗牌袋 —— 一轮 13 款各抽到一次，抽完才重洗，避免"点两下就重复"
-    let randomBag = [];
-    let lastRandomEffect = "";
-
-    function shuffleList(list) {
-      const arr = list.slice();
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-      }
-      return arr;
-    }
-
-    function drawRandomEffect() {
-      const pool = EFFECT_MODES.filter((m) => m.id !== "custom_flow").map((m) => m.id);
-      if (randomBag.length === 0) {
-        randomBag = shuffleList(pool);
-        const tail0 = randomBag.length - 1;
-        if (randomBag.length > 2 && randomBag[tail0] === lastRandomEffect) {
-          const j = Math.floor(Math.random() * tail0);
-          const tmp = randomBag[tail0];
-          randomBag[tail0] = randomBag[j];
-          randomBag[j] = tmp;
-        }
-      }
-      const tail = randomBag.length - 1;
-      if (randomBag.length > 1 && randomBag[tail] === selectedEffect) {
-        const j = Math.floor(Math.random() * tail);
-        const tmp = randomBag[tail];
-        randomBag[tail] = randomBag[j];
-        randomBag[j] = tmp;
-      }
-      const effectId = randomBag.pop();
-      lastRandomEffect = effectId;
-      return effectId;
-    }
-
-    function applyRandomCombo() {
-      const effectId = drawRandomEffect();
-      const matched = CURATED_COMBOS.filter((c) => c.effect === effectId);
-      const pick = matched.length
-        ? matched[0]
-        : { color: selectedAccentColor, icon: selectedIcon, speed: selectedSpeed, glow: selectedBrightness };
-      selectedEffect = effectId;
-      // 之前这里写的是未声明的 selectedColor，导致随机从不改变配色；改为走 applyAccentColor
-      applyAccentColor(pick.color);
-      selectedIcon = pick.icon;
-      selectedSpeed = pick.speed;
-      selectedBrightness = pick.glow;
-      speedSlider.value = selectedSpeed;
-      speedValText.textContent = `${Math.round(selectedSpeed * 100)}%`;
-      brightnessSlider.value = selectedBrightness;
-      brightnessValText.textContent = `${Math.round(selectedBrightness * 100)}%`;
-      updateUI();
-      renderEffectOptions();
-      playDialTick();
-    }
 
     // 监听主开关切换
     const masterToggleCheckbox = document.getElementById("masterToggleCheckbox");
@@ -8674,45 +8751,6 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       effortBudgetPill.style.display = tooltipEnabled ? "flex" : "none";
     });
 
-    // 抽屉头部随机按钮
-    const drawerRandomBtn = document.getElementById("drawerRandomBtn");
-    drawerRandomBtn.addEventListener("click", applyRandomCombo);
-
-    
-    document.getElementById("drawerExportBtn")?.addEventListener("click", () => {
-      const data = JSON.stringify({
-        effect: selectedEffect,
-        accentColor: selectedAccentColor,
-        glowIntensity: brightness,
-        speedMultiplier: speedMultiplier,
-        icon: selectedIcon,
-        customEffect: customEffectConfig
-      }, null, 2);
-      navigator.clipboard?.writeText?.(data).then(() => {
-        alert("✅ 配置已成功复制到剪贴板！可直接分享他人。");
-      }).catch(() => {
-        prompt("复制以下 JSON 配置：", data);
-      });
-    });
-
-    document.getElementById("drawerImportBtn")?.addEventListener("click", () => {
-      const jsonStr = prompt("请粘贴配置 JSON 代码：");
-      if (!jsonStr) return;
-      try {
-        const p = JSON.parse(jsonStr.trim());
-        if (p.effect) selectedEffect = p.effect;
-        if (p.accentColor) selectedAccentColor = p.accentColor;
-        if (p.glowIntensity) brightness = p.glowIntensity;
-        if (p.speedMultiplier) speedMultiplier = p.speedMultiplier;
-        if (p.icon) selectedIcon = p.icon;
-        if (p.customEffect) customEffectConfig = p.customEffect;
-        renderEffectOptions();
-        updateUI();
-        alert("✅ 恭喜！配置已导入生效！");
-      } catch (e) {
-        alert("❌ 导入失败：JSON 格式不正确");
-      }
-    });
 
     let time = 0;
     let renderedRatio = currentRatio;
@@ -8789,8 +8827,8 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
     window.addEventListener("keydown", onUserInteract, { passive: true });
 
     function animLoop(now = performance.now()) {
-      const targetRatio = TIERS[currentTierIdx].ratio;
-      const isMax = currentTierIdx === TIERS.length - 1;
+      const targetRatio = currentRatio;
+      const isMax = currentRatio >= 0.98;
 
       // 1. 三段式状态机
       if (isMax && !prevMax) burstUntil = now + 650;
@@ -8828,8 +8866,9 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       const scale = effectCanvas.width / Math.max(1, effectCanvas.offsetWidth);
       const pal = getColorPalette(selectedAccentColor, selectedBrightness);
 
-      // 静止收敛
-      const targetDecay = idleElapsed > 1500 ? 0.6 : 1.0;
+      // 静止收敛（任务③：Low 档趋于静止图像，随档位逐级递进）
+      const lowTierStill = renderedRatio < 0.34;
+      const targetDecay = isDragging ? 1.0 : (idleElapsed > 1500 ? (lowTierStill ? 0.08 : 0.6) : (lowTierStill ? 0.45 : 1.0));
       idleDecayFactor += (targetDecay - idleDecayFactor) * (1 - Math.pow(0.88, dt));
 
       renderedRatio += (targetRatio - renderedRatio) * (1 - Math.pow(0.78, dt));
@@ -10187,8 +10226,10 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       requestAnimationFrame(animLoop);
     }
 
+    syncDragToggles();
     updateUI();
     animLoop();
+    if (thumbBody) requestAnimationFrame(thumbRigLoop);
   </script>
 </body>
 </html>

@@ -1,153 +1,278 @@
-# STATUS.md — 当前状态快照
+# STATUS.md — dsh-claude-slider 改造进度
 
-> **给 AI agent 的用法**：上下文被压缩/丢失后，以这份文件为准确来源，不要凭记忆推断。
-> 每次做较大改动后更新对应条目。
+> 以本文件为准，不要依赖记忆。每完成一步就更新。
 
-_最后更新：2026-09-24 16:03_
+## 当前任务（用户 m00001 提出，四项）
 
-## 一、项目是什么
+| # | 任务 | 状态 |
+|---|---|---|
+| 1 | 删除「工坊」和「随机」功能 | ✅ 已完成（client.js + demo 双端） |
+| 2 | 游标/thumb 加 Q 版人物通用动画（跑步循环 + 惯性 + 大力拖拽刹车不稳） | ✅ 已完成（双端） |
+| 3 | 新增「直接拖」模式（不吸附，连续进度条），动效档位递进（Low 静止图 → 递进） | ✅ 已完成（双端） |
+| 4 | 加入图一的「思考中」动画（挂宿主思考指示器），支持换图标 + 整套动画（鲸鱼尾巴动效） | ✅ 已完成（双端） |
 
-DSH（DeepSeek Harness）客户端插件 `dsh-claude-slider`：把推理强度（reasoning effort）的选择
-做成 Claude 风格的滑块，并附带一整套 Canvas 动效、主题配色、手柄图标与音效。
+## 关键事实（勘察结论）
 
-- 形态：**零构建**、单文件客户端插件（`lib/client.js`，现约 6.5k 行）
-- 演示页：`demo/index.html`（约 10k 行，自带 `.demo-*` 样式与独立 DOM 滑块，非 React 挂载）
-- 装载方式：通过 `dsh plugin --profile desktop add link:<本目录>` 软链接进 profile
-- 仓库：https://github.com/yicun0316/dsh-claude-slider （已创建，`main` 分支）
-- 存储：配置写在 `localStorage`，键 `dsh-claude-slider.config.v2`
-- 网络：**零请求**；不读写用户文件（图标上传仅走本地压缩后存 localStorage）
+- 仓库根：`C:\Users\王文岩\.gemini\antigravity\scratch\dsh-claude-slider`
+- 主文件 `lib/client.js`（当前 6432 行）；`demo/index.html`（当前 10199 行）。**零构建**，直接加载。
+- 插件是 **link 安装**：`C:\Users\王文岩\.dsh\profiles\desktop\package.json` 里
+  `"dsh-claude-slider": "link:C:\\Users\\王文岩\\.gemini\\antigravity\\scratch\\dsh-claude-slider"`，
+  `patchReload: "live"` → **改源码即生效**，无需重装。
+- AGENTS.md 硬约束：禁止整文件重写；只允许增量精确编辑；禁止删文件；禁止引入构建步骤；禁止发网络请求。
+- 改完必须跑：`node --check lib/client.js` 和 `node scripts/check-undefined.cjs lib/client.js`。
+- 文件编码：UTF-8 无 BOM、**纯 LF**、无 CRLF。写回一律 `newline=""`。
 
-## 二、功能清单（截至本快照）
+## 任务 1：工坊 / 随机删除（已完成）
 
-### 动效：14 款精选纯净动效，分 5 个家族
+client.js 删 9 段共 577 行（`CURATED_COMBOS`、随机洗牌袋 + `applyRandomCombo`、
+`SHARE_PRESETS`/`applyParsedConfig`/`LiquidGlassShareModal`、工坊 tab、随机按钮、
+TAB6 面板、`.dcs-share-modal-*` CSS、`.dcs-workshop-*` CSS）。
+demo 删 10 段共 645 行（两份重复的随机帮助函数、工坊面板、随机按钮、分享弹窗、
+`.drawerRandomBtn`、以及 `drawerExportBtn`/`drawerImportBtn` 死绑定）。
 
-| 家族 | 成员 |
-|---|---|
-| 🚀 推进 rocket | 龟派气功 `kamehameha`、火箭尾焰 `rocket_thrust`、超载折跃 `warp_boost` |
-| 🌊 流体 fluid | 玻璃水银 `liquid_mercury`、火山喷发 `volcano_magma` |
-| 🌸 幻境 nature | 落樱春水 `sakura_flutter`、极光织锦 `aurora_veil`、深海鲸跃 `deep_whale`、萤火微光 `firefly_swarm`、落雪狂沙 `snow_sandstorm` |
-| 💻 科技 tech | 频谱律动 `spectrum_bars`、雷达扫描 `radar_sweep` |
-| 🎨 质感 art | 星流碎钻 `jet_stream`、流金星河 `chrono_gold` |
+**保留不动**（不是工坊，是客制粒子工坊功能的一部分）：`.dcs-custom-studio-banner` 等
+`.dcs-studio-*` 类。残留「工坊」字样仅为注释。
 
-> 2026-09-24 重大升级：原生液态玻璃抽屉重构与透明度调节 + 设置中心极简适配
-> - **第一张图（输入框上方快捷调控抽屉 QuickDrawer）重构**：
->   - **原生磨砂液态玻璃质感**：`backdrop-filter: blur(36px) saturate(190%)`，透光卡片结合 `--glass-opacity` 动态变量，高光描边、平滑圆角 `border-radius: 20px`，斜向微光流转动效 (`@keyframes dcsLiquidSheen`)；
->   - **玻璃透明度动态调节**：在「外观」与「调校」中提供「玻璃透明度」发光滑块（10% ~ 100%），抽屉背景透明度实时联动；
->   - **下架旧定制动效入口**：彻底移除抽屉内的「✨ 定制动效」横幅与旧微元调节器，保持纯净；
->   - **修复游标图标点击崩溃**：修复 `item.svg` 与 `item.render` 属性兼容，点击「游标」标签安全平滑渲染，杜绝任何报错崩溃与页面消失；
-> - **第二张图（DSH 设置中心 ClaudeSettingsPage）极简重构**：
->   - **严格按照用户需求收敛**：去除非必要的 6 标签页，**只保留滑块总开关与主题模式适配**；
->   - **滑块主开关**：「高级推理滑块调节」极简胶囊开关，控制滑块开启或恢复 DSH 原生设计；
->   - **三档外观模式自适应**：「☀️ 浅色模式」、「🌙 深色模式」、「💻 跟随系统」，通过 `useResolvedTheme` 实时监听系统/应用深浅色属性，深度完美适配；
->   - **状态质感预览**：实时显示当前生效的模式及快捷操作指引。
+## 任务 2/3：游标物理动画 + 自由拖拽（已完成）
 
-> 2026-09-23 精简：下架 9 款（`ion_stream` / `surging_current` / `data_stream` / `circuit_pulse` /
-> `cyber_pulse` / `ink_wash` / `silk_ribbon` / `dot_matrix_wave` / `contour_lines`），
-> 它们的 id 已在 `LEGACY_EFFECT_MAP` 中做了重定向（如 `cyber_pulse → chrono_gold`、
-> `circuit_pulse → radar_sweep`），老用户配置不会失效。
-> `chrono_gold` 此前**只有注释没有绘制分支**（一直走兜底），本次已补上真实实现。
+### 新增配置键（client.js `DEFAULT_CONFIG` 与 demo 常量，9 个）
+`dragMode:"free"` / `thumbAnim:"run"` / `thumbSkin:"bubble"` / `thumbInertia:true` /
+`thinkEnabled:true` / `thinkIcon:"fish_tail"` / `thinkCustomIcon:""` /
+`thinkAnim:"tail_wag"` / `thinkColor:""`
 
-### 档位三阶递进（本次新增的核心机制）
+`loadSavedConfig()` 对每个键做了白名单归一化（非法值回落默认）。
 
-渲染循环由填充比例派生出三阶权重，**逐档解锁视觉层**（不是"量变"，低档严格为 0）：
+### client.js
+- `THUMB_ANIMATIONS`（6 项：run/hop/lean/float/spin/none）
+- `function ThumbRig({ config, color, isDragging, ratio })` — rAF 物理引擎：
+  一阶速度低通 → 速度/加速度估计 → `braking`（骤减速）与 `reversed`（反向）
+  触发趔趄 `stAmp`，`wob = sin(stT*27) * exp(-stT*4.4) * stAmp` 驱动
+  `rotate/translate/scale`。`prefers-reduced-motion` 时清空 transform 并退出。
+- `ClaudeEffortPopover`：`dragMode === "free"` 时 `applyFromClientX` 直接写原始
+  ratio（不 round），否则走吸附。历史冗余（`setPointerCapture` /
+  `releasePointerCapture` / `pointercancel` 各重复 2 次）已清理。
+- CanvasEffect：`lowTierStill = currentRatio < 0.34` → idle 时 `targetDecay` 降到
+  0.08/0.45，实现「Low 接近静止图像」。
 
-```js
-const tierT = currentRatio * 3;                       // demo 中为 renderedRatio
-const L1 = Math.min(1, Math.max(0, tierT));           // Low  解锁：基础层
-const L2 = Math.min(1, Math.max(0, tierT - 1));       // High 解锁：结构层
-const L3 = Math.min(1, Math.max(0, tierT - 2));       // Max  解锁：高能层
+### demo（原生侧是真实 UI；React 轨是死代码，不渲染）
+- `thumbRigLoop(now)`（自续帧 rAF）、`syncDragVisuals()`、`ratioFromClientX()`
+- `updateUI()` 里 `isMax` 判定从 `currentTierIdx === TIERS.length-1` 改为
+  `currentRatio >= 0.98`（自由拖下档位索引不可靠）
+- 新增 `#drawerDragContent` 面板 + `#tabDragBtn`「🏃 拖拽」标签
+- CSS：`.slider-thumb-body` / `.slider-thumb-bubble` / `.is-free-drag`（干掉 left 过渡）
+
+### 实测验证（headless Chrome + 真实 PointerEvent）
+```
+thumbBody transform: translate(0px,-0.05px) rotate(0.07deg) scale(1,1.001)
+--thumb-spd: 0.200     拖动到 45% → thumb.style.left = calc(45% + 1.4px)
+track is-free-drag: true    thumb classes: slider-thumb is-max is-free has-bubble
+thumb transition: transform, box-shadow | 0.1s, 0.2s   ← left 过渡已移除
+active tier btns: 1 Low     passed dots: 2
+```
+档位递进实测（轨道截图条）：Off = 空旷轨道 → Low = 6 粒微光 → High = 半轨粒子流
+→ Max = 满轨高亮粒子 + 泛光。与需求「Low 静止图，随档位递进」一致。
+
+## 任务 4：宿主思考指示器注入（已完成）
+
+### 关键发现（与最初假设不同）
+宿主 `TurnStatus` **没有图标节点** —— 用户截图的「蓝色小鲸鱼」其实是
+`-webkit-background-clip:text` 把文字染色后的渐变形状。正文渲染点在
+`dsh-client-ui-chat\lib\client.js:1984`，DOM 为
+`div.EvIC1a_turnStatus[role="status"][aria-live="polite"]`，**无任何专用插槽**
+（ui-chat 的 11 个插槽里没有 thinking/status 类）→ 只能 DOM 注入。
+
+### client.js 实现
+- `THINK_ICONS`（8 项，`svg(c)` 返回 **SVG 字符串**，供 `innerHTML` 用）
+- `THINK_ANIMATIONS`（7 项：tail_wag/swim/pulse/spin/bounce/drift/none）
+- `safeSvgColor()`（白名单正则，防任意串注入 innerHTML）
+- `buildThinkIconDom()`（建 `<span class="dcs-think-icon">`）
+- `installThinkIndicator(ctx)` — 在 `ctx.effect` 里：
+  - `findStatus()` 优先找带 `EvIC1a_turnStatus` class 的那个
+  - `sync()` → `status.insertBefore(node, status.firstChild)`
+  - MutationObserver 观察 `document.body {childList, subtree}`，
+    **性能护栏**：自家节点已连接且仍在首位时直接 return；外加 60ms 节流
+  - `configStore.subscribe` → 图标变化时 `replaceChild` 重建，动画/颜色原地更新
+  - 返回清理函数（unsubscribe + disconnect + removeNode）
+- CSS：`.dcs-think-icon`（16×16、`margin-right:6px`、
+  **`-webkit-text-fill-color: currentColor`（必须显式覆盖宿主染色）**）
+  + 7 套 `[data-anim]` 关键帧 + `prefers-reduced-motion` 关闭
+
+### demo 实现
+`#tabThinkBtn`「🧠 思考」面板（图标网格 / 上传本地图标 / 7 套动画药丸）+
+`.think-showcase-card` 演示卡片，模拟真实状态栏并实时反映设置。
+
+### 实测验证（headless 注入模拟 TurnStatus，8 个场景全过）
+```
+first child is icon: true    data-anim = tail_wag    svg: true
+[heal] icon re-injected: true          ← 宿主重渲染后自愈
+[swap icon] data-sig = sparkles
+[swap anim] same node: true | data-anim = spin | color = #FF8800
+[disable] icon removed / [re-enable] icon back
+[custom] is <img>: true
+[cleanup] observer disconnected (no re-inject): true
+```
+浏览器实测：`thinkIcon animationName: dcsThinkTail | duration: 0.86s |
+color: rgb(77,107,254) | w: 16px | h: 16px`
+
+## 文件状态（最终）
+
+| 文件 | 行数 | 校验 |
+|---|---|---|
+| `lib/client.js` | 6432 | `node --check` exit=0；check-undefined「✅ 干净：扫描 21 个全大写标识符」 |
+| `demo/index.html` | 10199 | 2 个 `<script>` 块 `node --check` exit=0；dangling ids: NONE |
+
+均 UTF-8 无 BOM、纯 LF。
+
+### 抽屉标签栏（6/7 个标签不换行）
+
+- demo：`.drawer-header-bar` 与 `.drawer-tabs` 都加 `min-width: 0`，`.drawer-tabs`
+  加 `flex: 1 1 auto`；`.drawer-tab-btn` 字号 11→10px、`letter-spacing: -0.3px`、
+  `padding: 5px 0`。实测 6 个标签各 38×23px、合计 227px，落在 240px 容器内，
+  `clipped=false`（修前：6×44=265px > 240px，第 6 个「🧠 思考」被裁）。
+- client.js：已有 `.dcs-drawer-header .dcs-drawer-tabs { flex:1; min-width:0 }` +
+  `.dcs-drawer-tab { flex-direction: column; padding:4px 1px }`，7 个标签本就单行。
+
+## 备份
+
+`_backups/` 下（`.gitignore` 已排除）：
+- `client.js.20261016-224836.bak`、`index.html.20261016-224836.bak`（最初基线）
+- `client.js.20261016-230649.bak`、`index.html.20261016-230649.bak`
+- `client.js.before-thumb-demo.20261016-233059.bak`（302442B）
+- `index.html.before-thumb-demo.20261016-233059.bak`（447433B）
+
+## 下一步（用户操作）
+
+```bash
+cd C:\Users\王文岩\.gemini\antigravity\scratch\dsh-claude-slider
+git add -A && git commit -m "feat: 游标物理动画 + 直接拖拽模式 + 宿主思考指示器注入；移除工坊与随机"
 ```
 
-- **L1 基础层**：主体形态 + 主题色底衬 + 主粒子
-- **L2 结构层**：全轨高光脊线 + 上下边缘细描边 + 匀速掠过的扫描光带，
-  以及**各效果自己的次级元素**（火箭的马赫激波环、落樱的水波涟漪、频谱的柱顶白帽、
-  水银的折射条纹、雷达的回波点、极光的补幕与星点、鲸跃的上升气泡、萤火的拖尾、
-  落雪的额外阵风、火山的熔岩泡、流金的额外细丝）
-- **L3 高能层**：全轨泛光 + 12 道旋转能量射线 + 18 颗环绕火花 + 3 道扩散脉冲环 +
-  边缘流转光晕，各效果同时进入终极形态
-- **切入 Max 瞬间**：径向冲击波 + 全轨高光冲洗（原有的 burst 机制）
-- 粒子预算约 6 → 18 → 60 → 128；`speedBoost = 1 + L1*0.12 + L2*0.22 + L3*0.46 + burst`
+## 收尾补齐（README / AGENTS / catalog，已完成）
 
-> 实现位置：三阶权重在渲染循环前置（两个文件各自一份，**不参与 graft 同步**）；
-> 共用附加层放在效果分发链之后、爆发特效之前；逐效果追加层写在各自分支体末尾。
-> 统计：`L2 > 0.01` 与 `L3 > 0.01` 各 14 处（13 款 + 1 处共用层）。
+- `README.md`（130 → 137 行，增量编辑，未重写）
+  - 第 73 行「滑块交互」改为覆盖 `free` / `snap` 双模式（原文只写「拖拽吸附换档」）
+  - 新增「**Q 版游标动画**」条目（6 套动作 + 趔趄公式 + 两种皮肤 + reduced-motion）
+  - 新增「**思考指示器**」条目（8 图标 × 7 动画 + 自定义上传 + MutationObserver 自愈）
+  - 删除宣传已删功能的第 93 行「灵感搭配」与第 95 行「配置分享」，
+    原位替换为「**档位递进**」（Low 静止 / High 脊线 / Max 泛光）
+  - 「调校参数」表后补一段：9 个新配置键在「🏃 拖拽」「🧠 思考」页调整，存同一
+    `localStorage` 键
+- `AGENTS.md` 第四节「新增动效必改 4 处」→ 3 处：删掉 `CURATED_COMBOS`（已随工坊删除）
+- `D:\deepseek\dsh-catalog-submission\yicun0316__dsh-claude-slider.yml`
+  en/zh 描述重写，加入双拖拽模式、Q 版游标物理动画、思考指示器注入三项新特性
 
-### 随机灵感搭配（洗牌袋）
+### 本轮校验（改完后跑过）
 
-- `CURATED_COMBOS`：**13 套**，每款效果各配一套专属的主题色 / 手柄图标 / 流速 / 辉光
-- 抽取用**洗牌袋**（`shuffleList` 打乱 → `pop()` → 抽空才重洗）：
-  连续 13 次会把 13 款各抽到一次、绝不重复；重洗后若首抽与上轮末尾相同则与中间一项对调；
-  另有一道"绝不与当前展示效果相同"的兜底
-- 实测：26 次连抽 → 每轮 13 次 `dup=0`、相邻重复 `0`、配色变化 12 种
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 21 个全大写标识符
+README.md / AGENTS.md / STATUS.md / lib/client.js / demo/index.html
+  UTF-8 无 BOM、纯 LF（bom=False crlf=False）
+git status --porcelain → M AGENTS.md / M README.md / M STATUS.md / M demo/index.html / M lib/client.js
+```
 
-### 动效背景介质（液态玻璃与高斯模糊，独立开关）
+改动生效方式：插件是 link 安装，**改完源码刷新页面即生效**（`patchReload: "live"`）。
+若思考图标未出现，确认会话处于「正在推理」状态（宿主只在 running 时渲染 TurnStatus）。
 
-- **🧊 液态玻璃 (`liquidGlass`)**：高透微晶胶囊轨道，包含顶部高光镜面反光导轨、内部流动光斑焦散以及微晶反光内描边。默认关闭（`false`），随开随关，与当前所选的任何动效有机叠合。
-- **🌫️ 高斯模糊 (`gaussianBlur`)**：轨道漫射辉光雾化介质，通过双层环境光雾在滑块轨道四周形成柔光晕染。默认关闭（`false`）。
+---
 
-### 液态玻璃工坊与预设导入导出系统
+## 2026-10-17 紧急修复：THUMB_ANIMATIONS / THINK_ANIMATIONS 类型错误（用户报「完全用不了」）
 
-- **3 标签页结构**：
-  1. **📥 导入动效**：支持文本框粘贴、从剪贴板一键读取，具备**实时配置识别徽章**（即时预览预设名称、动效、联动色、速度倍率与介质开关），并内置「⚡ 极速霓虹」、「🔮 量子折跃」、「🌊 幽海潮涌」、「🌸 绯樱之舞」、「💥 龟派神光」等精选试玩预设。
-  2. **📤 导出分享**：一键生成纯净易读的 JSON 预设配置，支持一键复制到剪贴板，方便跨设备或与好友即时分享。
-  3. **💡 制作教程与标准模板**：详细列出支持的 7 项字段属性定义、类型与说明，并提供一键式「📋 复制此模板并进入导入」按钮，新手零门槛上手。
+### 症状
+DSH 实机弹窗报错：
+- `推理调节组件异常 / THUMB_ANIMATIONS.map is not a function`
+- `推理调节组件异常 / THINK_ANIMATIONS.map is not a function`
 
-### 其他
+### 根因
+`lib/client.js` 里 `THINK_ANIMATIONS` / `THUMB_ANIMATIONS` 声明成了**对象** `{ id: {...} }`，
+而 QuickDrawer 的「拖拽」与「思考」两个 tab 用 `.map(...)` 渲染药丸按钮，对象没有 `.map` → 抛错。
 
-- 档位：off / low / high / max（DeepSeek 适配器实际只有这四档；表里保留 medium 供其他 provider）
-- 算力预算释义：`EFFORT_DESCRIPTIONS`
-- 流速倍率 / 辉光倍率 / 全家桶配色（9 预设 + 全色谱拾色器）
-- 手柄图标：官方矢量图（Claude 星芒 / DeepSeek 鲸鱼 / 鲸鱼娘）+ Emoji + 本地图片上传（Canvas 压缩到 96×96）
-- 音效：Web Audio 合成（杂鱼 / 哦鲸鲸 / 小黄鸭 / 机械触感 / 自定义）
-- 迁移：`LEGACY_EFFECT_MAP` 把历代旧 id 映射到现行 id（**不要删**）
+**为什么此前的测试没抓到**：`dcs_smoke.cjs` 只调 `apply()`，从不渲染 React 子树；
+这些错误只在 render 期暴露。demo 侧本来就是数组，所以 demo 一切正常。
 
-## 三、工程护栏（已实现，勿回退）
+### 修复
+1. `lib/client.js:559` `THINK_ANIMATIONS` → 数组（tail_wag / swim / pulse / spin / bounce / drift / none）
+2. `lib/client.js:570` `THUMB_ANIMATIONS` → 数组（run / hop / lean / float / spin / none）
+3. 新增 `lib/client.js:580` `function hasAnimationId(list, id)`
+4. `loadSavedConfig()` 的归一化改用 `hasAnimationId`（`:811` / `:816`）
 
-- 帧率无关动画：`time += 0.035 * dt * speed`（`speed` 现由 `speedBoost` 按档位给出）
-- **0 档休眠**：填充比例 < 0.005 时清空画布并**停止 RAF**；只能靠
-  `pointermove / pointerdown / keydown / visibilitychange / focus` 唤醒
-  （⚠️ 截图/自动化脚本注意：设成 Off 后不派发交互事件，画布会一直空白）
-- 不可见即暂停：`visibilitychange` + 清理
-- 无障碍：`prefers-reduced-motion` 命中时降级
-- 混合模式：`globalCompositeOperation` 仅深色用 `lighter`，浅色回 `source-over`
-- 粒子预算按档位分档；`devicePixelRatio` 上限 2
-- 改动后必须跑：`node --check lib/client.js` 与 `node scripts/check-undefined.cjs lib/client.js`
+### 新增测试：`C:\Users\王文岩\AppData\Local\Temp\dcs_render_browser.html`
+用**真实 React 19.3.0 + react-dom/client**在 Chrome 里挂载插件的真实组件，
+自动点开推理强度弹窗 → 打开鲸鱼娘抽屉 → 逐个点击全部 7 个 tab。
 
-## 四、已修复的事故（供追溯）
+结果：
+- `registered: 2`（设置页 + 模型选择器）
+- `tabs: ["✨动效","🎨外观","🏃拖拽","⚡调校","🐳游标","🧠思考","🔊音效"]` 全部 `active: true`
+- `finalNotFunction: []`
+- `finalBoundary: false`（错误边界未触发）
 
-| 日期 | 症状 | 原因 | 处理 |
-|---|---|---|---|
-| 2026-09-23 | 「推理调节组件异常：EFFORT_DESCRIPTIONS is not defined」 | 整文件重写时连同定义一起删掉，只剩引用 | 补回 `EFFORT_DESCRIPTIONS`；并预修同类地雷 `CUSTOM_PARTICLES` / `CUSTOM_MOTIONS` |
-| 2026-09-23 | `demo/index.html` 打开后完全无交互、画布永久空白 | ① 6943~7008 行混入插件 CJS 打包片段（含顶层 `return module.exports` 与游离 `});`）→ 整段脚本 SyntaxError；② 7009~7287 行是音频模块旧副本，与正本重复声明 6 个 `const`；③ 缺宿主注入的 `react` / `h` 全局，脚本在 `class ... extends react.Component` 处中断；④ `animLoop` 里 `brightness`（应为 `selectedBrightness`）与未声明的 `speedMultiplier` → 首帧抛错，RAF 永久停止 | ① 注释隔离游离块；② 两份重复声明统一降级为 `var`；③ 加入仅在缺失时生效的兼容层；④ 修正变量名 |
-| 2026-09-23 | demo 效果面板是无样式的默认按钮、筛选按钮也不成胶囊 | 第 925 行 `.quick-tool-btn {` **少了闭合 `}`**，CSS 解析器把第 956 行之后约 20 条规则整块吞掉（该缺陷在最早备份中即存在） | 补上 `}`，样式表规则数 128 → 150 |
-| 2026-09-23 | demo 里「🎲 随机」从不改变配色 | 写的是 `selectedColor`，该变量在 demo 中从未声明（隐式全局），真正生效的 `selectedAccentColor` 未被更新 | 改为调用 `applyAccentColor(pick.color)` |
-| 2026-09-23 | 「随机动效重复率很高，点两下就出现之前的」 | ① 随机池 `CURATED_COMBOS` 只有 6 套，13 款里有 7 款根本抽不到（6 选 1 相邻重复概率约 17%）；② 插件侧只排除"完全等于当前组合"的项，demo 侧完全没有去重 | 池子扩到 13 套 + 改为洗牌袋抽取 |
-| 2026-09-24 | 「插件呢，怎么点一下就没了」 | ① `SliderErrorBoundary` 组件类在重构中遗失只剩引用，点击「推理 Max」弹窗时调用 `h(undefined)` 触发致命 React 运行时抛错，宿主槽位捕获崩溃卸载组件回退到 DSH 原生 `DeepSeek-V41-Flash Max ▾`；② 设置中心关闭滑块或误触开关时，回退视图未提供重新启用按钮 | ① 补全 `SliderErrorBoundary`，并在根部注入 `ClaudeModelSelectErrorBoundary` 双层坚固护栏；② 回退模式与设置页增加「⚡ 开启滑块」及一键恢复按钮，状态清晰标注 |
-| 2026-09-24 | 「只留一个可以调整背景透明度开关，然后优化一下过渡」「就是第一个框和第二个框」 | ① 弹窗由外层容器 `.dcs-popover`（第一个框）和内层抽屉 `.dcs-quick-drawer`（第二个框）双层叠加，边框阴影重复嵌套；② 抽屉「外观」与「调校」两个标签页各有一个透明度滑块造成冗余；③ 拖拽滑块时背景带 `transition: background` 引发掉帧抖动；④ 浅色与低透明度下缺少文字对比度衬底 | ① 样式层面消除内层边框与背景，外层与内层融为一体纯净单框（Single Liquid Card）；② 收敛透明度控制：只在「外观」保留单一「背景透明度」发光滑块，移除冗余控制；③ 移除拖拽时背景渐变动画实现 0 延迟跟手，加入弹簧展开动画 `dcsDrawerReveal` 与低透明度文字抗干扰投影 |
-| 2026-09-24 | 「调校里面加入动效亮度调节，把这个随机对齐，把制作模板删除」 | ① 调校面板缺少动效自身辉光强度的调节滑块；② 抽屉头部分段标签栏继承了 `margin-bottom: 20px`，导致「🎲 随机」按钮和关闭按钮在 Flex 布局中被挤压下沉下垂，且缺少 `white-space: nowrap` 导致汉字单字垂直拆开折行；③ 工坊弹窗中的「💡 制作教程与模板」占用过多垂直空间干扰用户日常体验 | ① 在「⚡ 调校」页加入「动效亮度」调节滑块（0.5x ~ 2.0x），精准联动粒子/光效辉光；② 彻底重构抽屉顶栏布局：清空误继承的 bottom margin，将 6 个标签页与「🎲 随机」按钮统一重构为上下图标+双字标签胶囊卡片（高度严格锁定 42px，垂直基线 100% 齐平，杜绝任何汉字单字换行与下垂）；③ 彻底删除工坊弹窗与抽屉工坊内的「💡 制作教程与模板」标签页及关联代码模板，保持工坊仅保留「📥 导入动效」与「📤 导出分享」 |
-| 2026-09-23 | 批量改分支时把新旧代码混在一起导致语法报错 | ① 批量替换用了一次性算好的行号，前一款变长后后面全部偏移；② `find_headers` 用 `\s*\} else \{\s*$` 收集分支边界，把**分支体内部的嵌套 `} else {`** 也算进去了 | 每次替换前重算行号；分支边界只认真正的分支头，默认分支用"下一行含 `const bg = ctx.createLinearGradient`"严格判定 |
+**教训：mock 冒烟测试必须真实渲染组件，否则会漏掉 render 期错误。**
+以后改动组件渲染逻辑，务必跑一次上面这个真实浏览器渲染测试。
 
-修复前的完整备份都在 `_backups/`（该目录已被 .gitignore 排除）。
+---
 
-## 五、待办
+## 2026-10-17 收尾补齐 2：`thinkColor` 补 UI + 颜色签名修复
 
-- [x] 本机绝对路径已从仓库文件中清除（README 重写时移除）
-- [x] 补齐 `LICENSE`（MIT）+ README「非官方插件」免责声明 + 给外部用户的安装命令
-- [x] 上传 GitHub（仓库已创建：`yicun0316/dsh-claude-slider`）
-- [x] README 的动效名单与代码同步（现为 5 大类共 13 款，并补了档位递进与随机机制说明）
-- [ ] `demo/index.html` 与 `lib/client.js` 的渲染分支需要人工保持同步。
-      **注意**：本次是用仓库外的脚本（`patch_*.py` + `graft2.py`）做的批量同步，
-      这与 AGENTS.md 第五节「不要写脚本改源码的工具」相抵触——脚本没进仓库，
-      但下次改动建议回到 `lib/client.js` 直接精确编辑，或先把同步方案确认清楚。
-- [ ] 效果 id 已冻结；今后只允许通过 `LEGACY_EFFECT_MAP` 改名
-- [x] npm 发布（已成功发布 v2.11.0 到 npm 官方源）
-- [ ] 可选：给 demo 加入「档位递进」的自动化回归脚本（现有关卡：Off 档会休眠，脚本必须先派发 `pointermove`）
+### 背景（真实缺口）
+README 第 110-112 行把 `thinkColor` 列为可在「🧠 思考」页调整，但代码里它是
+**纯内部变量**：`lib/client.js:789` 只有默认值，`:6242` / `:6322` 两处消费，
+**没有任何控件**；`demo/index.html:2070` `let thinkColor = ""` 也只被 `:2405` 读取。
 
-## 六、已知问题 / 可继续做的方向
+### client.js（纯增量，未重写）
+「🧠 思考」tab 在「思考动画」药丸之后、「思考图标自检」之前插入一行 `图标颜色`
+（`dcs-liquid-row` + `dcs-color-circles-bar`）：
+- `dcs-custom-color-chip` 内嵌 `<input type="color" className="dcs-native-color-picker">`
+  → `onChange: (e) => configStore.update({ thinkColor: e.target.value })`
+- 文字：`config.thinkColor ? config.thinkColor.toUpperCase() : "跟随主题色"`
+- 有自定义色时额外渲染「跟随主题色」按钮 → `configStore.update({ thinkColor: "" })`
+- **复用既有 CSS**（`.dcs-custom-color-chip` `:5811`、`.dcs-native-color-picker` `:5835`），未加新样式
 
-- 「落樱春水」的花瓣仍是左右对称的贝塞尔"叶形"，缺少樱花顶端缺口
-- 「火山喷发」完全跟随主题色，蓝色主题下会退化成"雪山"观感
-- 「幽夜暗潮」类的水流感效果已下架，如需可参考 `_backups` 里的旧实现
-- 粒子池 `genericParticles` 的 `x` 仍按 0~360px 初始化；已改造过的效果都用归一化
-  `relDist` 规避了高 DPI 下的左侧堆积，未改造的少数效果仍受影响
-- 早期评审记录见工作区 `动效评审报告.html`（对应 22 款时代，仅作历史审计）
+### 同时修掉一个真实缺陷（关键）
+`installThinkIndicator` 的签名函数原本只有图标两项：
+```js
+const sigOf = () => state.icon + "|" + state.customIcon;
+```
+但 SVG 的 `fill` 是 `buildThinkIconDom()` 建节点时用 `safeSvgColor(color)` **烧进标签的**，
+`node.style.color = state.color` 改不动它 → **只换颜色时 `data-sig` 不变，节点不重建，颜色永远不生效**。
+已改为把颜色纳入签名：
+```js
+// 颜色必须进签名：SVG 的 fill 是建节点时烧进去的，只改 style.color 不会换色
+const sigOf = () => state.icon + "|" + state.customIcon + "|" + state.color;
+```
+
+### demo（+27 行）
+- `#drawerThinkContent` 末尾加「图标颜色」行：`#thinkColorPicker`（`type="color"`）、
+  `#thinkColorText`、`#thinkColorReset`
+- 新增 `syncThinkColor()`，由 `syncThinkToggle()` 尾调，负责回填 picker / 文字 / reset 显隐
+- `applyAccentColor()` 末尾补 `syncThinkColor()` + `if (!thinkColor) updateThinkIcon()`
+  —— 主题色变了且未设自定义色时，图标要跟着换色
+- `bindNewPanels()` 里绑 picker 的 `input`（实时预览）与 reset 的 `click`
+
+### 实测（headless Chrome + CDP，`D:\deepseek\_cdp.mjs`）
+```
+openThinkTab        => "block"
+thinkColorControls  => { picker:true, pickerValue:"#4d6bfe", text:"跟随主题色", resetVisible:"none" }
+setColor(#ff8800)   => { text:"#FF8800", resetDisplay:"block", svgFill:"#ff8800" }
+resetColor          => { text:"跟随主题色", resetDisplay:"none", svgFill:"#4D6BFE" }
+accentFollows       => { before:"rgb(77,107,254)", after:"rgb(0,200,150)", text:"跟随主题色" }
+```
+思考抽屉 `clientHeight 559 / scrollHeight 951`，颜色行在动画药丸下方正常显示。
+
+### 真实宿主验证（不止 demo）
+DSH 桌面应用窗口（`1294x829`）截图放大后，「深度求索中，用时 17分51秒…」文字左侧
+已有 16×16 蓝色鲸鱼尾鳍图标 → **任务④在真实宿主中已生效**。
+
+### 校验
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 21 个全大写标识符
+demo 2 个 <script> 块 new Function()            → block0 OK / block1 OK
+dangling ids（`D:\deepseek\_checkids.cjs`）     → MISSING: NONE（94 声明 / 78 引用）
+new ids present                                 => thinkColorPicker=true thinkColorText=true thinkColorReset=true
+```
+
+### 注意：demo 抽屉是页面内联展开，不是浮层
+`demo/index.html:1480` 的 `.quick-drawer` 是 `position: relative` 的内联块，由
+`#drawerToggle` 点击切换 `style.display`；直接点 tab 不会打开抽屉。CDP 里必须先
+`document.getElementById('quickDrawer').style.display='block'` 再点 tab。
+
