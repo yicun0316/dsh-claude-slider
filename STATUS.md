@@ -7,10 +7,10 @@
 | 项 | 状态 |
 |---|---|
 | 代码 / 文档 | ✅ 完成，全部校验通过 |
-| git commit | ✅ 7 个提交：`817eedd`（主体 1747+/1406-）→ `a501275` → `230dccf`（rAF 护栏）→ `b3806cd`（README）→ `83878df`（STATUS）→ `df35474`（删死 CSS 变量）→ `c011899`（思考图标实时预览） |
-| git push | ✅ 已同步 `origin/main`（`c011899`，`0 0` ahead/behind） |
-| git tag | ✅ `v2.12.0`（annotated）指向 `c011899`，已 push |
-| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114773 B，SHA256 `D1D41015…6B6E8C`，7 files） |
+| git commit | ✅ 7 个提交：`817eedd`（主体 1747+/1406-）→ `a501275` → `230dccf`（rAF 护栏）→ `b3806cd`（README）→ `83878df`（STATUS）→ `df35474`（删死 CSS 变量）→ `c011899`（思考图标实时预览），之后仅有文档提交 |
+| git push | ✅ 已同步 `origin/main`（`0 0` ahead/behind） |
+| git tag | ✅ `v2.12.0`（annotated）指向 `main` 最新提交，已 push |
+| release tarball | ✅ `D:\deepseek\dsh-claude-slider-2.12.0.tgz`（114773 B，SHA256 `D1D41015…6B6E8C`，7 files；从 `c011899` 打包，之后仅文档改动） |
 | npm publish | ❌ **被凭据阻断** —— 见下 |
 
 ### npm 发布受阻的具体原因
