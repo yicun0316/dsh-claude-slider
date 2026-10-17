@@ -111,6 +111,10 @@ dsh plugin --profile desktop remove dsh-claude-slider
 `thinkEnabled` / `thinkIcon` / `thinkCustomIcon` / `thinkAnim` / `thinkColor`）在抽屉的
 「🏃 拖拽」与「🧠 思考」页调整，同样保存在同一 `localStorage` 键下。
 
+> 所有动画循环（Canvas 粒子引擎、游标物理骨架）都遵守 `prefers-reduced-motion`，
+> 并在页面不可见（`visibilitychange` → `hidden`）时停掉 `requestAnimationFrame`，
+> 恢复可见后自动续跑；隐藏期间不产生任何逐帧计算。
+
 ---
 
 ## 目录结构
