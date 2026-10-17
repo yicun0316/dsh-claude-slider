@@ -2,6 +2,45 @@
 
 > 以本文件为准，不要依赖记忆。每完成一步就更新。
 
+## 发布状态（2026-10-17）
+
+| 项 | 状态 |
+|---|---|
+| 代码 / 文档 | ✅ 完成，全部校验通过 |
+| git commit | ✅ `817eedd`（6 文件，1747+/1406-） |
+| git push | ✅ `0650abb..817eedd main -> main` |
+| git tag | ✅ `v2.12.0`（annotated，已 push） |
+| npm publish | ❌ **被凭据阻断** —— 见下 |
+
+### npm 发布受阻的具体原因
+
+`C:\Users\王文岩\.npmrc` 里的 token 已失效：
+```
+$ curl -H "Authorization: Bearer npm_CBvu..." https://registry.npmjs.org/-/whoami
+→ 401 Unauthorized
+```
+npm 侧表现：
+```
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/dsh-claude-slider
+```
+（npm 10 在 token 无效时会把 401 的 PUT 报成 404，实际是鉴权失败，不是包不存在。）
+
+包本身存在且所有权正常：
+```
+https://registry.npmjs.org/dsh-claude-slider  → 200, latest 2.11.0
+maintainers: [{"name":"yicun0316","email":"2821427065@qq.com"}]
+dist-tags: {"latest":"2.11.0"}
+published versions: 2.9.7, 2.9.8, 2.11.0
+```
+
+**需要用户操作**：`npm login`（或换一个有效 token 写进 `.npmrc`），然后：
+```bash
+cd C:\Users\王文岩\.gemini\antigravity\scratch\dsh-claude-slider
+npm publish --access public --registry=https://registry.npmjs.org/
+```
+`npm pack --dry-run` 已验证可用：`dsh-claude-slider-2.12.0.tgz`，7 files，113.8 kB。
+
 ## 当前任务（用户 m00001 提出，四项）
 
 | # | 任务 | 状态 |
