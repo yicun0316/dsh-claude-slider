@@ -518,5 +518,69 @@ node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 23 个�
 ### 提交
 `243c975 fix: ICONS.maid_chibi 别名改为不可枚举，修掉游标页重复按钮与 React 重复 key`
 
+## 2026-10-17 收尾补齐 7：v2.13.0「粉发少女」立绘游标（朝右）
+
+### 需求（用户原话）
+> 提取图2的人物模型，做出类似图1的，然后人物模型朝向向右符合向右走，可以和我的插件图标兼容
+
+- 图1 = README 首图（蓝紫轨道上有个 Q 版小人在跑）
+- 图2 = 409x522 粉发双马尾少女立绘（粉蓝渐变长发、冰蓝缎带星饰、白×藏青未来风连衣裙、白手套、白色过膝长靴）
+
+### 产出（两个 base64 常量 + 一个 ICONS 条目 + 一种新皮肤）
+| 资产 | 尺寸 | 用途 |
+|---|---|---|
+| `CHIBI_HERO_ART` | 218×361 PNG，b64 8588 | 立绘皮肤用的全身小人（朝右奔跑） |
+| `CHIBI_HERO_ICON` | 128×128 PNG，b64 14208 | 图标网格 / 抽屉头像的圆形半身像 |
+
+生成管线在仓库**外部**：`D:\deepseek\_hero_sprite\gen_hero.py`（PIL 手绘，S=8 超采样）
++ `export_assets.py`（`trim` + 48 色 FASTOCTREE 量化 + 写 `.b64`）。
+关键：**半身像单独画**（`render_bust()`），不能从跑步帧裁 —— 双马尾向后拉出 50 个单位，
+任何裁切都无法居中。
+
+### 代码改动（`lib/client.js`，全部增量）
+1. `CHIBI_HERO_ART` / `CHIBI_HERO_ICON` 两个常量，紧跟在 `CHIBI_MAID_AVATAR` 之后。
+2. `ICONS` 新增 `hero_chibi`：`{ id, name:"粉发少女 朝右", art: CHIBI_HERO_ART, svg: 18px 圆形 <img> }`。
+   位于 `whale_chibi` 之后、`claude` 之前 → 图标网格里排第二位。
+3. `DEFAULT_CONFIG.thumbSkin` 注释加 `"art"`；`loadSavedConfig()` 白名单加 `saved.thumbSkin !== "art"`。
+4. `ThumbIcon` 新增分支：`if (config.thumbSkin === "art" && item?.art) return <img class="dcs-thumb-art">`。
+5. 抽屉「游标皮肤」三选一：`art` / `bare` / `bubble`。
+6. thumb 节点改成 IIFE，`isArt` 时 `boxShadow: void 0`，className 追加 `is-art`。
+7. 新增 CSS：`.dcs-thumb.is-art`（背景/边框/圆角/阴影全部清空）、`.dcs-thumb-art`
+   （绝对定位 + `bottom:0` + `height:44px`）、`.dcs-thumb.is-art .dcs-thumb-body { transform-origin: 50% 100% }`
+   （摆动轴落在脚底）、`.is-max-thumb .dcs-thumb-art`（Max 光晕改画在人物剪影上）。
+   **注意：不要覆写 `transition`** —— 会丢掉 `left` 的缓动，游标变瞬移。
+
+### 踩过的坑（都已在代码里留注释）
+- 手柄本体的 `box-shadow: 0 0 0 2px #ffffff` 会在人物脚下浮出一个空心圆角方块 →
+  必须 `box-shadow: none !important` **且不加 `:not()` 条件**，否则 Max 态漏网。
+- `translateY(4px)` / `translateY(-10px)` 都是错的（在 `place-items:center` 的 grid 里会往下溢出），
+  正解是 `position:absolute; bottom:0` 让底边贴着手柄底。
+- `transform-origin: 50% 76%`（插件默认）在人身上落在腰部，跑动时像在飘 → 改到 `50% 100%`。
+- demo 的 `.slider-thumb` 与插件 `.dcs-thumb` 是两套独立 CSS，改动要各写一份。
+
+### demo 同步（`demo/index.html`，4 处）
+常量（`CHIBI_HERO_ICON` 同步为新的 128px 版）、`ICONS.hero_chibi`（`render()` 返回 HTML 字符串）、
+`let thumbSkin` 注释、`updateThumbIcon()` 的 `art` 分支、`syncThumbSkin()` 的 `is-art` toggle、
+CSS（`.slider-thumb.is-art` / `.thumb-art-img` / `transform-origin`）。
+图标网格由 `Object.values(ICONS).map()` 自动生成，无需单独改网格代码。
+
+### 校验（全部通过）
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 23 个全大写标识符
+demo 两个 <script> 块 node --check              → 1840 chars OK / 429808 chars OK
+CRLF / BOM（两个文件）                          → 均无
+真实 React dev 渲染（D:\deepseek\_render_hero4.cjs）
+  thumbInfo => [{ cls:"dcs-thumb is-free is-art", imgCls:"dcs-thumb-art",
+                  srcLen:8610, rect:[223,637,28,28] }]
+  iconBtns  => 11 个，粉发少女 imgLen:14230 sel:true
+  registered:2 / errs:[]
+```
+截图确认：深色面板里粉发少女站在轨道上、**面朝右**、双脚踩轨道下沿；
+图标网格里她的圆形半身像与鲸鱼娘并列显示正常。
+
+### 文档
+`README.md`：Q 版游标动画段落改为「三种皮肤」；游标图标 `10 款` → `11 款`，说明立绘皮肤用法。
+
 
 

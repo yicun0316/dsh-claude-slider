@@ -4,7 +4,7 @@
 
 把 DeepSeek Harness 的「推理强度」下拉框，换成一条会呼吸的滑块。
 
-![version](https://img.shields.io/badge/version-2.12.0-4D6BFE?style=flat-square)
+![version](https://img.shields.io/badge/version-2.13.0-4D6BFE?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![build](https://img.shields.io/badge/build-零构建-orange?style=flat-square)
 ![network](https://img.shields.io/badge/网络请求-0-lightgrey?style=flat-square)
@@ -72,7 +72,7 @@ dsh plugin --profile desktop remove dsh-claude-slider
 
 **滑块交互**　两种拖拽手感可切换：默认「直接拖」连续跟手、松手弹性吸附；也可切到「吸附换档」按档位硬吸附。点击轨道节点直达，随时可关闭并还原为 DSH 原生下拉菜单。
 
-**Q 版游标动画**　6 套角色动作（奔跑 / 蹦跳 / 惯性倾斜 / 漂浮 / 旋转 / 静止），带 rAF 物理引擎：一阶速度低通估计加速度，骤减速或反向时触发趔趄 `wob = sin(stT*27) * exp(-stT*4.4) * stAmp`，大力拖拽刹车会站不稳。可选水滴球体或裸人物两种皮肤，`prefers-reduced-motion` 下自动静止。
+**Q 版游标动画**　6 套角色动作（奔跑 / 蹦跳 / 惯性倾斜 / 漂浮 / 旋转 / 静止），带 rAF 物理引擎：一阶速度低通估计加速度，骤减速或反向时触发趔趄 `wob = sin(stT*27) * exp(-stT*4.4) * stAmp`，大力拖拽刹车会站不稳。三种皮肤：💧 气泡（水滴球体）、🧍 立绘（全身小人直接站在轨道上奔跑）、🫧 裸核（只保留图标本身）；`prefers-reduced-motion` 下自动静止。
 
 **思考指示器**　在宿主「深度求索中…」状态文字前注入 16×16 动画图标，8 款内置（鲸鱼尾鳍 / DeepSeek 鲸鱼 / Claude 星芒 / 超级大脑 / 灵动星火 / 闪电脉冲 / 量子原核 / 炽热烈焰）+ 自定义上传，7 套动画（尾鳍轻摆、深海潜游、呼吸脉动、旋转光环、弹跳律动、漂浮游移、静止），图标颜色可独立指定或跟随主题色。抽屉「🧠 思考」页底部有一枚**实时预览**图标，与注入宿主的那枚同源（同图标、同动画、同颜色），换任何一项都立刻可见，不必等状态栏出现。宿主重渲染后 MutationObserver 自愈重挂（含 60ms 节流与节点守卫）。
 
@@ -92,7 +92,7 @@ dsh plugin --profile desktop remove dsh-claude-slider
 
 **吸附音效**　杂鱼、哦鲸鲸、小黄鸭、机械微触感四款内置音，支持上传本地 MP3 / WAV（`assets/sounds/` 下可试听 `zako.mp3`、`ochinchin.mp3`）。
 
-**游标图标**　10 款内置图标，也可上传 PNG / JPG / SVG 或直接填 Emoji。
+**游标图标**　11 款内置图标，也可上传 PNG / JPG / SVG 或直接填 Emoji。其中「粉发少女」自带一张朝右奔跑的全身立绘，选中后把游标皮肤切到「🧍 立绘」即可让她站在轨道上向右跑（复刻 README 首图效果）；其余图标用立绘皮肤时会自动回落到普通圆形图标。
 
 **档位递进**　Low 接近静止图像（自由拖下 idle 衰减降到 0.08/0.45），High 追加高光脊线与扫描线，Max 叠加泛光、能量射线与环绕火花；切换瞬间有一次径向冲击波。
 
