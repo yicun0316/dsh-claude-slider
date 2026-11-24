@@ -5,6 +5,7 @@
 给 DeepSeek Harness（DSH）做的一个推理滑块 + 桌面美化小插件。
 
 [![Version](https://img.shields.io/badge/version-2.20.0-4D6BFE?style=flat-square)](package.json)
+[![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Build](https://img.shields.io/badge/零构建-单文件直跑-orange?style=flat-square)](#目录结构)
 [![Network](https://img.shields.io/badge/网络请求-0-lightgrey?style=flat-square)](#一些说明)
