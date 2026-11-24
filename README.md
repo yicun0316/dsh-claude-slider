@@ -4,7 +4,7 @@
 
 给 DeepSeek Harness（DSH）做的一个推理滑块 + 桌面美化小插件。
 
-[![Version](https://img.shields.io/badge/version-2.20.0-4D6BFE?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-2.20.1-4D6BFE?style=flat-square)](package.json)
 [![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Build](https://img.shields.io/badge/零构建-单文件直跑-orange?style=flat-square)](#目录结构)
@@ -99,7 +99,7 @@
 在终端敲一行命令就行：
 
 ```bash
-# 桌面版（直接从 GitHub 装最新 v2.20.0）
+# 桌面版（直接从 GitHub 装最新 v2.20.1）
 dsh plugin --profile desktop add github:yicun0316/dsh-claude-slider
 
 # 网页版
