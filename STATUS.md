@@ -2,6 +2,21 @@
 
 > 以本文件为准，不要依赖记忆。每完成一步就更新。
 
+## 本地滑块动效（2026-11-24）
+
+- 新增 4 款自然与人文主题动效（均已同步 `lib/client.js` 与 `demo/index.html`，新增 `nature`「自然」与 `human`「人文」家族分类，共 9 款，3×3 整齐网格）：
+  - `milky_way`（银河星穹）：参照银河实拍图，深靛夜空、斜贯蓝紫至暖香槟银心星云、暗尘埃裂带、多层景深星群与十字衍射亮星，High 偶发柔和流星，Max 银心柔光与星尘入档。
+  - `crystal_ice`（冰晶凝霜）：从冰块参考图提炼冷白逆光、冰川天青与深钴蓝折射美学，将整条轨道重塑为透光冰川水晶本体——含冰内天然晶脉与微气泡、缓慢流转的斜向折光切面、随档位舒展旋转的六瓣霜花冰晶、清冽霜雾与 Max 瞬冻霜华入档。
+  - `polar_day`（极昼晴空）：澄澈天蓝过渡至冰青与极昼低日暖金地平线，双层视差柔光积云、柔边羽化丁达尔日光束与 Max 冰晶日晕微光。
+  - `rainy_window`（雨夜灯窗）：微雨都市车窗的人文夜色，电影感青蓝至暖琥珀夜幕、柔焦四色街灯散景光斑、下沿湿润水光倒影与前景晶莹玻璃水珠及细雨痕。
+- 四款主题背景纹理与光斑/云团/光柱精灵全部离线预绘缓存、零逐帧分配、深浅主题统一 `source-over` 安全合成，均已通过无头 Chrome 深浅模式 Low / High / Max 实机截图核验。
+- 生成 `assets/effects_gallery.png`（9 款动效全家福）与 `assets/effects_tiers.png`（4 款新主题深浅模式三阶递进对比），更新 `README.md` 展示页并将 `package.json` 版本升至 `2.20.0`，推送 GitHub `main`。
+- 参考 v2.12.0 恢复玻璃水银的三种翻转棱片，保留落樱春水。
+- 参考动效交接稿，为玻璃水银增加拖拽速度驱动的液面倾斜与松手回摆。客户端和离线演示同步使用带阻尼的弹簧和缓存光带。
+- 当前保留 GPT 星流、Claude 织格、繁花盛放、落樱春水和玻璃水银。青花瓷、透澈水、情书邮箱和四时流转的旧设置自动迁移。
+- GPT 星流改用参考图的横向紫色渐变及柔光星点，保留 High 的拖尾与 Max 的入档星尘。
+- 已核对桌面端五款名单及 GPT 星流渲染，离线演示通过各档、深浅主题和减少动态效果检查。
+
 ## 发布状态（2026-10-17）
 
 | 项 | 状态 |
@@ -697,3 +712,137 @@ thumb => cls "dcs-thumb   is-free  is-art", imgH 44px
 ### 仍未做
 - 未提交（工作区 ` M demo/index.html` / ` M lib/client.js`，HEAD 仍是 `e00ab0b`）。
 - 版本号未改（仍是 2.13.0）。
+
+## 2.19.0 — 模型名标签子槽位桥接（宿主 0.2.1-rc.2 的 1017 徽标）
+
+> 2026-10-18。目标：宿主在模型名后渲染的版本徽标（当前「1017」，以后还会有 1018/1020…）
+> 必须同样出现在本插件的模型栏与菜单里，且不能写死任何一个版本号。
+
+### 背景 / 根因
+
+- 宿主 0.2.1-rc.2 新增包 `@deepseek-ai/dsh-client-ui-deepseek-model-label-1017`，它往子槽位
+  `conversation.input.model.label`（kind single / scope session / inline）注册贡献；
+  主槽位 `conversation.input.model` 的宿主声明里 `children` 就包含这个子槽位
+  （`dsh-client-ui-model-selection/lib/client.js:1903-1923`）。
+- 子槽位渲染靠 `renderSlot` 属性，而渲染器只给「自己声明了 children 的注册」注入
+  `renderSlot`（`dsh-client-ui-renderer/lib/client.js:753-755`），并且 `boundRenderSlot`
+  会校验 `entry.children[key]`（:347-348，否则抛 SlotOwnershipError）。
+- 本插件是**整槽替换**，无法再声明一次该子槽位：`SlotCore.register` 对已声明的子槽位抛
+  `slot "…" is already declared (by …)`。所以旧代码只渲染 `model.name`，徽标丢失。
+
+### 方案（通用，不写死 1017）
+
+不碰子槽位声明，直接读槽位里的贡献条目并按宿主同样的 owner props 渲染：
+`provider {id,name}` / `model` / `placement:"trigger"|"menu"|"option"` / `selected` / `t`。
+`t` 用贡献条目自己的 `locale` 命名空间经 `locale.bind(ns)` 绑定。取不到贡献、
+宿主更老没有该槽位、或贡献组件崩溃时，一律回退到模型目录里的 `model.name`。
+
+### 改动点（lib/client.js）
+
+| 位置 | 内容 |
+|---|---|
+| 常量区（:18-20） | 新增 `SLOT_MODEL_LABEL = "conversation.input.model.label"` |
+| 新增 9a 段（:3466-3557） | `ModelLabelErrorBoundary`（:3474）、`useSlotRevision`（:3491）、`useLocaleRevision`（:3504）、`pickModelLabelEntry`（:3517）、`ModelLabelText`（:3526） |
+| `ClaudeModelSelect`（:3559） | 形参增加 `slots, locale, sessionId` |
+| 两处触发栏文案 | `dcs-trigger-text` 内改用 `ModelLabelText`，`placement:"trigger"` |
+| 两处菜单项文案 | `dcs-menu-item-name` 内改用 `ModelLabelText`，`placement:"option"` |
+| `installModelSeat` 的 inject | 追加 `sessionId` / `slots: scope.slots` / `locale: scope.get("locale")` |
+| CSS（`.dcs-model-menu` 前） | 新增 `.dcs-model-label`（inline-flex / gap 4px / nowrap） |
+
+`slots` 服务实测（`dsh-client-ui-renderer/lib/client.js` 的 `SlotRegistry`）暴露
+`entries` / `entriesOfSlot` / `subscribe` / `getVersion` / `spec` / `snapshot` / `onEntryError`；
+`renderSlot(key)` 只允许 `"root"`，子槽位只能走属性面 —— 所以只能自行渲染贡献。
+
+### 校验
+
+```
+node --check lib/client.js                      → exit=0
+node scripts/check-undefined.cjs lib/client.js  → ✅ 干净：扫描 25 个全大写标识符
+```
+
+桥接逻辑离线测试（`D:\deepseek\_verify\label-bridge-test.cjs`，从源码中切片 9a 段 + 桩 React/槽位/语言表）：
+
+```
+ok 1: contribution rendered (name + 1017, bound t, inject sessionId, data-* attrs)
+ok 2: empty slot falls back to catalog name
+ok 3: legacy host (no slots/locale) and throwing inject degrade to catalog name
+ok 4: malformed entries are ignored
+ok 5: entriesOfSlot winner (entries[0]) is rendered
+ALL BRIDGE CHECKS PASSED
+```
+
+### 真机（desktop profile，宿主 0.2.1-rc.2）
+
+该 profile 里插件原本是 `enabled:false`（bundles 里也没有），本次用
+`plugin_manager set_bundle dsh-claude-slider enabled=true` 打开并热加载成功：
+
+```
+conversation.input.model      → occupants: installModelSeat (-100, active) + Kb (0, inactive)
+conversation.input.model.label → occupants: Kb (0, active)
+```
+
+### 待办
+
+- 视觉确认：模型栏应为「DeepSeek-V4.1-Flash + 1017 徽标」+ 推理滑块；菜单项同样带徽标。
+- `git commit`（本仓库任何改动都应留痕）。
+- npm 发布仍受 token 阻断（见上）。
+
+## 2.19.1 — 上传图标「太小」修复（真机反馈：不能跟内置立绘一样大吗）
+
+### 现象
+
+用户在设置页上传自定义图标后：手柄里只剩一个 26px 小圆点（截图里约 28px 的白色小方块），
+而「图标形象」网格里的内置形象都是 72px 大立绘，上传图只缩在按钮右侧当 22px 缩略图。
+用户原话：「上传图标为什么这么小，不能跟图2一样吗」。
+
+### 三个真因（都验证过）
+
+1. **立绘档 CSS 整段无效**：`.dcs-thumb-emoji` 之后那段「上传竖长图 64px」的规则体
+   **丢了选择器行**（直接以 `position: absolute !important;` 开头），浏览器把整块当语法错误丢弃，
+   于是 `img.dcs-thumb-img.is-figure` 没有任何规则命中，掉进下面的兜底：
+   `.dcs-thumb-body img:not(.dcs-thumb-art) { width:26px; height:26px; border-radius:50%; object-fit:cover }`。
+   —— 这就是「不管传什么都是小圆点」的直接原因。
+2. **上传图从来不算 art**：`isArt` 只看 `ICONS[config.icon].art`，`custom` 永远不在表里，
+   所以手柄壳、白边、Max 光晕全按圆头档处理，立绘该有的「隐形手柄 + 剪影光晕」拿不到。
+3. **刷新即丢**：`loadSavedConfig` 里 `if (!ICONS[saved.icon]) saved.icon = "whale_chibi";`
+   而 `ICONS` 没有 `custom` 键 —— 只要刷新一次页面，`icon:"custom"` 就被静默改回鲸鱼娘
+   （`customIcon` 还留着，但没人引用），用户会以为「上传的图消失了」。
+
+### 改动点（lib/client.js）
+
+| 位置 | 内容 |
+|---|---|
+| `loadSavedConfig`（:769-790） | 只有 `icon !== "custom" || !customIcon` 时才做 ICONS 兜底，上传图不再被重置 |
+| `compressAndSaveImage`（:832） | 保存时不再把方图裁成正方形：整图等比缩放（长边 ≤192px）；圆头档靠 `object-fit:cover` 现裁，切档无损 |
+| `ThumbIcon`（:2569-2582） | 立绘档改成 `dcs-thumb-art dcs-thumb-img is-figure`，直接复用内置立绘那套 64px / 脚踩轨道规则 |
+| `isArt`（:3466-3470） | 上传的立绘档也算 art（手柄隐形 + 剪影光晕） |
+| CSS（原 :5698-5708） | 删掉那段的孤儿声明，换成说明性注释（不再需要第二套尺寸规则） |
+| 设置页图标 tab（:3012-3095） | 上传图变成网格里的第 6 个格子（立绘 72px / 圆头 38px，可点选）；去掉 22px 预览；新增「上传图尺寸」= 立绘（大）/ 圆头（小）切换 + 清除 |
+
+### 真实浏览器量测（`D:\deepseek\_verify\thumb_probe.cjs`）
+
+挂真 React + 真插件源码 + 桩宿主，set 上传图后打开滑块量与截图：
+
+| 场景 | 修复前 | 修复后 |
+|---|---|---|
+| 立绘档手柄内 img | 26 × 26，`border-radius:50%`，`object-fit:cover`，手柄无 `is-art` | **32 × 64**，`radius:0`，`position:absolute; bottom:0`，手柄带 `is-art` |
+| 圆头档手柄内 img | 26 × 26 圆形 | 26 × 26 圆形（保持不变，本来就是小头像档） |
+| 设置页上传图 | 仅 `.dcs-avatar-preview` 22 × 22 | 网格格子 69 × 82，立绘 img 68.8 高（与内置一致） |
+| 刷新后 `icon` | `whale_chibi`（被重置） | `custom`（保留） |
+| 尺寸切换 | 无 | 「上传图尺寸」两枚 pill：立绘（大）/ 圆头（小） |
+
+截图：`D:\deepseek\_verify\shots\shot_figure2.png`（立绘档，手柄 64px 站姿 + 网格大格子）、
+`D:\deepseek\_verify\shots\shot_glyph.png`（圆头档 26px 圆形）。
+
+### 校验
+
+```
+node --check lib/client.js                       → exit=0
+node scripts/check-undefined.cjs lib/client.js   → ✅ 干净：扫描 25 个全大写标识符
+```
+
+### 待办
+
+- 用户在设置 → 图标 → 「上传图尺寸」点一下「立绘（大）」，旧上传图立刻变大（旧数据是裁过的 128×128 方图，无法还原原图）。
+- `demo/index.html` 里那份组件快照还没同步本次改动（demo 自己的 `.is-figure` 规则是好的，所以 demo 看起来正常）。
+- `git commit`。

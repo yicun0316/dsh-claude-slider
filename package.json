@@ -1,7 +1,7 @@
 {
   "name": "dsh-claude-slider",
-  "version": "2.13.0",
-  "description": "Claude 风格推理强度滑块插件：一体化液态玻璃面板、背景透明度与动效亮度双轴调校、直接拖 / 吸附双模式、Q 版游标物理动画与宿主思考指示器注入",
+  "version": "2.20.0",
+  "description": "Claude 风格推理强度滑块插件：一体化液态玻璃面板、9 款 Canvas 动效（含银河星穹/冰晶凝霜/极昼晴空/雨夜灯窗四款自然人文主题）、直接拖手感、静止/呼吸图标动效与统一游标尺寸规范",
   "keywords": [
     "dsh",
     "dsh-plugin",
