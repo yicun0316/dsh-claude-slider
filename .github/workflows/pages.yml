@@ -1,0 +1,94 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "studio/**"
+      - "demo/**"
+      - "themes/**"
+      - "assets/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Assemble static site
+        run: |
+          mkdir -p _site
+          cp -r studio demo themes assets _site/
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>DSH Claude Slider — 在线工坊与演示</title>
+            <style>
+              :root { color-scheme: dark; --bg: #0b0f17; --card: #131926; --border: rgba(255,255,255,0.1); --text: #e6edf6; --muted: #94a3b8; --accent: #6366f1; }
+              * { box-sizing: border-box; }
+              body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 20% 20%, rgba(99,102,241,0.16), transparent 45%), var(--bg); color: var(--text); font-family: "Microsoft YaHei", system-ui, -apple-system, sans-serif; }
+              main { max-width: 720px; width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.45); }
+              h1 { margin: 0 0 8px; font-size: 24px; }
+              p { margin: 0 0 22px; color: var(--muted); line-height: 1.65; font-size: 14px; }
+              .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+              a.card { display: block; padding: 18px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: inherit; text-decoration: none; transition: border-color .15s, transform .15s, background .15s; }
+              a.card:hover { border-color: rgba(129,140,248,0.65); background: rgba(99,102,241,0.1); transform: translateY(-2px); }
+              .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+              .desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+              .footer { margin-top: 20px; font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; }
+              .footer a { color: #a5b4fc; text-decoration: none; }
+            </style>
+          </head>
+          <body>
+            <main>
+              <h1>dsh-claude-slider</h1>
+              <p>DeepSeek Harness（DSH）推理强度滑块插件：支持 6 款内置 Canvas 动效、自由定制 Canvas 2D / WebGL GLSL 动效包、输入框萌宠剧场与莫奈流光外观。</p>
+              <div class="grid">
+                <a class="card" href="./studio/">
+                  <div class="title">🎨 自由定制动效工坊（Studio）</div>
+                  <div class="desc">在线编写 Canvas 2D / WebGL GLSL 或一键复制 AI 提示词，深浅双模式实时试玩校验并导出 .dcs-effect.json。</div>
+                </a>
+                <a class="card" href="./demo/">
+                  <div class="title">✨ 插件交互演示页（Demo）</div>
+                  <div class="desc">无需安装 DSH 客户端，直接在浏览器体验完整滑块动效、萌宠剧场、游标与面板设置。</div>
+                </a>
+              </div>
+              <div class="footer">
+                <a href="https://github.com/yicun0316/dsh-claude-slider">GitHub 仓库</a>
+                <a href="https://github.com/yicun0316/dsh-claude-slider/tree/main/themes">16 款动效包目录</a>
+                <a href="https://www.npmjs.com/package/dsh-claude-slider">npm 包主页</a>
+              </div>
+            </main>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
