@@ -13,6 +13,10 @@
 
 [在线交互演示](https://yicun0316.github.io/dsh-claude-slider/demo/) · [自由定制动效工坊](https://yicun0316.github.io/dsh-claude-slider/studio/) · [16 款扩展动效库](themes/README.md) · [插件市场页面](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 
+<br />
+
+<img src="assets/showcase_hero.png" alt="dsh-claude-slider 主视觉预览：银河星穹滑块、莫奈随鼠流光框与输入框萌宠" width="760" />
+
 </div>
 
 ---
@@ -97,6 +101,12 @@ dsh plugin --profile desktop remove dsh-claude-slider
   3. **一键导入插件**：点击 **「导出 .dcs-effect.json」** 或 **「复制 JSON」**，回到 DSH 插件面板 **「动效 → 自定义 → 导入文件 / 粘贴导入」** 即可立即生效。
 - **16 款现成动效库**：仓库 [`themes/`](themes/README.md) 目录收录了 16 款可独立导入的动效包（含旧版火山喷发、极光织锦、GLSL 流体熔岩、铜银金砂等），不占主包体积，按需导入。
 
+<div align="center">
+
+![自由定制动效工坊预览](assets/showcase_studio.png)
+
+</div>
+
 ### 4. 输入框像素萌宠剧场
 
 <div align="center">
@@ -122,6 +132,10 @@ dsh plugin --profile desktop remove dsh-claude-slider
   - 5 款像素萌宠（`臭企鹅`、`反重力猫娘`、`小紫猫`、`暖橘小蟹`、`深海小鲸`）+ 1 款 `极简纯白`
   - 支持上传本地 PNG / JPG / SVG 图片，内置自动紧裁透明边与无损切换 **立绘档** / **圆头档**（`70% ~ 140%` 缩放）。
 - **档位音效**：内置 5 款反馈音（**机械微触**、**咕咕嘎嘎**、**杂鱼**、**哦鲸鲸**、**小黄鸭**，[`assets/sounds/`](assets/sounds/) 中存有音频素材），支持上传本地 MP3 / WAV 与独立音量调节。
+
+| 浅色液态玻璃与动效分类 | 20 款角色与像素萌宠游标 |
+| :---: | :---: |
+| ![浅色玻璃动效面板](assets/showcase_effects.png) | ![20 款游标网格](assets/showcase_cursor.png) |
 
 ---
 
