@@ -4,7 +4,7 @@
 
 给 DeepSeek Harness（DSH）做的一个推理滑块 + 桌面美化小插件。
 
-[![Version](https://img.shields.io/badge/version-2.20.1-4D6BFE?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-2.21.0-4D6BFE?style=flat-square)](package.json)
 [![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Build](https://img.shields.io/badge/零构建-单文件直跑-orange?style=flat-square)](#目录结构)
@@ -12,44 +12,32 @@
 
 </div>
 
-一开始只是嫌原生那个「推理强度」下拉框有点素，顺手改成了滑块，结果越加越上头——现在里面塞了 **9 款 Canvas 滑块动效**、**输入框小宠物剧场**、**莫奈取色和随鼠流光框**、**自定义立绘游标**，还有几个整活音效。
+一开始只是嫌原生那个「推理强度」下拉框有点素，顺手改成了滑块，结果越加越上头——现在里面塞了 **6 款内置 Canvas 滑块动效**、**输入框小宠物剧场**、**莫奈取色和随鼠流光框**、**自定义立绘游标**，还有几个整活音效。
 
 单文件零构建，不连网，不读你的本地文件，装完在客户端里按 `Ctrl + R` 就能直接用。不想装 DSH 也可以直接用浏览器打开 [`demo/index.html`](demo/index.html) 先玩一遍。
 
 ---
 
-## 9 款滑块动效
-
-<div align="center">
-
-![9 款内置 Canvas 动效一览](assets/effects_gallery.png)
-
-</div>
+## 6 款内置滑块动效
 
 拖动滑块就能在 `Off / Low / High / Max` 之间连续切换，松手会轻轻弹回最近的档位，点刻度也能直达。每款动效都会跟着推理档位往上叠效果：Low 档安静克制，拉到 High 和 Max 才会慢慢热闹起来。
 
-- **自然 / 人文（4 款）**
+- **自然（2 款）**
   - **银河星穹**：深蓝紫夜空斜着铺开一条银心星云带，带暗尘埃裂纹和十字星芒，High 档偶尔会划过一颗流星，Max 档游标附近会炸开一簇星尘。
   - **冰晶凝霜**：不是往轨道里贴方块，而是把整条轨道做成一块背光冰川水晶，斜向折光面在冰层里慢慢滑过，档位越高，六瓣霜花、霜雾和细碎冰尘越清晰。
-  - **极昼晴空**：上蓝下暖的极昼天空，云朵分前后两层慢慢飘，高档位会透出几道很轻的斜向日光束。
-  - **雨夜灯窗**：像下雨天晚上坐在车里隔着玻璃看路灯，窗外是暖琥珀、青蓝、珊瑚红的柔焦光斑，玻璃上挂着水珠，高档位会有细雨丝斜着滑下来。
-- **材质 / 花卉 / 数字（5 款）**
+- **材质 / 花卉 / 数字（4 款）**
   - **玻璃水银**：拖拽时液面会跟着手速倾斜、松手回摆，里面飘着三种会翻转反光的玻璃棱片。
   - **落樱春水**：花瓣在春水涟漪上翻滚着飘，底色会跟着你选的主题色或莫奈色盘变。
-  - **繁花盛放**：五种颜色的小花随风轻轻晃动舒展。
   - **GPT 星流**：紫调渐变底色配柔光星点，高档位带短光尾。
   - **Claude 织格**：一格一格扫过去的波浪方块矩阵。
 
-<details>
-<summary>点开看 4 款自然与人文主题在深/浅模式下的 Low / High / Max 对比</summary>
+### 自由定制动效、经典回归与在线工坊
 
-<div align="center">
+「动效 → **全部**」汇总内置与已导入的动效。「动效 → **自定义**」可以导入、复制和删除动效包。引擎支持 **Canvas 2D** 与 **WebGL GLSL**，可以联动主题色与莫奈三色盘，并提供离屏试跑校验与报错熔断保护。
 
-![4 款新主题深浅模式对比](assets/effects_tiers.png)
-
-</div>
-
-</details>
+- **动效库（[`themes/`](themes/README.md)）**收录 **16 款**可独立导入的动效，包括旧版火山喷发、极光织锦、GLSL 流体熔岩和铜银金砂。
+- **自由定制工坊（[`studio/index.html`](studio/index.html)）**：双击即可在浏览器打开的单文件创作台，支持边写 Canvas 2D / GLSL 边看深浅双模式拖拽实机效果，并内置**一键复制 AI 动效生成提示词**，发给 DeepSeek / Claude 就能按任意脑洞生成可直接导入的动效包。
+- **极简静止支持**：动效流速支持拉到 `0x`（静止），不喜欢晃眼的办公场景可随时定格成精致静态渐变。
 
 ---
 
@@ -99,7 +87,7 @@
 在终端敲一行命令就行：
 
 ```bash
-# 桌面版（直接从 GitHub 装最新 v2.20.1）
+# 桌面版（直接从 GitHub 安装）
 dsh plugin --profile desktop add github:yicun0316/dsh-claude-slider
 
 # 网页版
@@ -135,13 +123,21 @@ dsh plugin --profile desktop remove dsh-claude-slider
 
 </details>
 
+### 自由定制动效、经典回归与在线工坊
+
+「动效 → **全部**」包含内置与已导入的动效。可以在「动效 → **自定义**」管理 Canvas 2D 和 WebGL GLSL 动效包。
+
+- **动效库（[`themes/`](themes/README.md)）**提供 **16 款**可独立导入的 `.dcs-effect.json`。
+- **自由定制工坊（[`studio/index.html`](studio/index.html)）**：双击即可在浏览器打开的单文件创作台，支持边写 Canvas 2D / GLSL 边看深浅双模式拖拽实机效果，并内置**一键复制 AI 动效生成提示词**，发给 DeepSeek / Claude 就能按任意脑洞生成可直接导入的动效包。
+- **极简静止支持**：动效流速支持拉到 `0x`（静止），不喜欢晃眼的办公场景可随时定格成精致静态渐变。
+
 ---
 
 ## 一些说明
 
 - **不折腾隐私**：所有配置只存在浏览器的 `localStorage`（键名 `dsh-claude-slider.config.v2`），插件全程零网络请求。
 - **不白白吃 CPU**：窗口切到后台或最小化时，Canvas 和萌宠的动画循环都会自动停掉；滑块拉到 `Off` 档时也不会空跑帧；系统开了「减少动态效果」也会乖乖静下来。
-- **常用可调项**：动效流速（`0.5x ~ 2.0x`）、动效亮度（`0.5x ~ 2.0x`）、面板透明度（`15% ~ 100%`）、输入框氛围强度（`10% ~ 100%`）、萌宠大小（`0.8x ~ 1.35x`）、游标大小（`70% ~ 140%`）、音量（`0% ~ 100%`）。
+- **常用可调项**：动效流速（`0x 静止 ~ 2.0x`）、动效亮度（`0.5x ~ 2.0x`）、面板透明度（`15% ~ 100%`）、输入框氛围强度（`10% ~ 100%`）、萌宠大小（`0.8x ~ 1.35x`）、游标大小（`70% ~ 140%`）、音量（`0% ~ 100%`）。
 
 ---
 
@@ -156,6 +152,8 @@ dsh-claude-slider/
 │   └── client.js         # 核心实现（滑块动效、外观、萌宠、游标、音效都在这一个文件里）
 ├── assets/               # 预览图与内置音效
 ├── demo/index.html       # 双击就能在浏览器里玩的离线预览页
+├── studio/index.html     # 自由定制动效工坊（Canvas 2D + WebGL GLSL + AI 提示词）
+├── themes/               # 16 款可独立导入的 .dcs-effect.json
 └── install.bat           # Windows 一键本地挂载脚本
 ```
 

@@ -2,6 +2,78 @@
 
 > 以本文件为准，不要依赖记忆。每完成一步就更新。
 
+## GPT 星流渲染修复（2026-11-26）
+
+- 恢复清理旧主题时误删的 `starGlowTexture` 缓存声明，修复选择 GPT 星流后只画底色、星点和后续绘制中断的问题。同步浏览器演示。
+- Chrome 复现旧版 ReferenceError，并验证修复后三档星点持续运动、六款内置都能切换与绘制、演示正常运行，零控制台错误。
+
+## 滑块动效残影修复（2026-11-26）
+
+- 自定义 Canvas 2D 使用可复用的独立画布，主轨道按进度或全轨模式合成。脚本报错或变换状态不平衡时，主轨道仍能正常清空。WebGL 切换和失败时隐藏旧画层。
+- Chrome 在旧代码复现自定义脚本抛错后，从 Max 切到 High 和 Claude 织格仍留有旧底色。修复后游标右侧画布透明，Claude 织格恢复，进度裁切与 WebGL 故障切换通过。
+- 客户端语法、45 个大写标识符与刷新率、拖拽和静止回归检查通过。浏览器演示同步隔离绘制。
+
+## 内置与自定义动效菜单调整（2026-11-26）
+
+- 移除繁花盛放、极昼晴空、雨夜灯窗及专用渲染代码。旧配置依次迁移到落樱春水、冰晶凝霜、银河星穹。
+- 客户端和浏览器演示在「全部」显示 6 款内置动效和所有已导入动效。「自定义」继续提供包管理。
+- 移除「自定义」中重复的选择卡片，改用下拉框管理。Chrome 验证导入、复制和删除，全部页继续显示完整的动效列表。
+- Chrome 验证 6 款内置与 7 款自定义同屏、分类切换、直接启用、导入和删除同步、旧档迁移和离线演示，零运行错误。客户端语法与 44 个标识符检查通过。
+- 客户端和演示按画面内容归类自定义动效，优先读取包内有效的 `family`，再匹配名称和 ID。「其他」仅在有未归类的包时显示。Chrome 验证当前 6 款内置及 8 款自定义的自然、材质、花卉、数字分类与导入删除同步，45 个标识符检查通过。
+
+## 自定义动效流速修复（2026-11-26）
+
+- Canvas 2D 自定义动效的 `s.dt` 应用流速倍数，静止或减少动态效果时为 0。同步演示、工坊及接口提示。
+- 用「银金钻碎流」原包和修正版对照测试。修正版以 `s.dt / 60` 换算秒。Chrome 的 2× 粒子位移约为 1× 的两倍，0× 时轨道停止连续更新。
+- 客户端语法、44 个全大写标识符检查、演示及工坊内联语法检查全部通过。
+
+## 滑块粒子帧率修复（2026-11-26）
+
+- 轨道有运动时随显示器的 `requestAnimationFrame` 重绘，移除滑块停稳后的 30 FPS 限制与独立绘制时钟。Off、0× 静止、减少动态效果和页面隐藏时继续按需绘制。
+- 客户端和演示页复用玻璃水银的棱片路径。客户端仅在切换或重新导入自定义包时检查脚本签名。
+- 无头 Chrome 对比落樱春水、玻璃水银和 GPT 星流，约 30 → 60 次轨道绘制/秒。模拟 60/120/144/165 Hz 验证刷新节奏，确认拖拽保持同帧、静止状态无持续重绘。
+- 客户端通过 `node --check lib/client.js` 与 `node scripts/check-undefined.cjs lib/client.js`。离线演示的两个内联脚本通过语法检查。
+
+## Q 版滑块图标萌宠合集替换（2026-11-26）
+
+- 将 `Q版滑块图标-萌宠合集.zip` 中的 **19 款角色与萌宠**（全部自动紧裁透明边、等比优化为高清透明 WebP，像素萌宠保留无损 `image-rendering: pixelated`）增量替换进 `lib/client.js` 与 `demo/index.html` 的 `ICONS`（保留 `pure_orb` 极简纯白作为第 20 项，凑成整齐的 4×5 网格）：
+  - AI 拟人娘（10 款）：`DeepSeek娘`（默认）、`Claude娘`、`ChatGPT娘`、`Gemini娘`、`Grok娘`、`Kimi娘`、`豆包娘`、`MiniMax娘`、`GLM娘`、`千问娘`；
+  - 原创 Q 版（4 款）：`月相观星员`、`樱花茶屋主`、`海玻璃信使`、`琥珀狐机械师`；
+  - 像素萌宠（5 款）：`臭企鹅`、`反重力猫娘`、`小紫猫`、`暖橘小蟹`、`深海小鲸`。
+- 老配置兼容：`maid_chibi` / `whale_chibi` / `hero_chibi` / `q_fox` / `q_boy` / `q_maid` 均自动迁移至 `deepseek_girl`，且保留不可枚举别名防止 React 重复 key；「莫奈图标取色」自动适配全部 19 款新图标。
+- 校验：`node --check lib/client.js` exit 0；`check-undefined` 44 个标识符零未声明；`demo/index.html` 双 `<script>` 语法通过；真 React 19.3 + 无头 Chrome 验收 20 枚按钮与 19 张图片 100% 加载、旧配置迁移通过、0 error / 0 warning。
+
+## 丝滑换档引擎修复与微动效 / TUI 交互升级（2026-11-26）
+
+- **架构规划（Antigravity）+ 分阶段执行（Codex CLI v0.171.0 `gpt-6.2-sol`）+ 真浏览器复核**：
+  - **核心丝滑度修复（`lib/client.js` & `demo/index.html`）**：
+    - 彻底移除 `.dcs-thumb` / `.slider-thumb` 外层的 `left` CSS 过渡（消除 CSS transition 与 rAF 弹簧逐帧互搏及每帧回流），统一由单一 rAF 物理时钟通过 GPU 合成层 `transform: translate3d(xPx, -50%, 0)` 像素级同步游标、Canvas 前沿、刻度点与跟随悬浮 HUD。
+    - 弹簧调优为欠阻尼 `stiffness = 360, damping = 26`（脆爽带自然微回弹），并在内层 `.dcs-thumb-body` 驱动速度挤压拉伸（Squash & Stretch）与落档回弹，静止归零；修复 Off 档休眠等待弹簧收敛后再停帧；严格遵守 `prefers-reduced-motion` 与 `visibilitychange` 停帧护栏。
+    - 高频拖拽改走 Ref 直通（同档位内移动零 React 重渲染），仅跨档或落档更新状态；新增 1500ms 乐观档位锁 + 串行提交队列，解除快速连点时的 `busy` 锁定并防止旧宿主快照回弹。
+  - **参考《这12种动效》的精细微动效**：
+    - 档位栏 `.dcs-tier-buttons` 与抽屉导航 `.dcs-drawer-tabs` 新增弹性形变高亮胶囊（`.dcs-tier-pill-indicator` / `.dcs-drawer-tab-indicator`）；
+    - 新增过档刻度涟漪脉冲（`.dcs-dot-ripple`）、游标跟随悬浮 HUD（`.dcs-scrub-hud`）、面板交错入场（Stagger）、指针追随镜面微光（Specular Glint）、数值滚动弹入（Value Pop）与单次 260ms Max 边沿棱镜微闪（`< 3Hz`）。
+  - **参考《dsh-TUI》的键盘流与紧凑遥测 UI**：
+    - 新增单行精密遥测条（`.dcs-telemetry-bar`：状态点 + 档位释义 + 分段微缩算力能量格 + `?` 快捷键开关）及默认收起的可折叠快捷键速查条（`.dcs-keymap-strip`）；
+    - 支持全键盘流操控（`←/→`、`h/l`、`1-4`、`Home/End`、`D` 切抽屉、`[`/`]` 切页签、`?` 速查、`Esc` 分层收起）；轨道与底部触发胶囊支持鼠标滚轮切档，触发胶囊支持 `Shift+点击` 循环快切与状态色微点。
+- **视觉复核顺带修掉 2 处细节**：
+  - 新增 `.dcs-popover:focus { outline: none; }` 去掉弹窗自动聚焦时浏览器自带的粗外框；
+  - 头部 `Max` 徽章内联样式由 `background` 改为 `backgroundImage` + `backgroundClip: "text"`，修掉浅色模式切换时简写覆盖 `background-clip` 导致实心紫块的问题。
+- **验收结果**：
+  - `node --check lib/client.js` 退出码 0；`node scripts/check-undefined.cjs lib/client.js` 扫描 44 个全大写标识符零未声明；
+  - `demo/index.html` 双 `<script>` 语法全过，72 处 `getElementById` 零悬挂，无头 Chrome 30+ 项交互检查全过；
+  - 真实 React 19.3.0 dev + 无头 Chrome CDP 对真实 `lib/client.js` 全链路验收通过（`registered: 2`，`thumbTransitionDuration: 0s`，真实鼠标拖拽、快速连点乐观锁、滚轮、`Shift+点击`、键盘流、分层 `Esc`、深浅双主题截图核验，0 console error / 0 React warning）。
+
+## 自由定制动效生态（2026-11-26）
+
+- **插件本体增量改造**（`lib/client.js` & `demo/index.html`，保留原有 9 款 3×3 精选门面不动）：
+  - 新增标准动效包协议 `dsh-claude-slider-effect` v1（`custom:<slug>` 前缀隔离，独立存储键 `dsh-claude-slider.custom-effects.v1`，上限 24 个 / 单包 64KB）。
+  - 支持 `canvas2d`（原生 `CanvasRenderingContext2D` + `init/draw`）与 `glsl`（WebGL 片元着色器）双渲染模式，支持 `clip: "progress" | "track"`、`colorMode: "theme" | "tinted" | "fixed"`，透传 `pal` 主色盘、莫奈三色盘 `monet`、鼠标坐标 `pointer` 与拖拽速度 `velocity`。
+  - 内置离屏试跑校验与运行时连续 3 帧异常自动熔断护栏；抽屉「动效」页新增「自定义」分类支持粘贴/文件导入、复制分享、删除及一键复制 AI 提示词；动效流速下限放宽至 `0x`（静止）。
+- **单文件自由工坊**（`studio/index.html`，不进 npm `files` 白名单）：含空白画布与 5 款跨风格模板、三步 AI 创作引导、深浅双模式拖拽实机测试台、莫奈三色模拟与熔断演练。
+- **独立动效库**（`themes/`，15 款 `.dcs-effect.json` + `themes/README.md`，不进 npm 主包体积）：完整收录 v2.13 精简掉的 11 款经典动效（含旧版火山喷发 `volcano-magma`）以及新版熔岩炽脉、GLSL 流体熔岩、全轨道交互网格、极简静谧丝光。
+- **校验结果**：`node --check lib/client.js` 退出码 0；`scripts/check-undefined.cjs` 扫描 43 个全大写标识符零未声明；`demo/index.html` 双 `<script>` 与 `studio/index.html` 语法全过；无头 Chrome 15/15 动效包（含 WebGL GLSL）实机渲染通过。
+
 ## 本地滑块动效（2026-11-24）
 
 - 新增 4 款自然与人文主题动效（均已同步 `lib/client.js` 与 `demo/index.html`，新增 `nature`「自然」与 `human`「人文」家族分类，共 9 款，3×3 整齐网格）：
@@ -846,3 +918,11 @@ node scripts/check-undefined.cjs lib/client.js   → ✅ 干净：扫描 25 个�
 - 用户在设置 → 图标 → 「上传图尺寸」点一下「立绘（大）」，旧上传图立刻变大（旧数据是裁过的 128×128 方图，无法还原原图）。
 - `demo/index.html` 里那份组件快照还没同步本次改动（demo 自己的 `.is-figure` 规则是好的，所以 demo 看起来正常）。
 - `git commit`。
+
+## 2026-11-26 · 交互动效升级
+
+- 基线动效为玻璃水银、落樱春水、GPT 星流、Claude 织格、繁花盛放、银河星穹、冰晶凝霜、极昼晴空和雨夜灯窗，另支持已导入的自定义动效。
+- 实现范围为 `lib/client.js`：弹层进退场、抽屉与分组切换、滑轨悬停与提交反馈、游标微动和档位反馈。
+- 保留 `role="region"` 及 Wallpaper Engine Glass 直系元素透明覆盖。核对快速切换、减少动态效果、抽屉滚动、七枚家族标签和自定义卡片尺寸。
+- 已知基线差异：离线演示仍使用独立快照。本次验证针对客户端源码。
+- 无头 Chrome + React + 宿主桩验证通过：弹层进退场和重开竞态、抽屉滚动和切换、自定义卡片和 Canvas、悬停与拖拽、键盘与滚轮、锁定和系统减动效切换；并补充在抽屉开关或档位提交时自动清除悬停预览，杜绝残影。

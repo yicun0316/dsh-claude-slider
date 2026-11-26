@@ -1,0 +1,12 @@
+{
+  "format": "dsh-claude-slider-effect",
+  "version": 1,
+  "id": "custom:minimal_silk",
+  "name": "极简静谧丝光",
+  "author": "yicun0316",
+  "description": "克制的磨砂渐变上掠过柔和丝光，流速归零即可定格。",
+  "mode": "canvas2d",
+  "clip": "progress",
+  "colorMode": "theme",
+  "code": "const motionPreference = typeof matchMedia === \"function\" ? matchMedia(\"(prefers-reduced-motion: reduce)\") : null;\nreturn {\n  draw(ctx, s) {\n    const { end, height, high, max, pal, monet, dark } = s;\n    const time = motionPreference?.matches ? 0 : s.time;\n    const sec = monet.enabled ? monet.secondary : pal;\n    const g = ctx.createLinearGradient(0, 0, end, 0);\n    g.addColorStop(0, pal.deep(dark ? 0.65 : 0.45));\n    g.addColorStop(0.65, sec.main(dark ? 0.82 : 0.72));\n    g.addColorStop(1, pal.light(0.92));\n    ctx.fillStyle = g;\n    ctx.fillRect(0, 0, end, height);\n\n    // 顶部细微玻璃高光沿\n    const topLine = ctx.createLinearGradient(0, 0, 0, 10);\n    topLine.addColorStop(0, \"rgba(255,255,255,0.32)\");\n    topLine.addColorStop(1, \"rgba(255,255,255,0)\");\n    ctx.fillStyle = topLine;\n    ctx.fillRect(0, 0, end, 10);\n\n    // 极缓慢流过的柔和丝光\n    const sweepX = ((time * 18) % (end + 90)) - 45;\n    const sg = ctx.createLinearGradient(sweepX - 36, 0, sweepX + 36, 0);\n    sg.addColorStop(0, \"rgba(255,255,255,0)\");\n    sg.addColorStop(0.5, `rgba(255,255,255,${0.10 + high * 0.08 + max * 0.10})`);\n    sg.addColorStop(1, \"rgba(255,255,255,0)\");\n    ctx.fillStyle = sg;\n    ctx.fillRect(0, 0, end, height);\n  }\n};"
+}

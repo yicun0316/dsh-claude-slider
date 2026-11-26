@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DSH Claude Slider — 自由定制动效工坊（架构原型 v1）</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #131926;
+    --panel-2: #182032;
+    --border: rgba(255, 255, 255, 0.09);
+    --text: #e6edf6;
+    --muted: #94a3b8;
+    --accent: #ef4444;
+    --ok: #22c55e;
+    --warn: #f59e0b;
+    --err: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(19, 25, 38, 0.92);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-badge {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(124, 58, 237, 0.22);
+    color: #c4b5fd;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+  }
+  .brand h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .creation-guide {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    list-style: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .creation-guide strong { color: var(--text); }
+  .creation-guide [aria-hidden] { margin-right: 12px; color: #a5b4fc; }
+  @media (max-width: 960px) {
+    .creation-guide { flex-direction: column; }
+    .creation-guide [aria-hidden] { display: none; }
+  }
+  select, button, input[type="text"] {
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    outline: none;
+  }
+  button {
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-weight: 600;
+  }
+  button:hover {
+    background: #222d45;
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    background: #4f46e5;
+    border-color: #6366f1;
+    color: #fff;
+  }
+  button.primary:hover { background: #5b52f0; }
+  button.ai-btn {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    border-color: rgba(196, 181, 253, 0.45);
+    color: #fff;
+  }
+  button.warn-btn {
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fcd34d;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(430px, 1.05fr) minmax(460px, 1fr);
+    gap: 16px;
+    padding: 16px 20px 24px;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1020px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dbe6f5;
+  }
+  .card-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 0.9fr 0.9fr 0.95fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 5px 8px;
+  }
+
+  .code-editor {
+    width: 100%;
+    height: 410px;
+    resize: vertical;
+    background: #0a0e16;
+    color: #dbeafe;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    tab-size: 2;
+    outline: none;
+  }
+  .code-editor:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  .diag-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-size: 12px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border);
+  }
+  .diag-bar.is-ok { border-color: rgba(34, 197, 94, 0.35); color: #86efac; }
+  .diag-bar.is-err { border-color: rgba(239, 68, 68, 0.55); color: #fca5a5; background: rgba(127, 29, 29, 0.22); }
+  .diag-metrics {
+    display: flex;
+    gap: 12px;
+    font-family: Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* 实机滑块预览区 */
+  .stage-box {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+  }
+  .stage-box.dark {
+    background: #101521;
+    color: #e2e8f0;
+  }
+  .stage-box.light {
+    background: #f3f6fb;
+    color: #1e293b;
+    border-color: rgba(15, 23, 42, 0.12);
+  }
+  .stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .slider-shell {
+    position: relative;
+    height: 36px;
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: ew-resize;
+    user-select: none;
+    touch-action: none;
+  }
+  .dark .slider-shell {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+  }
+  .light .slider-shell {
+    background: rgba(15, 23, 42, 0.07);
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.12);
+  }
+  .slider-shell canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .slider-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transform: translate3d(0, -50%, 0);
+    will-change: transform;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.38), 0 0 0 2px var(--accent);
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+  }
+
+  .tier-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .tier-mini {
+    text-align: center;
+  }
+  .tier-mini-lbl {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .mini-track {
+    position: relative;
+    height: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+  }
+  .mini-track canvas { width: 100%; height: 100%; display: block; }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .ctrl-row label {
+    min-width: 52px;
+    color: var(--muted);
+    font-size: 11.5px;
+  }
+  .ctrl-row input[type="range"] { flex: 1; }
+  .val-pill {
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .swatches {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .swatch-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    padding: 0;
+    border: 2px solid transparent;
+  }
+  .swatch-btn.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  }
+  .monet-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+  .monet-dots {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .monet-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* 模拟插件抽屉 */
+  .installed-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .effect-tile {
+    position: relative;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .effect-tile.active {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.14);
+  }
+  .tile-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .tile-meta {
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .tag {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    font-family: Consolas, monospace;
+  }
+  .tile-del {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 1px 5px;
+    font-size: 10px;
+    border-radius: 5px;
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 99;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.72);
+    display: none;
+    place-items: center;
+    z-index: 50;
+    padding: 16px;
+  }
+  .modal-mask.open { display: grid; }
+  .modal {
+    width: min(680px, 100%);
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .modal textarea {
+    width: 100%;
+    height: 240px;
+    margin: 10px 0;
+    background: #0a0e16;
+    color: #e2e8f0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+  }
+  .security-note {
+    font-size: 11.5px;
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 7px 10px;
+    border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-badge">架构原型 v1</span>
+    <h1>DSH Claude Slider · 自由定制动效工坊（Canvas 2D + WebGL GLSL）</h1>
+  </div>
+  <div class="toolbar">
+    <select id="templateSelect" aria-label="创作模板" title="选择空白画布或示例模板">
+      <optgroup id="blankTemplates" label="✨ 从零开始"></optgroup>
+      <optgroup id="exampleTemplates" label="📚 示例模板（仅供参考，可自由魔改）"></optgroup>
+    </select>
+    <button class="ai-btn" id="copyPromptBtn">🤖 复制 AI 动效生成提示词</button>
+    <button id="importBtn">📥 粘贴 / 导入 JSON</button>
+    <button id="exportBtn">📤 导出 .dcs-effect.json</button>
+    <button class="primary" id="installBtn">＋ 安装到模拟插件</button>
+  </div>
+</header>
+
+<ol class="creation-guide" aria-label="三步创作" role="list">
+  <li>① 点击<strong>“复制 AI 动效生成提示词”</strong>发给 DeepSeek/Claude 描述任意脑洞</li>
+  <li><span aria-hidden="true">→</span>② 点击<strong>“粘贴 / 导入 JSON”</strong>贴回生成结果</li>
+  <li><span aria-hidden="true">→</span>③ 实时试玩并一键导出导入插件</li>
+</ol>
+
+<main class="workspace">
+  <!-- 左侧：代码创作与校验区 -->
+  <section>
+    <div class="card">
+      <div class="card-title">
+        <span>动效包定义（.dcs-effect.json）</span>
+        <div style="display:flex;gap:6px;">
+          <button id="runBtn" class="primary">▶ 试跑并更新</button>
+          <button id="faultBtn" class="warn-btn" title="故意注入异常测试防崩熔断">🧪 测试熔断保护</button>
+        </div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="field">
+          <label>名称</label>
+          <input id="metaName" type="text" value="火山喷发" />
+        </div>
+        <div class="field">
+          <label>ID（自动带 custom:）</label>
+          <input id="metaId" type="text" value="custom:volcano_magma" />
+        </div>
+        <div class="field">
+          <label>渲染引擎</label>
+          <select id="metaMode">
+            <option value="canvas2d">Canvas 2D</option>
+            <option value="glsl">WebGL GLSL</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>裁切范围</label>
+          <select id="metaClip">
+            <option value="progress">仅进度段</option>
+            <option value="track">全轨道绘制</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>颜色联动</label>
+          <select id="metaColorMode">
+            <option value="theme">主题色联动</option>
+            <option value="tinted">原色+轻融合</option>
+            <option value="fixed">固定原色</option>
+          </select>
+        </div>
+      </div>
+
+      <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+
+      <div id="diagBar" class="diag-bar is-ok">
+        <span id="diagMsg">✅ 离屏试跑通过（2 帧无异常）</span>
+        <div class="diag-metrics">
+          <span id="metricMode">canvas2d</span>
+          <span id="metricMs">0.24 ms/帧</span>
+          <span id="metricFps">60 fps</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>🔌 引擎架构说明（此原型核心模块可直接增量接入 lib/client.js）</span>
+      </div>
+      <div style="font-size:12px;line-height:1.68;color:#cbd5e1;">
+        • <b>零模板束缚</b>：<code>canvas2d</code> 直接给原生 <code>ctx</code>（粒子、网格、插画、流体、文字、ImageData 全自由）；<code>glsl</code> 直接跑 Shadertoy 风格片元着色器。<br>
+        • <b>完整信号透传</b>：自动喂入 <code>pal</code>（主色盘）、<code>monet</code>（莫奈三色盘）、<code>high/max/burst</code>（三阶档位）、<code>pointer</code>（鼠标坐标）、<code>velocity/tilt</code>（拖拽速度）。<br>
+        • <b>插件安全护栏</b>：导入前离屏试跑校验；运行时连续 3 帧抛错自动熔断降级，永不搞崩 DSH 面板；<code>speed = 0</code> 即刻定格为极简静态图。
+      </div>
+    </div>
+  </section>
+
+  <!-- 右侧：实时双主题交互测试台 + 模拟插件抽屉 -->
+  <section>
+    <div class="card">
+      <div class="card-title">
+        <span>实机拖拽与交互测试台（直接按住滑块拖动或移动鼠标悬停）</span>
+        <div style="display:flex;gap:5px;">
+          <button data-tier="0.33">Low</button>
+          <button data-tier="0.68">High</button>
+          <button data-tier="1.0">Max 💥</button>
+        </div>
+      </div>
+
+      <div class="stage-box dark">
+        <div class="stage-header">
+          <span>🌙 深色模式</span>
+          <span id="darkStatus">进度 70% · High</span>
+        </div>
+        <div class="slider-shell" id="darkShell">
+          <canvas id="darkCanvas"></canvas>
+          <div class="slider-thumb" id="darkThumb">🐳</div>
+        </div>
+      </div>
+
+      <div class="stage-box light">
+        <div class="stage-header">
+          <span>☀️ 浅色模式</span>
+          <span id="lightStatus">进度 70% · High</span>
+        </div>
+        <div class="slider-shell" id="lightShell">
+          <canvas id="lightCanvas"></canvas>
+          <div class="slider-thumb" id="lightThumb">🐳</div>
+        </div>
+      </div>
+
+      <div class="tier-row">
+        <div class="tier-mini">
+          <div class="tier-mini-lbl">Low (33%)</div>
+          <div class="mini-track"><canvas id="miniLow"></canvas></div>
+        </div>
+        <div class="tier-mini">
+          <div class="tier-mini-lbl">High (68%)</div>
+          <div class="mini-track"><canvas id="miniHigh"></canvas></div>
+        </div>
+        <div class="tier-mini">
+          <div class="tier-mini-lbl">Max (100%)</div>
+          <div class="mini-track"><canvas id="miniMax"></canvas></div>
+        </div>
+      </div>
+
+      <div class="controls-grid">
+        <div class="ctrl-row">
+          <label>流速</label>
+          <input id="speedRange" type="range" min="0" max="2" step="0.1" value="1.0" />
+          <span class="val-pill" id="speedVal">1.0x</span>
+        </div>
+        <div class="ctrl-row">
+          <label>亮度</label>
+          <input id="brightRange" type="range" min="0.5" max="1.8" step="0.1" value="1.0" />
+          <span class="val-pill" id="brightVal">1.0x</span>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+        <div class="ctrl-row">
+          <label>主题色</label>
+          <div class="swatches" id="swatchBar">
+            <button class="swatch-btn active" data-hex="#EF4444" style="background:#EF4444" title="熔岩红"></button>
+            <button class="swatch-btn" data-hex="#F97316" style="background:#F97316" title="炽橘橙"></button>
+            <button class="swatch-btn" data-hex="#4D6BFE" style="background:#4D6BFE" title="DeepSeek 蓝"></button>
+            <button class="swatch-btn" data-hex="#7C3AED" style="background:#7C3AED" title="梦幻紫"></button>
+            <button class="swatch-btn" data-hex="#10B981" style="background:#10B981" title="翡翠青"></button>
+            <button class="swatch-btn" data-hex="#EC4899" style="background:#EC4899" title="樱花粉"></button>
+            <input id="colorPicker" type="color" value="#EF4444" style="width:28px;height:24px;padding:0;border:none;background:none;cursor:pointer;" />
+          </div>
+        </div>
+        <div class="ctrl-row">
+          <label>莫奈三色</label>
+          <div class="swatches" id="monetBar">
+            <button class="monet-pill" data-monet="none">关闭（单主题色）</button>
+            <button class="monet-pill" data-monet="#EF4444,#F59E0B,#FDE047">
+              <span class="monet-dots"><span style="background:#EF4444"></span><span style="background:#F59E0B"></span><span style="background:#FDE047"></span></span>烈焰落日
+            </button>
+            <button class="monet-pill" data-monet="#3B82F6,#8B5CF6,#EC4899">
+              <span class="monet-dots"><span style="background:#3B82F6"></span><span style="background:#8B5CF6"></span><span style="background:#EC4899"></span></span>赛博暮紫
+            </button>
+            <button class="monet-pill" data-monet="#0EA5E9,#14B8A6,#A7F3D0">
+              <span class="monet-dots"><span style="background:#0EA5E9"></span><span style="background:#14B8A6"></span><span style="background:#A7F3D0"></span></span>冰川青碧
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 模拟插件「自定义」抽屉面板 -->
+    <div class="card">
+      <div class="card-title">
+        <span>🧩 模拟插件抽屉 · 「自定义」分类（持久化到 localStorage）</span>
+        <span class="card-sub" id="installedCount">0 / 24 已安装</span>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);">
+        演示真实插件接入后的样子：主面板保持 9 款精选不变，用户导入或创作的动效全部收在这里，点击即切换并回填左侧。
+      </div>
+      <div class="installed-grid" id="installedGrid"></div>
+    </div>
+  </section>
+</main>
+
+<!-- 导入 / 导出弹窗 -->
+<div class="modal-mask" id="ioModal">
+  <div class="modal">
+    <div class="card-title" style="margin-bottom:6px;">
+      <span id="modalTitle">导入动效包</span>
+      <button id="modalClose">✕</button>
+    </div>
+    <div class="security-note">
+      ⚠️ 自由定制动效包内含浏览器 Canvas / WebGL 渲染脚本：请仅导入由你自己编写、通过 AI 生成或来自官方仓库 <code>themes/</code> 的动效包。
+    </div>
+    <textarea id="modalText" spellcheck="false" placeholder="在此粘贴 .dcs-effect.json 内容..."></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <div>
+        <input id="fileInput" type="file" accept=".json,.dcs-effect.json" style="display:none" />
+        <button id="pickFileBtn">📂 选择本地 .json 文件</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button id="modalCopyBtn">📋 复制内容</button>
+        <button id="modalDownloadBtn">💾 下载文件</button>
+        <button id="modalConfirmBtn" class="primary">✅ 校验并载入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+ *  BEGIN: PLUGIN ENGINE MODULE (未来可直接增量抽取进 lib/client.js 与 demo)
+ * ============================================================================ */
+const DCS_EFFECT_FORMAT = "dsh-claude-slider-effect";
+const CUSTOM_EFFECTS_STORAGE_KEY = "dsh-claude-slider.custom-effects.proto.v1";
+const MAX_CUSTOM_EFFECTS = 24;
+const MAX_EFFECT_CODE_BYTES = 65536;
+
+// 1. 与现役 lib/client.js 100% 同源的调色盘计算
+function getColorPalette(hex, brightness = 1.0) {
+  let c = (hex || "#4D6BFE").replace("#", "");
+  if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+  const num = parseInt(c, 16) || 0;
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+
+  const br = Math.max(0.3, Math.min(2.5, brightness));
+  const lr = Math.min(255, Math.round(r + (255 - r) * (0.55 * Math.min(1.4, br))));
+  const lg = Math.min(255, Math.round(g + (255 - g) * (0.55 * Math.min(1.4, br))));
+  const lb = Math.min(255, Math.round(b + (255 - b) * (0.55 * Math.min(1.4, br))));
+  const dr = Math.round(r * 0.3);
+  const dg = Math.round(g * 0.3);
+  const db = Math.round(b * 0.3);
+  const sr = Math.min(255, Math.round(r * 0.75 + b * 0.35));
+  const sg = Math.min(255, Math.round(g * 0.85 + r * 0.25));
+  const sb = Math.min(255, Math.round(b * 0.75 + g * 0.35));
+  const clampA = (a) => Math.min(1.0, Math.max(0.0, a * Math.min(1.5, br)));
+
+  const mainFn = (a = 1) => `rgba(${r}, ${g}, ${b}, ${clampA(a)})`;
+  const lightFn = (a = 1) => `rgba(${lr}, ${lg}, ${lb}, ${clampA(a)})`;
+  const deepFn = (a = 1) => `rgba(${dr}, ${dg}, ${db}, ${clampA(a)})`;
+  const secFn = (a = 1) => `rgba(${sr}, ${sg}, ${sb}, ${clampA(a)})`;
+  mainFn.toString = () => `rgb(${r}, ${g}, ${b})`;
+  lightFn.toString = () => `rgb(${lr}, ${lg}, ${lb})`;
+  deepFn.toString = () => `rgb(${dr}, ${dg}, ${db})`;
+  secFn.toString = () => `rgb(${sr}, ${sg}, ${sb})`;
+
+  return {
+    hex: "#" + c,
+    r, g, b,
+    rgb01: [r / 255, g / 255, b / 255],
+    lightRgb01: [lr / 255, lg / 255, lb / 255],
+    deepRgb01: [dr / 255, dg / 255, db / 255],
+    main: mainFn,
+    light: lightFn,
+    deep: deepFn,
+    secondary: secFn
+  };
+}
+
+function buildMonetContext(primaryHex, secHex, terHex, brightness) {
+  const primary = getColorPalette(primaryHex, brightness);
+  const secondary = secHex ? getColorPalette(secHex, brightness) : primary;
+  const tertiary = terHex ? getColorPalette(terHex, brightness) : secondary;
+  return {
+    enabled: Boolean(secHex || terHex),
+    primary,
+    secondary,
+    tertiary,
+    swatches: [primary.hex, secondary.hex, tertiary.hex]
+  };
+}
+
+// 2. 提供给自定义脚本的轻量绘制助手（降低样板代码，绝不限制原生 ctx）
+const EFFECT_HELPERS = {
+  ease(start, end, v) {
+    const t = Math.min(1, Math.max(0, (v - start) / (end - start || 1e-6)));
+    return t * t * (3 - 2 * t);
+  },
+  dot(ctx, x, y, r, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  ellipseGlow(ctx, cx, cy, rx, ry, angle, stops) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    if (angle) ctx.rotate(angle);
+    ctx.scale(rx / 32, ry / 32);
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, 32);
+    for (let i = 0; i < stops.length; i++) grad.addColorStop(stops[i][0], stops[i][1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(-32, -32, 64, 64);
+    ctx.restore();
+  },
+  rand(seed) {
+    if (seed === void 0) return Math.random();
+    let a = (seed >>> 0) || 1;
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  },
+  createCanvas(w, h) {
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.min(1024, Math.round(w)));
+    c.height = Math.max(1, Math.min(512, Math.round(h)));
+    return c;
+  }
+};
+
+// 3. 动效包规范化校验
+function normalizeCustomEffect(raw) {
+  if (!raw || typeof raw !== "object") throw new Error("动效包必须是 JSON 对象");
+  if (raw.format && raw.format !== DCS_EFFECT_FORMAT) {
+    throw new Error(`不支持的格式标识: ${raw.format}`);
+  }
+  const name = String(raw.name || "").trim().slice(0, 24);
+  if (!name) throw new Error("缺少动效名称 (name)");
+  const slug = String(raw.id || name)
+    .replace(/^custom:/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "") || ("fx_" + Date.now().toString(36));
+  const mode = raw.mode === "glsl" ? "glsl" : "canvas2d";
+  const clip = raw.clip === "track" ? "track" : "progress";
+  const colorMode = ["theme", "tinted", "fixed"].includes(raw.colorMode) ? raw.colorMode : "theme";
+  const code = String(raw.code || "");
+  if (!code.trim()) throw new Error("缺少渲染代码 (code)");
+  if (code.length > MAX_EFFECT_CODE_BYTES) throw new Error("代码体积超过 64KB 限制");
+  return {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: `custom:${slug}`,
+    name,
+    author: String(raw.author || "custom").slice(0, 32),
+    description: String(raw.description || "").slice(0, 140),
+    mode,
+    clip,
+    colorMode,
+    code
+  };
+}
+
+// 4. WebGL GLSL 极简全屏片元着色器运行时（仅 ~70 行）
+const GLSL_VERT = `
+attribute vec2 a_pos;
+varying vec2 v_uv;
+void main() {
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+const GLSL_HEADER = `
+precision mediump float;
+varying vec2 v_uv;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_progress;
+uniform float u_high;
+uniform float u_max;
+uniform float u_burst;
+uniform float u_dark;
+uniform float u_brightness;
+uniform vec2 u_pointer;
+uniform vec3 u_accent;
+uniform vec3 u_accent_light;
+uniform vec3 u_accent_deep;
+uniform vec3 u_monet_sec;
+uniform vec3 u_monet_ter;
+`;
+
+function createGlslProgram(gl, fragBody) {
+  const compile = (type, src) => {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      const log = gl.getShaderInfoLog(sh) || "GLSL 编译失败";
+      gl.deleteShader(sh);
+      throw new Error(log.trim());
+    }
+    return sh;
+  };
+  const vs = compile(gl.VERTEX_SHADER, GLSL_VERT);
+  const fs = compile(gl.FRAGMENT_SHADER, GLSL_HEADER + "\n" + fragBody);
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  gl.deleteShader(vs);
+  gl.deleteShader(fs);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    const log = gl.getProgramInfoLog(prog) || "GLSL 链接失败";
+    gl.deleteProgram(prog);
+    throw new Error(log.trim());
+  }
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "a_pos");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const uniforms = {};
+  ["u_resolution","u_time","u_progress","u_high","u_max","u_burst","u_dark","u_brightness",
+   "u_pointer","u_accent","u_accent_light","u_accent_deep","u_monet_sec","u_monet_ter"
+  ].forEach((k) => { uniforms[k] = gl.getUniformLocation(prog, k); });
+
+  return {
+    prog,
+    buf,
+    uniforms,
+    dispose() {
+      try { gl.deleteBuffer(buf); gl.deleteProgram(prog); } catch (_) {}
+    }
+  };
+}
+
+// 5. 统一编译 + 离屏试跑校验器（Canvas 2D & GLSL 共用）
+function compileAndValidateEffect(pkg) {
+  const norm = normalizeCustomEffect(pkg);
+  const testPal = getColorPalette("#EF4444", 1.0);
+  const testMonet = buildMonetContext("#EF4444", "#F59E0B", "#FDE047", 1.0);
+
+  if (norm.mode === "canvas2d") {
+    const factory = new Function("api", norm.code);
+    const mod = factory({ h: EFFECT_HELPERS });
+    if (!mod || typeof mod.draw !== "function") {
+      throw new Error("Canvas 2D 代码必须 return { draw(ctx, s) { ... } }（init 可选）");
+    }
+    const testCanvas = EFFECT_HELPERS.createCanvas(300, 32);
+    const tCtx = testCanvas.getContext("2d");
+    const runtimeState = typeof mod.init === "function" ? (mod.init({ h: EFFECT_HELPERS, pal: testPal, monet: testMonet, dark: true }) || {}) : {};
+    const t0 = performance.now();
+    for (let f = 0; f < 2; f++) {
+      mod.draw(tCtx, {
+        width: 300, end: 210, height: 32,
+        time: 1.5 + f * 0.05, dt: 1, ratio: 0.7, high: 1, max: f, burst: f * 0.5,
+        pal: testPal, monet: testMonet, dark: true, brightness: 1, tilt: 0, velocity: 0,
+        dragging: false, pointer: { x: 150, y: 16, inside: false },
+        h: EFFECT_HELPERS, state: runtimeState
+      });
+    }
+    const avgMs = (performance.now() - t0) / 2;
+    if (avgMs > 50) throw new Error(`试跑单帧耗时过长 (${avgMs.toFixed(1)}ms > 50ms)`);
+    return { pkg: norm, factory, testMs: avgMs };
+  }
+
+  // GLSL 试跑校验
+  const glCanvas = EFFECT_HELPERS.createCanvas(180, 32);
+  const gl = glCanvas.getContext("webgl", { alpha: true, premultipliedAlpha: true });
+  if (!gl) throw new Error("当前环境不支持 WebGL");
+  const compiled = createGlslProgram(gl, norm.code);
+  const t0 = performance.now();
+  gl.viewport(0, 0, 180, 32);
+  gl.useProgram(compiled.prog);
+  gl.uniform2f(compiled.uniforms.u_resolution, 180, 32);
+  gl.uniform1f(compiled.uniforms.u_time, 1.5);
+  gl.uniform1f(compiled.uniforms.u_progress, 0.7);
+  gl.uniform3fv(compiled.uniforms.u_accent, testPal.rgb01);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.finish();
+  const avgMs = performance.now() - t0;
+  compiled.dispose();
+  return { pkg: norm, factory: null, testMs: avgMs };
+}
+
+// 6. 单画布渲染器实例（含颜色变化自动重建 + GLSL 零拷贝叠层 + 连续报错熔断护栏）
+class CustomEffectRunner {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.glCanvas = document.createElement("canvas");
+    this.glCanvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:none;pointer-events:none;";
+    if (canvas && canvas.parentElement) {
+      if (getComputedStyle(canvas.parentElement).position === "static") {
+        canvas.parentElement.style.position = "relative";
+      }
+      canvas.parentElement.insertBefore(this.glCanvas, canvas.nextSibling);
+    }
+    this.ctx = canvas.getContext("2d");
+    this.gl = null;
+    this.glProg = null;
+    this.compiled = null;
+    this.mod = null;
+    this.state = null;
+    this.lastColorSig = "";
+    this.errCount = 0;
+    this.tripped = false;
+    this.lastError = "";
+  }
+
+  load(compiled) {
+    this.disposeGl();
+    this.glCanvas.style.display = "none";
+    this.compiled = compiled;
+    this.mod = null;
+    this.state = null;
+    this.lastColorSig = "";
+    this.errCount = 0;
+    this.tripped = false;
+    this.lastError = "";
+    if (!compiled) return;
+    if (compiled.pkg.mode === "canvas2d") {
+      this.mod = compiled.factory({ h: EFFECT_HELPERS });
+    } else {
+      this.gl = this.glCanvas.getContext("webgl", {
+        alpha: true,
+        premultipliedAlpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: "high-performance"
+      });
+      if (this.gl) this.glProg = createGlslProgram(this.gl, compiled.pkg.code);
+    }
+  }
+
+  disposeGl() {
+    if (this.glProg) {
+      this.glProg.dispose();
+      this.glProg = null;
+    }
+  }
+
+  render(frame) {
+    const { width, height, ratio, end, time, dt, high, max, burst, pal, monet, dark, brightness, tilt, velocity, dragging, pointer } = frame;
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+    }
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, width, height);
+    if (!this.compiled) return { ms: 0, error: "" };
+
+    // 熔断保护态：绝不抛异常，柔和降级提示
+    if (this.tripped) {
+      ctx.save();
+      ctx.fillStyle = dark ? "rgba(127, 29, 29, 0.55)" : "rgba(254, 202, 202, 0.85)";
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = dark ? "#fca5a5" : "#991b1b";
+      ctx.font = `600 ${Math.round(height * 0.34)}px sans-serif`;
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚠ 动效已触发安全熔断：" + this.lastError.slice(0, 38), 14, height / 2);
+      ctx.restore();
+      return { ms: 0, error: this.lastError, tripped: true };
+    }
+
+    const pkg = this.compiled.pkg;
+    const scale = height / 32;
+    const sceneW = width / scale;
+    const sceneEnd = end / scale;
+    const clipW = pkg.clip === "track" ? sceneW : sceneEnd;
+    const t0 = performance.now();
+
+    try {
+      const colorSig = `${pal.hex}|${monet.secondary.hex}|${monet.tertiary.hex}|${dark ? 1 : 0}`;
+      if (pkg.mode === "canvas2d") {
+        if (!this.state || (pkg.colorMode !== "fixed" && this.lastColorSig !== colorSig)) {
+          this.state = typeof this.mod.init === "function"
+            ? (this.mod.init({ h: EFFECT_HELPERS, pal, monet, dark, brightness }) || {})
+            : {};
+          this.lastColorSig = colorSig;
+        }
+        ctx.save();
+        ctx.scale(scale, scale);
+        ctx.beginPath();
+        ctx.rect(0, 0, Math.max(0, clipW), 32);
+        ctx.clip();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = Math.min(1, 0.38 + brightness * 0.58);
+        this.mod.draw(ctx, {
+          width: sceneW, end: sceneEnd, height: 32,
+          time, dt, ratio, high, max, burst,
+          pal, monet, dark, brightness, tilt, velocity, dragging,
+          pointer: { x: pointer.x / scale, y: pointer.y / scale, inside: pointer.inside },
+          h: EFFECT_HELPERS,
+          state: this.state
+        });
+        ctx.restore();
+      } else if (this.gl && this.glProg) {
+        if (this.glCanvas.width !== width || this.glCanvas.height !== height) {
+          this.glCanvas.width = width;
+          this.glCanvas.height = height;
+        }
+        const gl = this.gl;
+        const u = this.glProg.uniforms;
+        gl.viewport(0, 0, width, height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(this.glProg.prog);
+        gl.uniform2f(u.u_resolution, width, height);
+        gl.uniform1f(u.u_time, time);
+        gl.uniform1f(u.u_progress, ratio);
+        gl.uniform1f(u.u_high, high);
+        gl.uniform1f(u.u_max, max);
+        gl.uniform1f(u.u_burst, burst);
+        gl.uniform1f(u.u_dark, dark ? 1.0 : 0.0);
+        gl.uniform1f(u.u_brightness, brightness);
+        gl.uniform2f(u.u_pointer, pointer.x / Math.max(1, width), 1.0 - pointer.y / Math.max(1, height));
+        gl.uniform3fv(u.u_accent, pal.rgb01);
+        gl.uniform3fv(u.u_accent_light, pal.lightRgb01);
+        gl.uniform3fv(u.u_accent_deep, pal.deepRgb01);
+        gl.uniform3fv(u.u_monet_sec, monet.secondary.rgb01);
+        gl.uniform3fv(u.u_monet_ter, monet.tertiary.rgb01);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        if (this.glCanvas.parentElement === this.canvas.parentElement) {
+          const rightPct = pkg.clip === "track" ? 0 : Math.max(0, 100 - (end / Math.max(1, width)) * 100);
+          this.glCanvas.style.display = "block";
+          this.glCanvas.style.opacity = String(Math.min(1, 0.38 + brightness * 0.58));
+          this.glCanvas.style.clipPath = rightPct > 0.05 ? `inset(0 ${rightPct.toFixed(2)}% 0 0)` : "none";
+        } else {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, pkg.clip === "track" ? width : end, height);
+          ctx.clip();
+          ctx.globalAlpha = Math.min(1, 0.38 + brightness * 0.58);
+          ctx.drawImage(this.glCanvas, 0, 0);
+          ctx.restore();
+        }
+      }
+      this.errCount = 0;
+      return { ms: performance.now() - t0, error: "" };
+    } catch (e) {
+      this.errCount++;
+      this.lastError = e?.message || String(e);
+      if (this.errCount >= 3) this.tripped = true;
+      return { ms: 0, error: this.lastError, tripped: this.tripped };
+    }
+  }
+}
+/* ============================================================================
+ *  END: PLUGIN ENGINE MODULE
+ * ============================================================================ */
+
+
+/* ============================================================================
+ *  空白画布与 5 款跨风格示例模板
+ * ============================================================================ */
+const BLANK_TEMPLATE = {
+  format: DCS_EFFECT_FORMAT,
+  version: 1,
+  id: "custom:blank_canvas",
+  name: "空白画布",
+  mode: "canvas2d",
+  clip: "progress",
+  colorMode: "theme",
+  code: `return {
+  draw(ctx, s) {
+    // 从这里开始绘制。s.end 是当前进度终点，s.height 是逻辑高度（32px）。
+  }
+};`
+};
+
+const TEMPLATES = [
+  {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: "custom:volcano_magma",
+    name: "旧版 · 火山喷发",
+    author: "yicun0316",
+    description: "v2.13 经典主题色联动火山熔岩喷发（支持莫奈多色与自由换色）",
+    mode: "canvas2d",
+    clip: "progress",
+    colorMode: "theme",
+    code: `return {
+  init({ h }) {
+    const rand = h.rand(2026);
+    return {
+      particles: Array.from({ length: 36 }, () => ({
+        rel: rand(), x: rand() * 260, y: rand() * 32,
+        vx: 0.6 + rand() * 2.2, vy: -(1.2 + rand() * 2.4), size: 1.0 + rand() * 2.1
+      }))
+    };
+  },
+  draw(ctx, s) {
+    const { end, height, time, dt, high, max, pal, monet, state } = s;
+    if (end <= 2) return;
+    const overdrive = max > 0.5 ? 1 : high * 0.35;
+    const sec = monet.enabled ? monet.secondary : pal;
+    const ter = monet.enabled ? monet.tertiary : pal;
+
+    // 1. 高温熔岩渐变底（联动主题色与莫奈辅色）
+    const grad = ctx.createLinearGradient(0, 0, end, 0);
+    grad.addColorStop(0, pal.deep(0.76));
+    grad.addColorStop(0.48, sec.main(0.88));
+    grad.addColorStop(1, ter.light(0.96));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, end, height);
+
+    // 2. 粘稠熔岩流线
+    ctx.strokeStyle = ter.light(0.38);
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    for (let x = 0; x <= end; x += 6) {
+      const y = height * 0.45 + Math.sin(x * 0.08 - time * 2.5) * 5.2;
+      if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // 3. 表面起伏波浪
+    ctx.fillStyle = ter.light(0.42);
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    for (let x = 0; x <= end; x += 5) {
+      const wy = height * 0.54 + Math.sin(x * 0.10 + time * 3.4) * 5.6 + Math.cos(x * 0.18 - time * 2) * 2.2;
+      ctx.lineTo(x, wy);
+    }
+    ctx.lineTo(end, height);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. 沸腾爆裂气泡
+    for (let b = 0; b < 4 + Math.round(high * 4); b++) {
+      const ph = (time * (1.8 + b * 0.35) + b * 1.4) % 3;
+      const bx = end * (0.14 + (b % 5) * 0.18) + Math.sin(time + b) * 6;
+      if (bx <= 4 || bx >= end - 4) continue;
+      const by = height * 0.52 + Math.sin(bx * 0.1 + time * 3.4) * 4.5;
+      if (ph < 2.2) {
+        const r = 1 + (ph / 2.2) * 2.8;
+        ctx.beginPath();
+        ctx.arc(bx, by - r * 0.45, r, 0, Math.PI * 2);
+        ctx.fillStyle = ter.light(0.85);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 0.65;
+        ctx.stroke();
+      } else {
+        const sp = ((ph - 2.2) / 0.8) * 5.5;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(bx - sp, by - sp * 0.7, 1.1, 1.1);
+        ctx.fillRect(bx + sp, by - sp * 0.7, 1.1, 1.1);
+      }
+    }
+
+    // 5. 三处火山口喷涌熔岩柱
+    const vents = [0.35, 0.72, 0.94];
+    for (let v = 0; v < vents.length; v++) {
+      const vx = end * vents[v];
+      if (vx <= 8 || vx > end) continue;
+      const eh = 11 + Math.sin(time * 8 + v * 2.8) * 5 + overdrive * 7;
+      ctx.beginPath();
+      ctx.moveTo(vx - 5, height);
+      ctx.quadraticCurveTo(vx - 1.8, height / 2 - eh * 0.45, vx, height / 2 - eh);
+      ctx.quadraticCurveTo(vx + 1.8, height / 2 - eh * 0.45, vx + 5, height);
+      ctx.closePath();
+      ctx.fillStyle = ter.light(0.88);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(vx - 2, height);
+      ctx.lineTo(vx, height / 2 - eh * 0.82);
+      ctx.lineTo(vx + 2, height);
+      ctx.closePath();
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+    }
+
+    // 6. 重力抛物线流火余烬
+    const count = Math.round(10 + high * 12 + max * 14);
+    for (let i = 0; i < count; i++) {
+      const p = state.particles[i];
+      p.vy += (0.12 + overdrive * 0.06) * dt;
+      p.y += p.vy * dt;
+      p.x -= (0.45 + p.vx * 0.35) * dt;
+      if (p.y > height + 3 || p.y < -6 || p.x < 0 || p.x > end + 8) {
+        p.x = end * vents[i % vents.length] + Math.sin(time * 5 + i) * 5;
+        p.y = height * 0.48;
+        p.vy = -(1.8 + (i % 5) * 0.45 + overdrive * 1.1);
+      }
+      const sz = p.size * (0.9 + overdrive * 0.3);
+      ctx.fillStyle = i % 3 === 0 ? "#fff" : (i % 2 === 0 ? ter.light(0.95) : pal.main(0.9));
+      ctx.fillRect(p.x, p.y, sz, sz);
+    }
+  }
+};`
+  },
+  {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: "custom:glsl_magma_flow",
+    name: "GLSL · 流体熔岩场",
+    author: "yicun0316",
+    description: "WebGL 片元着色器实时 fBM 流体能量场（完美响应主题色、莫奈辅色与鼠标）",
+    mode: "glsl",
+    clip: "progress",
+    colorMode: "theme",
+    code: `float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+    mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+    f.y
+  );
+}
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++) {
+    v += a * noise(p);
+    p = p * 2.04 + vec2(1.7, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+void main() {
+  vec2 uv = v_uv;
+  vec2 p = vec2(uv.x * (u_resolution.x / max(u_resolution.y, 1.0)), uv.y);
+  float t = u_time * (0.38 + u_high * 0.22 + u_max * 0.35);
+
+  // 鼠标附近产生热流扰动
+  float md = length((uv - u_pointer) * vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0));
+  float ripple = exp(-md * 3.8) * 0.32;
+
+  float q = fbm(p * 1.6 + vec2(-t * 0.7, t * 0.25));
+  float f = fbm(p * 2.2 + vec2(q * 2.1 - t * 0.45, q * 1.4 + ripple));
+
+  // 用主题深色 -> 主色 -> 莫奈辅色 -> 白炽高光映射流体能量
+  vec3 col = mix(u_accent_deep * 0.45, u_accent, smoothstep(0.18, 0.58, f));
+  col = mix(col, u_monet_sec, smoothstep(0.45, 0.76, f + u_high * 0.14));
+  float vein = smoothstep(0.64 - u_max * 0.12, 0.88, f + ripple);
+  col = mix(col, mix(u_accent_light, vec3(1.0, 0.97, 0.90), 0.65), vein);
+
+  // Max 档爆发扫光
+  col += u_accent_light * u_burst * 0.35 * smoothstep(0.2, 1.0, uv.x);
+  gl_FragColor = vec4(col, 0.96);
+}`
+  },
+  {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: "custom:interactive_hex_grid",
+    name: "交互 · 响应网格",
+    author: "yicun0316",
+    description: "全轨道铺满动态几何网格，鼠标悬停与拖拽点实时激发波纹亮起",
+    mode: "canvas2d",
+    clip: "track",
+    colorMode: "theme",
+    code: `return {
+  draw(ctx, s) {
+    const { width, end, height, time, high, max, burst, pal, monet, dark, pointer } = s;
+    // 背景底板（全轨道）
+    const bg = ctx.createLinearGradient(0, 0, width, 0);
+    bg.addColorStop(0, dark ? "rgba(12,16,28,0.88)" : "rgba(235,241,250,0.92)");
+    bg.addColorStop(1, dark ? "rgba(18,24,40,0.88)" : "rgba(226,234,248,0.92)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+
+    const cell = 7.2;
+    const cols = Math.ceil(width / cell);
+    const rows = 4;
+    const sec = monet.enabled ? monet.secondary : pal;
+
+    for (let r = 0; r < rows; r++) {
+      const cy = 4.2 + r * 7.8;
+      for (let c = 0; c < cols; c++) {
+        const cx = 4 + c * cell + (r % 2) * 3.2;
+        const inProgress = cx <= end;
+        const dx = pointer.inside ? cx - pointer.x : 999;
+        const dy = pointer.inside ? cy - pointer.y : 999;
+        const mouseBoost = Math.max(0, 1 - Math.hypot(dx, dy) / 36);
+        const edgeGlow = Math.max(0, 1 - Math.abs(cx - end) / 26);
+        const wave = 0.5 + 0.5 * Math.sin(c * 0.45 - time * 2.6 + r * 0.9);
+
+        let alpha = inProgress ? (0.28 + 0.42 * wave + 0.22 * high) : 0.08;
+        alpha += mouseBoost * 0.65 + edgeGlow * (0.35 + max * 0.35) + burst * 0.35;
+        const sz = 2.1 + (inProgress ? 1.15 : 0) + mouseBoost * 1.45 + edgeGlow * 0.9;
+
+        ctx.fillStyle = mouseBoost > 0.35
+          ? "#ffffff"
+          : (inProgress ? (c % 5 === 0 ? sec.light(Math.min(1, alpha)) : pal.main(Math.min(1, alpha)))
+                        : (dark ? "rgba(148,163,184,0.22)" : "rgba(71,85,105,0.18)"));
+
+        ctx.save();
+        ctx.translate(cx, cy - mouseBoost * 1.8);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillRect(-sz * 0.5, -sz * 0.5, sz, sz);
+        ctx.restore();
+      }
+    }
+  }
+};`
+  },
+  {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: "custom:volcanic_lava",
+    name: "新版 · 熔岩炽脉",
+    author: "yicun0316",
+    description: "黑体辐射色温岩浆 + 黑曜岩脊剪影 + 主题色微光融合（tinted 模式）",
+    mode: "canvas2d",
+    clip: "progress",
+    colorMode: "tinted",
+    code: `return {
+  init({ h, pal }) {
+    const bg = h.createCanvas(256, 32);
+    const bCtx = bg.getContext("2d");
+    const base = bCtx.createLinearGradient(0, 0, 0, 32);
+    base.addColorStop(0, "#090204");
+    base.addColorStop(0.24, "#1c0407");
+    base.addColorStop(0.50, "#500b0f");
+    base.addColorStop(0.74, "#991b13");
+    base.addColorStop(0.90, "#d44b15");
+    base.addColorStop(1, "#f28a22");
+    bCtx.fillStyle = base;
+    bCtx.fillRect(0, 0, 256, 32);
+    h.ellipseGlow(bCtx, 42, 22, 46, 12, -0.15, [[0,"rgba(255,244,178,0.72)"],[0.4,"rgba(248,146,32,0.45)"],[1,"rgba(120,14,12,0)"]]);
+    h.ellipseGlow(bCtx, 166, 18, 56, 13, -0.12, [[0,"rgba(255,248,192,0.78)"],[0.4,pal.light(0.32)],[1,"rgba(130,16,14,0)"]]);
+    bCtx.beginPath();
+    bCtx.moveTo(0,0); bCtx.lineTo(256,0); bCtx.lineTo(256,8);
+    bCtx.bezierCurveTo(226,4.5,200,13,172,6.5);
+    bCtx.bezierCurveTo(146,2,124,12.5,92,9);
+    bCtx.bezierCurveTo(64,5.5,38,12,0,7);
+    bCtx.closePath();
+    bCtx.fillStyle = "rgba(8,2,4,0.92)";
+    bCtx.fill();
+    return { bg };
+  },
+  draw(ctx, s) {
+    const { width, end, time, high, max, pal, h, state } = s;
+    ctx.drawImage(state.bg, 0, 0, width, 32);
+    const pulse = 0.86 + 0.14 * Math.sin(time * 1.15);
+    for (let c = 0; c < (high > 0.15 ? 2 : 1); c++) {
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      for (let x = 0; x <= end + 6; x += 6) {
+        const y = 17.5 + c * 6 + Math.sin(x * 0.055 - time * (0.55 + c * 0.2) + c * 2.4) * 3.0;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = \`rgba(255, 178, 56, \${(0.28 + 0.2 * high + 0.2 * max) * pulse})\`;
+      ctx.lineWidth = 2.5 + max;
+      ctx.stroke();
+      ctx.strokeStyle = \`rgba(255, 246, 198, \${(0.22 + 0.24 * high + 0.3 * max) * pulse})\`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.restore();
+    }
+    const embers = Math.round(6 + 8 * high + 12 * max);
+    for (let i = 0; i < embers; i++) {
+      const life = (time * (0.20 + (i % 5) * 0.045) + i * 0.371) % 1;
+      const x = (((i * 67 + 19) % 181) / 181) * Math.max(end, 28) + Math.sin(life * 5 + i) * 3 + life * 7;
+      if (x < -2 || x > end + 2) continue;
+      const y = 30.5 - life * 26;
+      const fade = Math.sin(life * Math.PI);
+      h.dot(ctx, x, y, 0.55 + (i % 3) * 0.25, i % 4 === 0 ? pal.light(fade * 0.9) : \`rgba(255,232,164,\${fade.toFixed(3)})\`);
+    }
+  }
+};`
+  },
+  {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: "custom:minimal_silk",
+    name: "极简 · 静谧丝光",
+    author: "yicun0316",
+    description: "献给极简办公党：克制磨砂渐变 + 轻呼吸高光（流速拉到 0x 即纯静态）",
+    mode: "canvas2d",
+    clip: "progress",
+    colorMode: "theme",
+    code: `return {
+  draw(ctx, s) {
+    const { end, height, time, high, max, pal, monet, dark } = s;
+    const sec = monet.enabled ? monet.secondary : pal;
+    const g = ctx.createLinearGradient(0, 0, end, 0);
+    g.addColorStop(0, pal.deep(dark ? 0.65 : 0.45));
+    g.addColorStop(0.65, sec.main(dark ? 0.82 : 0.72));
+    g.addColorStop(1, pal.light(0.92));
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, end, height);
+
+    // 顶部细微玻璃高光沿
+    const topLine = ctx.createLinearGradient(0, 0, 0, 10);
+    topLine.addColorStop(0, "rgba(255,255,255,0.32)");
+    topLine.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = topLine;
+    ctx.fillRect(0, 0, end, 10);
+
+    // 极缓慢流过的柔和丝光
+    const sweepX = ((time * 18) % (end + 90)) - 45;
+    const sg = ctx.createLinearGradient(sweepX - 36, 0, sweepX + 36, 0);
+    sg.addColorStop(0, "rgba(255,255,255,0)");
+    sg.addColorStop(0.5, \`rgba(255,255,255,\${0.10 + high * 0.08 + max * 0.10})\`);
+    sg.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, 0, end, height);
+  }
+};`
+  }
+];
+
+/* ============================================================================
+ *  工坊交互逻辑（预览调度 + 编辑器热更 + AI Prompt 生成 + 模拟插件抽屉）
+ * ============================================================================ */
+const els = {
+  templateSelect: document.getElementById("templateSelect"),
+  metaName: document.getElementById("metaName"),
+  metaId: document.getElementById("metaId"),
+  metaMode: document.getElementById("metaMode"),
+  metaClip: document.getElementById("metaClip"),
+  metaColorMode: document.getElementById("metaColorMode"),
+  codeEditor: document.getElementById("codeEditor"),
+  diagBar: document.getElementById("diagBar"),
+  diagMsg: document.getElementById("diagMsg"),
+  metricMode: document.getElementById("metricMode"),
+  metricMs: document.getElementById("metricMs"),
+  metricFps: document.getElementById("metricFps"),
+  darkShell: document.getElementById("darkShell"),
+  lightShell: document.getElementById("lightShell"),
+  darkCanvas: document.getElementById("darkCanvas"),
+  lightCanvas: document.getElementById("lightCanvas"),
+  darkThumb: document.getElementById("darkThumb"),
+  lightThumb: document.getElementById("lightThumb"),
+  darkStatus: document.getElementById("darkStatus"),
+  lightStatus: document.getElementById("lightStatus"),
+  miniLow: document.getElementById("miniLow"),
+  miniHigh: document.getElementById("miniHigh"),
+  miniMax: document.getElementById("miniMax"),
+  speedRange: document.getElementById("speedRange"),
+  speedVal: document.getElementById("speedVal"),
+  brightRange: document.getElementById("brightRange"),
+  brightVal: document.getElementById("brightVal"),
+  colorPicker: document.getElementById("colorPicker"),
+  installedGrid: document.getElementById("installedGrid"),
+  installedCount: document.getElementById("installedCount"),
+  ioModal: document.getElementById("ioModal"),
+  modalTitle: document.getElementById("modalTitle"),
+  modalText: document.getElementById("modalText"),
+  toast: document.getElementById("toast")
+};
+
+const darkRunner = new CustomEffectRunner(els.darkCanvas);
+const lightRunner = new CustomEffectRunner(els.lightCanvas);
+const miniRunners = [
+  { r: new CustomEffectRunner(els.miniLow), ratio: 0.33, high: 0, max: 0 },
+  { r: new CustomEffectRunner(els.miniHigh), ratio: 0.68, high: 1, max: 0 },
+  { r: new CustomEffectRunner(els.miniMax), ratio: 1.0, high: 1, max: 1 }
+];
+
+const app = {
+  ratio: 0.70,
+  targetRatio: 0.70,
+  dragging: false,
+  velocity: 0,
+  burst: 0,
+  time: 2.0,
+  speed: 1.0,
+  brightness: 1.0,
+  accentHex: "#EF4444",
+  monetSec: "",
+  monetTer: "",
+  pointer: { x: 0, y: 16, inside: false },
+  compiled: null,
+  activeInstalledId: ""
+};
+
+function showToast(msg) {
+  els.toast.textContent = msg;
+  els.toast.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => els.toast.classList.remove("show"), 2200);
+}
+
+function getFormPkg() {
+  return {
+    format: DCS_EFFECT_FORMAT,
+    version: 1,
+    id: els.metaId.value.trim(),
+    name: els.metaName.value.trim(),
+    author: "custom",
+    mode: els.metaMode.value,
+    clip: els.metaClip.value,
+    colorMode: els.metaColorMode.value,
+    code: els.codeEditor.value
+  };
+}
+
+function fillFormPkg(pkg) {
+  els.metaName.value = pkg.name || "";
+  els.metaId.value = pkg.id || "";
+  els.metaMode.value = pkg.mode || "canvas2d";
+  els.metaClip.value = pkg.clip || "progress";
+  els.metaColorMode.value = pkg.colorMode || "theme";
+  els.codeEditor.value = pkg.code || "";
+}
+
+function compileCurrent() {
+  try {
+    const compiled = compileAndValidateEffect(getFormPkg());
+    app.compiled = compiled;
+    darkRunner.load(compiled);
+    lightRunner.load(compiled);
+    miniRunners.forEach((m) => m.r.load(compiled));
+    els.diagBar.className = "diag-bar is-ok";
+    els.diagMsg.textContent = `✅ 离屏试跑通过（${compiled.pkg.mode} · 2 帧无异常）`;
+    els.metricMode.textContent = `${compiled.pkg.mode} · ${compiled.pkg.clip}`;
+    els.metricMs.textContent = `${compiled.testMs.toFixed(2)} ms/帧`;
+    renderMiniPreviews();
+    return compiled;
+  } catch (e) {
+    els.diagBar.className = "diag-bar is-err";
+    els.diagMsg.textContent = `❌ 校验失败：${e.message}`;
+    return null;
+  }
+}
+
+function renderMiniPreviews() {
+  const pal = getColorPalette(app.accentHex, app.brightness);
+  const monet = buildMonetContext(app.accentHex, app.monetSec, app.monetTer, app.brightness);
+  miniRunners.forEach((m) => {
+    const w = 320, h = 48;
+    const end = 16 + (w - 32) * m.ratio;
+    m.r.render({
+      width: w, height: h, ratio: m.ratio, end,
+      time: 3.4, dt: 1, high: m.high, max: m.max, burst: m.max ? 0.35 : 0,
+      pal, monet, dark: true, brightness: app.brightness, tilt: 0, velocity: 0,
+      dragging: false, pointer: { x: end * 0.6, y: h * 0.5, inside: false }
+    });
+  });
+}
+
+// 绑定深浅双滑块交互（拖动 + 悬停鼠标坐标）
+function bindSliderShell(shell) {
+  const updateFromEvent = (e) => {
+    const rect = shell.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+    app.pointer = { x: x * 2, y: y * 2, inside: true };
+    if (app.dragging) {
+      const next = Math.max(0.02, Math.min(1, (x - 14) / Math.max(1, rect.width - 28)));
+      app.velocity = (next - app.targetRatio) * 60;
+      if (next >= 0.98 && app.targetRatio < 0.98) app.burst = 1.0;
+      app.targetRatio = next;
+    }
+  };
+  shell.addEventListener("pointerdown", (e) => {
+    app.dragging = true;
+    shell.setPointerCapture(e.pointerId);
+    updateFromEvent(e);
+  });
+  shell.addEventListener("pointermove", updateFromEvent);
+  shell.addEventListener("pointerup", () => { app.dragging = false; });
+  shell.addEventListener("pointerleave", () => { app.pointer.inside = false; });
+}
+bindSliderShell(els.darkShell);
+bindSliderShell(els.lightShell);
+
+// 模板下拉初始化
+const blankOption = new Option("✨ 空白画布（从零创作）", "blank");
+document.getElementById("blankTemplates").appendChild(blankOption);
+const exampleTemplates = document.getElementById("exampleTemplates");
+TEMPLATES.forEach((t, idx) => {
+  exampleTemplates.appendChild(new Option(`${t.name} [${t.mode}]`, String(idx)));
+});
+els.templateSelect.value = "0";
+els.templateSelect.addEventListener("change", () => {
+  const value = els.templateSelect.value;
+  const tpl = value === "blank" ? BLANK_TEMPLATE : TEMPLATES[Number(value)];
+  if (tpl) {
+    fillFormPkg(tpl);
+    compileCurrent();
+    showToast(`已加载模板：${tpl.name}`);
+  }
+});
+
+// 编辑器热更 & Tab 缩进
+let editTimer = null;
+const scheduleCompile = () => { clearTimeout(editTimer); editTimer = setTimeout(compileCurrent, 360); };
+["input", "change"].forEach((ev) => {
+  els.codeEditor.addEventListener(ev, scheduleCompile);
+  els.metaMode.addEventListener(ev, compileCurrent);
+  els.metaClip.addEventListener(ev, compileCurrent);
+  els.metaColorMode.addEventListener(ev, compileCurrent);
+});
+els.codeEditor.addEventListener("keydown", (e) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    const s = els.codeEditor.selectionStart;
+    els.codeEditor.setRangeText("  ", s, els.codeEditor.selectionEnd, "end");
+  }
+});
+document.getElementById("runBtn").addEventListener("click", () => {
+  if (compileCurrent()) showToast("编译并刷新预览成功");
+});
+
+// 故障熔断演练按钮
+document.getElementById("faultBtn").addEventListener("click", () => {
+  els.metaMode.value = "canvas2d";
+  els.codeEditor.value = `return {
+  draw(ctx, s) {
+    // 模拟运行时第 2 秒意外触发异常，验证防崩熔断保护
+    if (s.time > 0.1) throw new Error("模拟脚本运行时空指针异常");
+  }
+};`;
+  try {
+    const factory = new Function("api", els.codeEditor.value);
+    const compiled = { pkg: normalizeCustomEffect(getFormPkg()), factory, testMs: 0 };
+    app.compiled = compiled;
+    darkRunner.load(compiled);
+    lightRunner.load(compiled);
+    showToast("已绕过试跑直接注入故障脚本，观察右侧安全熔断效果");
+  } catch (_) {}
+});
+
+// 档位快捷按钮
+document.querySelectorAll("[data-tier]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const r = Number(btn.dataset.tier);
+    if (r >= 0.99) app.burst = 1.0;
+    app.targetRatio = r;
+  });
+});
+
+// 流速 & 亮度
+els.speedRange.addEventListener("input", () => {
+  app.speed = Number(els.speedRange.value);
+  els.speedVal.textContent = app.speed === 0 ? "静止" : `${app.speed.toFixed(1)}x`;
+});
+els.brightRange.addEventListener("input", () => {
+  app.brightness = Number(els.brightRange.value);
+  els.brightVal.textContent = `${app.brightness.toFixed(1)}x`;
+  renderMiniPreviews();
+});
+
+// 主题色 & 莫奈三色切换
+function applyAccent(hex) {
+  app.accentHex = hex;
+  document.documentElement.style.setProperty("--accent", hex);
+  els.colorPicker.value = hex;
+  document.querySelectorAll(".swatch-btn").forEach((b) => b.classList.toggle("active", b.dataset.hex.toLowerCase() === hex.toLowerCase()));
+  renderMiniPreviews();
+}
+document.querySelectorAll(".swatch-btn").forEach((b) => b.addEventListener("click", () => applyAccent(b.dataset.hex)));
+els.colorPicker.addEventListener("input", () => applyAccent(els.colorPicker.value));
+document.querySelectorAll(".monet-pill").forEach((b) => {
+  b.addEventListener("click", () => {
+    const val = b.dataset.monet;
+    if (val === "none") {
+      app.monetSec = "";
+      app.monetTer = "";
+      showToast("已关闭莫奈多色（单主题色模式）");
+    } else {
+      const [p, s, t] = val.split(",");
+      app.monetSec = s;
+      app.monetTer = t;
+      applyAccent(p);
+      showToast("已切换莫奈三色板，动效实时联动");
+    }
+    renderMiniPreviews();
+  });
+});
+
+// 模拟插件抽屉（localStorage 读写）
+function loadInstalled() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(CUSTOM_EFFECTS_STORAGE_KEY) || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveInstalled(list) {
+  try { localStorage.setItem(CUSTOM_EFFECTS_STORAGE_KEY, JSON.stringify(list.slice(0, MAX_CUSTOM_EFFECTS))); } catch (_) {}
+}
+function renderInstalled() {
+  const list = loadInstalled();
+  els.installedCount.textContent = `${list.length} / ${MAX_CUSTOM_EFFECTS} 已安装`;
+  els.installedGrid.innerHTML = "";
+  if (!list.length) {
+    els.installedGrid.innerHTML = `<div style="grid-column:1/-1;font-size:12px;color:#64748b;padding:12px;text-align:center;border:1px dashed rgba(255,255,255,0.1);border-radius:10px;">暂无已安装动效，点右上角「＋ 安装到模拟插件」体验导入闭环</div>`;
+    return;
+  }
+  list.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = `effect-tile ${app.activeInstalledId === item.id ? "active" : ""}`;
+    div.innerHTML = `
+      <div class="tile-top"><span>${item.name}</span></div>
+      <div class="tile-meta"><span class="tag">${item.mode}</span><span class="tag">${item.colorMode}</span></div>
+      <button class="tile-del" title="删除">删</button>
+    `;
+    div.addEventListener("click", (e) => {
+      if (e.target.classList.contains("tile-del")) {
+        e.stopPropagation();
+        saveInstalled(list.filter((x) => x.id !== item.id));
+        renderInstalled();
+        showToast(`已移除：${item.name}`);
+        return;
+      }
+      app.activeInstalledId = item.id;
+      fillFormPkg(item);
+      compileCurrent();
+      renderInstalled();
+      showToast(`已切换到自定义动效：${item.name}`);
+    });
+    els.installedGrid.appendChild(div);
+  });
+}
+
+document.getElementById("installBtn").addEventListener("click", () => {
+  const compiled = compileCurrent();
+  if (!compiled) return;
+  const list = loadInstalled().filter((x) => x.id !== compiled.pkg.id);
+  list.unshift(compiled.pkg);
+  saveInstalled(list);
+  app.activeInstalledId = compiled.pkg.id;
+  renderInstalled();
+  showToast(`已安装「${compiled.pkg.name}」到模拟插件`);
+});
+
+// 导入 / 导出弹窗
+let ioMode = "import";
+function openModal(mode) {
+  ioMode = mode;
+  els.ioModal.classList.add("open");
+  els.modalTitle.textContent = mode === "import" ? "📥 导入 .dcs-effect.json 动效包" : "📤 导出 .dcs-effect.json 动效包";
+  document.getElementById("modalConfirmBtn").style.display = mode === "import" ? "" : "none";
+  document.getElementById("pickFileBtn").style.display = mode === "import" ? "" : "none";
+  document.getElementById("modalDownloadBtn").style.display = mode === "export" ? "" : "none";
+  if (mode === "export") {
+    try {
+      els.modalText.value = JSON.stringify(normalizeCustomEffect(getFormPkg()), null, 2);
+    } catch (e) {
+      els.modalText.value = `// 导出前校验失败：${e.message}`;
+    }
+  } else {
+    els.modalText.value = "";
+  }
+}
+document.getElementById("importBtn").addEventListener("click", () => openModal("import"));
+document.getElementById("exportBtn").addEventListener("click", () => openModal("export"));
+document.getElementById("modalClose").addEventListener("click", () => els.ioModal.classList.remove("open"));
+document.getElementById("modalCopyBtn").addEventListener("click", () => {
+  navigator.clipboard?.writeText(els.modalText.value).then(() => showToast("已复制 JSON 到剪贴板"));
+});
+document.getElementById("modalDownloadBtn").addEventListener("click", () => {
+  const pkg = normalizeCustomEffect(getFormPkg());
+  const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${pkg.id.replace("custom:", "")}.dcs-effect.json`;
+  a.click();
+});
+document.getElementById("pickFileBtn").addEventListener("click", () => document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change", (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => { els.modalText.value = String(reader.result || ""); };
+  reader.readAsText(f);
+});
+document.getElementById("modalConfirmBtn").addEventListener("click", () => {
+  try {
+    const parsed = JSON.parse(els.modalText.value);
+    const compiled = compileAndValidateEffect(parsed);
+    fillFormPkg(compiled.pkg);
+    compileCurrent();
+    els.ioModal.classList.remove("open");
+    showToast(`校验通过，已载入「${compiled.pkg.name}」`);
+  } catch (e) {
+    showToast(`导入失败：${e.message}`);
+  }
+});
+
+// 🤖 一键复制给 DeepSeek / Claude 用的 AI 动效生成提示词
+const AI_PROMPT_TEMPLATE = `你现在是 DSH Claude Slider 滑块动效设计师。请帮我生成一个可直接导入的 .dcs-effect.json 动效包。
+
+【输出格式要求】
+请只输出一个合法 JSON 对象（不要多余解释）：
+{
+  "format": "dsh-claude-slider-effect",
+  "version": 1,
+  "id": "custom:英文短名",
+  "name": "中文短名(4-6字)",
+  "author": "AI",
+  "mode": "canvas2d 或 glsl",
+  "clip": "progress 或 track",
+  "colorMode": "theme 或 tinted 或 fixed",
+  "code": "完整脚本字符串"
+}
+
+【坐标系与接口规范（请严格遵守单位，避免动效卡死或变纯色）】
+1. 若 mode = "canvas2d"：code 必须 return { init(api) { /* 可选预绘缓存 */ }, draw(ctx, s) { ... } }。
+   - 逻辑画布高度固定为 32px，宽度 s.width，当前进度末端 s.end。
+   - 时间单位：s.time 是秒级连续动画时钟，s.dt 是以 60 FPS 归一的动画步长。两者均已应用流速。60 FPS、1× 时 s.dt 约为 1，静止时为 0；积分时使用 s.dt / 60 换算秒。
+   - 调色盘用法：s.pal.main(alpha) / s.pal.light(alpha) / s.pal.deep(alpha) / s.pal.secondary(alpha) 都是函数（需传透明度 0~1），s.pal.hex 是字符串；s.monet 同理。
+   - 持续运动原则：严禁做纯重力沉底且速度衰减归零的死粒子！必须通过平流循环、波浪悬浮、涡流扬起或周期重生保证全程肉眼可见地流畅流动。
+   - 其他字段：ratio(0-1), high(0-1), max(0-1), burst(1->0), dark(bool), brightness, velocity, pointer({x,y,inside}), h(dot/ease/ellipseGlow/rand/createCanvas), state。
+   - 性能护栏：粒子池与离屏背景放 init()，draw() 中零每帧大对象分配；浅色模式（s.dark === false）必须保证清晰对比度。
+2. 若 mode = "glsl"：code 只写 main() 及辅助函数（系统已注入 u_resolution, u_time, u_progress, u_high, u_max, u_burst, u_dark, u_brightness, u_pointer, u_accent, u_accent_light, u_accent_deep, u_monet_sec, u_monet_ter 与 v_uv）。
+3. 颜色适配：默认优先使用 s.pal / s.monet（或 u_accent / u_monet_sec），让插件的自定义颜色与莫奈取色生效。
+4. 档位礼仪：Low 沉稳克制、High 舒展流动、Max 释放高光与入档爆发(burst)。
+
+【我想要的动效创意】
+（在这里描述你的创意，例如：赛博暴雨网格 / 熔岩黑洞 / 水墨游鱼 / 极简呼吸流光）`;
+
+document.getElementById("copyPromptBtn").addEventListener("click", () => {
+  navigator.clipboard?.writeText(AI_PROMPT_TEMPLATE).then(() => showToast("已复制 AI 动效生成提示词，可直接发给 DeepSeek / Claude"));
+});
+
+// 缓存双滑块尺寸，避免 tick() 每帧同步调用 getBoundingClientRect() 导致强制回流
+const shellSizes = new WeakMap();
+const syncShellSize = (shell) => {
+  const rect = shell.getBoundingClientRect();
+  shellSizes.set(shell, {
+    w: Math.max(60, Math.round(rect.width * 2)),
+    h: Math.max(32, Math.round(rect.height * 2))
+  });
+};
+const shellRo = typeof ResizeObserver === "function" ? new ResizeObserver((entries) => {
+  entries.forEach((e) => syncShellSize(e.target));
+}) : null;
+[els.darkShell, els.lightShell].forEach((sh) => {
+  syncShellSize(sh);
+  if (shellRo) shellRo.observe(sh);
+});
+
+// 主动画循环（遵守页面隐藏停 rAF 护栏）
+let lastNow = performance.now();
+let fpsFrames = 0, fpsLast = performance.now();
+let rafId = 0;
+let lastStatusText = "";
+let lastThumbPx = -1;
+
+let ratioSpringVel = 0;
+
+function tick(now) {
+  if (document.hidden) { rafId = 0; return; }
+  const dt = Math.min(2.5, Math.max(0.05, (now - lastNow) / 16.667));
+  const dtSec = Math.min(0.05, (dt * 16.667) / 1000);
+  lastNow = now;
+  if (app.dragging) {
+    app.ratio = app.targetRatio;
+    ratioSpringVel = 0;
+  } else {
+    const diff = app.targetRatio - app.ratio;
+    if (Math.abs(diff) < 0.0008 && Math.abs(ratioSpringVel) < 0.01) {
+      app.ratio = app.targetRatio;
+      ratioSpringVel = 0;
+    } else {
+      const acc = diff * 280 - ratioSpringVel * 32;
+      ratioSpringVel += acc * dtSec;
+      app.ratio = Math.max(0, Math.min(1, app.ratio + ratioSpringVel * dtSec));
+    }
+  }
+  app.velocity *= Math.pow(0.86, dt);
+  if (app.burst > 0) app.burst = Math.max(0, app.burst - 0.025 * dt);
+  const motionDt = dt * app.speed;
+  app.time += 0.032 * motionDt;
+
+  const tierT = app.ratio * 3;
+  const high = Math.min(1, Math.max(0, tierT - 1));
+  const max = Math.min(1, Math.max(0, tierT - 2));
+  const pal = getColorPalette(app.accentHex, app.brightness);
+  const monet = buildMonetContext(app.accentHex, app.monetSec, app.monetTer, app.brightness);
+
+  const tierName = app.ratio >= 0.95 ? "Max" : (app.ratio >= 0.55 ? "High" : "Low");
+  const statusText = `进度 ${Math.round(app.ratio * 100)}% · ${tierName}`;
+  if (statusText !== lastStatusText) {
+    lastStatusText = statusText;
+    els.darkStatus.textContent = statusText;
+    els.lightStatus.textContent = statusText;
+  }
+
+  const renderPair = [
+    [els.darkShell, els.darkThumb, darkRunner, true],
+    [els.lightShell, els.lightThumb, lightRunner, false]
+  ];
+  let frameMs = 0;
+  let lastErr = "";
+  renderPair.forEach(([shell, thumb, runner, dark]) => {
+    const sz = shellSizes.get(shell) || { w: 600, h: 72 };
+    const w = sz.w;
+    const h = sz.h;
+    const end = 28 + (w - 56) * app.ratio;
+    const thumbPx = (end / 2) - 12;
+    if (dark && Math.abs(thumbPx - lastThumbPx) > 0.02) {
+      lastThumbPx = thumbPx;
+      const tr = `translate3d(${thumbPx.toFixed(2)}px, -50%, 0)`;
+      els.darkThumb.style.transform = tr;
+      els.lightThumb.style.transform = tr;
+    }
+    const res = runner.render({
+      width: w, height: h, ratio: app.ratio, end,
+      time: app.time, dt: motionDt, high, max, burst: app.burst,
+      pal, monet, dark, brightness: app.brightness, tilt: app.velocity * 0.4,
+      velocity: app.velocity, dragging: app.dragging, pointer: app.pointer
+    });
+    if (dark) {
+      frameMs = res.ms;
+      lastErr = res.error;
+    }
+  });
+
+  if (lastErr) {
+    els.diagBar.className = "diag-bar is-err";
+    els.diagMsg.textContent = `⚠ 运行时熔断触发：${lastErr}`;
+  }
+
+  fpsFrames++;
+  if (now - fpsLast >= 500) {
+    const fps = Math.round((fpsFrames * 1000) / (now - fpsLast));
+    els.metricFps.textContent = `${fps} fps`;
+    if (!lastErr) els.metricMs.textContent = `${frameMs.toFixed(2)} ms/帧`;
+    fpsFrames = 0;
+    fpsLast = now;
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && !rafId) {
+    lastNow = performance.now();
+    rafId = requestAnimationFrame(tick);
+  }
+});
+
+// 默认载入旧版「火山喷发」并预装 2 条示例到模拟插件抽屉（仅首次）
+if (!loadInstalled().length) {
+  saveInstalled([TEMPLATES[0], TEMPLATES[1], TEMPLATES[2]]);
+}
+fillFormPkg(TEMPLATES[0]);
+app.activeInstalledId = TEMPLATES[0].id;
+renderInstalled();
+compileCurrent();
+rafId = requestAnimationFrame(tick);
+</script>
+</body>
+</html>
