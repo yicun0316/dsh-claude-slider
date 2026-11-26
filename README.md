@@ -119,6 +119,7 @@ dsh plugin --profile desktop add dsh-claude-slider
 ```bash
 dsh plugin --profile desktop add dshmarket
 ```
+[![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 
 装好 `dshmarket` 后在插件市场里搜 `dsh-claude-slider` 点安装。
 
