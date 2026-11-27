@@ -2,6 +2,17 @@
 
 > 以本文件为准，不要依赖记忆。每完成一步就更新。
 
+## 模型选择器 Pro 与多档位推理兼容（2026-11-27）
+
+- 升级 `open === "models"` 为共享组件 `ModelPaletteMenu`（服务主形态与停用回退形态）：
+  - 液态玻璃自适应面板，支持中英文别名即时搜索、`全部 / ★ 置顶 / 推理模型 / 最近` 筛选、`↑/↓/Enter/Esc` 键盘快切、`pinnedModels` 与 `recentModels` 持久化；
+  - 兼容各大第三方 AI 路由（OpenRouter / Anthropic / OpenAI / Gemini / Grok / Kimi / 豆包 / MiniMax / GLM / 千问 / Ollama / Mistral / Llama 等），自动匹配内置 AI 拟人娘图标或品牌首字母徽章，并完整保留 `ModelLabelText` 子槽位与原生 `loading / error / failures` 重试。
+- 思考强度条全面对齐原生 `@deepseek-ai/dsh-client-ui-model-selection` 契约：
+  - 新增 `normalizeModelEfforts` 与 `isOffLikeEffort`：当 `reasoning.defaultEffort === undefined` 时自动前置 `Default` 档位（提交时不传 `reasoningEffort`）；
+  - 精确支持 1/2/3/4/5 档模型；对不含 `Off` 的 3 档模型（如 `Low/Medium/High`）放行 `CanvasEffect` 的 `allowZeroScene`，保证 0% 刻度位正常绘制而不黑屏停帧；
+  - 补齐 `EFFORT_DESCRIPTIONS` 与 `EFFORT_DOT_COLORS` 对 `minimal / xhigh / none / __default__ / auto` 的映射。
+- 验收：`node --check lib/client.js` 与 `node scripts/check-undefined.cjs lib/client.js`（46 个全大写标识符）通过；真实 React 19.3.0 + 无头 Chrome CDP 验证 3 档（含无 defaultEffort）、4 档、5 档与纯对话模型全场景，0 console error。
+
 ## GPT 星流渲染修复（2026-11-26）
 
 - 恢复清理旧主题时误删的 `starGlowTexture` 缓存声明，修复选择 GPT 星流后只画底色、星点和后续绘制中断的问题。同步浏览器演示。

@@ -4,7 +4,7 @@
 
 **把 DeepSeek Harness（DSH）的原生「推理强度」下拉框升级为丝滑物理滑块、动效画布、输入框萌宠剧场与莫奈光效套件。**
 
-[![Version](https://img.shields.io/badge/version-2.21.1-4D6BFE?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-2.22.0-4D6BFE?style=flat-square)](package.json)
 [![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Studio Online](https://img.shields.io/badge/Studio-在线动效工坊-6366F1?style=flat-square)](https://yicun0316.github.io/dsh-claude-slider/studio/)
@@ -77,6 +77,21 @@ dsh plugin --profile desktop remove dsh-claude-slider
 - **物理同帧渲染**：游标、Canvas 前沿进度与跟随悬浮 HUD 统一由单一 `requestAnimationFrame` 时钟驱动，通过 GPU 合成层 `translate3d` 像素级同步；配合欠阻尼弹簧回弹、速度挤压拉伸与乐观档位锁，快速连点与拖拽顺滑无回弹。
 - **高效交互与遥测条**：支持直接拖拽、点击刻度、轨道滚轮微调、`Shift + 点击` 触发胶囊快切；顶部单行紧凑遥测条实时显示档位释义与算力能量格。
 - **全键盘流快捷键**：支持 <kbd>←</kbd>/<kbd>→</kbd>（或 <kbd>H</kbd>/<kbd>L</kbd>）切档、<kbd>1</kbd>–<kbd>4</kbd> 直达档位、<kbd>Home</kbd>/<kbd>End</kbd> 跳转首尾、<kbd>D</kbd> 开关定制抽屉、<kbd>[</kbd>/<kbd>]</kbd> 切换页签、<kbd>?</kbd> 展开速查条、<kbd>Esc</kbd> 分层收起。
+- **原生档位全兼容**：严格对齐模型自身的 `reasoning.efforts` 数量与默认值（支持 3 档、4 档、5 档及无默认项时的 `Default` 档位）；无 `Off` 的 3 档模型在最低档也能柔和渲染而不黑屏，非推理模型自动隐藏滑块。
+
+### 模型选择器 Pro（适配各大第三方 AI）
+
+点击左下角模型触发器即可展开液态玻璃 **模型适配器 Pro**（支持在启用或关闭滑块时统一使用）：
+
+- **智能品牌识别与 AI 拟人娘头像**：自动匹配 DeepSeek、Claude、ChatGPT/OpenAI、Gemini、Grok、Kimi、豆包、MiniMax、智谱 GLM、千问等内置 Q 版头像，并为 OpenRouter、Ollama、Mistral、Llama 等第三方/本地模型生成专属徽章。
+- **搜索、★ 置顶与最近使用**：支持中英文别名即时搜索、点击星标置顶收藏、筛选「全部 / ★ 置顶 / 推理模型 / 最近」，以及 <kbd>↑</kbd>/<kbd>↓</kbd> + <kbd>Enter</kbd> 键盘快切。
+- **能力透视与第三方容错**：每行标注提供商与推理档位数（如 `3 档推理` / `4 档推理` / `标准对话`），完整保留第三方 `ModelLabelText` 子槽位徽章以及原生加载失败警告与重试。
+
+<div align="center">
+
+<img src="assets/showcase_model_pro.png" alt="模型选择器 Pro 与多厂商推理能力标记" width="420" />
+
+</div>
 
 ### 2. 多款内置动效与分类
 

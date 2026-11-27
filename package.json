@@ -1,6 +1,6 @@
 {
   "name": "dsh-claude-slider",
-  "version": "2.21.1",
+  "version": "2.22.0",
   "description": "Claude 风格推理强度滑块插件，包含液态玻璃面板、6 款内置 Canvas 动效、自定义 Canvas 2D 与 GLSL 动效导入、直接拖拽及游标定制",
   "keywords": [
     "dsh",
