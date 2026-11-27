@@ -275,7 +275,7 @@
     .slider-track-wrap {
       position: relative;
       height: 32px;
-      border-radius: 12px;
+      border-radius: var(--demo-track-radius, 12px);
       background: rgba(148, 163, 184, 0.12);
       border: 1px solid rgba(77, 107, 254, 0.25);
       cursor: pointer;
@@ -293,7 +293,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      border-radius: 11px;
+      border-radius: max(0px, calc(var(--demo-track-radius, 12px) - 1px));
       pointer-events: none;
     }
 
@@ -1324,27 +1324,87 @@
       flex-wrap: wrap;
       margin: 6px 0;
     }
+    .demo-custom-library {
+      max-height: 198px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      padding: 5px 7px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 10px;
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .demo-custom-groups {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+    .demo-custom-list {
+      display: grid;
+      gap: 2px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .demo-custom-row,
+    .demo-custom-name,
+    .demo-custom-row-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .demo-custom-row {
+      justify-content: space-between;
+      padding: 3px 4px;
+      border-radius: 8px;
+    }
+    .demo-custom-row:is(:hover, :focus-within) {
+      background: rgba(148, 163, 184, 0.12);
+    }
+    .demo-custom-row.is-active {
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    .demo-custom-row.is-active .demo-tile-dot { background: var(--accent); }
+    .demo-custom-row.is-hidden .demo-custom-name { opacity: 0.65; }
+    .demo-custom-name { min-width: 0; font-size: 11px; }
+    .demo-custom-name-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .demo-custom-row-actions,
+    .demo-custom-status {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .demo-custom-status { font-size: 10px; opacity: 0.8; }
+    .demo-custom-empty {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 6px 2px;
+      font-size: 11px;
+    }
     .demo-custom-control {
       padding: 4px 8px;
       font-size: 11px;
       border: 1px solid rgba(148, 163, 184, 0.28);
-      border-radius: 6px;
+      border-radius: 8px;
       background: rgba(255, 255, 255, 0.06);
       color: inherit;
       cursor: pointer;
     }
-    .demo-custom-control:disabled {
-      opacity: 0.45;
-      cursor: default;
+    .demo-custom-control:hover,
+    .demo-custom-control:is(.is-restore, [aria-pressed="true"]) {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
     }
-    .demo-custom-select {
-      flex: 1 1 125px;
-      min-width: 0;
-      text-overflow: ellipsis;
-      color-scheme: dark;
+    .demo-custom-control.is-danger:is(:hover, :focus-visible) {
+      border-color: rgba(239, 68, 68, 0.55);
+      background: rgba(239, 68, 68, 0.12);
     }
-    .light-theme .demo-custom-select {
-      color-scheme: light;
+    .demo-custom-control:focus-visible,
+    .demo-custom-library:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
     }
     .demo-tile-dot {
       width: 7px;
@@ -1842,7 +1902,7 @@
             <div class="drawer-header-bar">
               <div class="drawer-tabs">
                 <button class="drawer-tab-btn active" id="tabEffectBtn">✨ 动效</button>
-                <button class="drawer-tab-btn" id="tabColorBtn">🎨 色彩</button>
+                <button class="drawer-tab-btn" id="tabColorBtn">🎨 外观</button>
                 <button class="drawer-tab-btn" id="tabTuningBtn">⚡ 调校</button>
                 <button class="drawer-tab-btn" id="tabIconBtn">🐳 图标</button>
               </div>
@@ -1853,8 +1913,20 @@
               <div class="effect-list" id="effectList"></div>
             </div>
 
-            <!-- TAB 2: 色彩 -->
+            <!-- TAB 2: 外观 -->
             <div id="drawerColorContent" style="display: none;">
+              <div class="tuning-group">
+                <div class="tuning-header">
+                  <label for="demoTrackRadius">滑块圆角</label>
+                  <output id="demoTrackRadiusValue" for="demoTrackRadius">12 px</output>
+                </div>
+                <input type="range" id="demoTrackRadius" class="range-input" min="0" max="15" step="1" value="12" />
+                <div class="sound-type-pills" id="demoTrackRadiusPresets" role="group" aria-label="滑块圆角预设">
+                  <button class="sound-pill" type="button" data-radius="0">直角</button>
+                  <button class="sound-pill" type="button" data-radius="6">微圆</button>
+                  <button class="sound-pill" type="button" data-radius="12">默认</button>
+                </div>
+              </div>
               <div style="font-size: 11px; opacity: 0.8; margin-bottom: 6px;">选择主题色（即时联动当前流光动效）：</div>
               <div class="color-grid" id="colorGrid"></div>
               <div class="color-picker-row">
@@ -2164,6 +2236,9 @@
       { id: "milky_way", name: "银河星穹", family: "nature" },
       { id: "crystal_ice", name: "冰晶凝霜", family: "nature" }
     ];
+    const NO_EFFECT = "none";
+    const HIDDEN_EFFECTS_STORAGE_KEY = "dsh-claude-slider.demo.hidden-effects";
+    const DELETED_BUILTIN_EFFECTS_STORAGE_KEY = "dsh-claude-slider.demo.deleted-builtin-effects";
 
     const CUSTOM_EFFECT_FAMILY_RULES = [
       ["botanical", /桂花|樱花|花瓣|花卉|牡丹|花园|藤蔓|玫瑰|osmanthus|sakura|flower|petal|blossom|botanical/],
@@ -2178,8 +2253,8 @@
       return CUSTOM_EFFECT_FAMILY_RULES.find(([, pattern]) => pattern.test(label))?.[0] ?? "other";
     }
 
-    function getEffectFamilies(customEffects) {
-      return customEffects.some((effect) => effect.family === "other")
+    function getEffectFamilies(effects) {
+      return effects.some((effect) => effect.family === "other")
         ? EFFECT_FAMILIES
         : EFFECT_FAMILIES.filter(({ id }) => id !== "other");
     }
@@ -3603,7 +3678,31 @@
     let isDragging = false;
     let pointerGesture = null;
     let popoverOpen = true;
-    let selectedEffect = "liquid_mercury";
+    function getAvailableBuiltinEffects() {
+      return EFFECT_MODES.filter((effect) => !deletedBuiltinEffectIds.includes(effect.id));
+    }
+
+    function getEnabledEffects() {
+      return [...getAvailableBuiltinEffects(), ...customEffectsCache].filter((effect) => !hiddenEffectIds.includes(effect.id));
+    }
+
+    function loadEffectIds(key, effects) {
+      try {
+        const storedIds = JSON.parse(window.localStorage.getItem(key));
+        if (Array.isArray(storedIds)) {
+          const knownIds = new Set(effects.map((effect) => effect.id));
+          return [...new Set(storedIds.filter((id) => knownIds.has(id)))];
+        }
+      } catch (_) {}
+      return [];
+    }
+
+    let deletedBuiltinEffectIds = loadEffectIds(DELETED_BUILTIN_EFFECTS_STORAGE_KEY, EFFECT_MODES);
+    let hiddenEffectIds = loadEffectIds(HIDDEN_EFFECTS_STORAGE_KEY, [...getAvailableBuiltinEffects(), ...customEffectsCache]);
+    let selectedEffect = getEnabledEffects()[0]?.id ?? NO_EFFECT;
+    let pendingDeleteId = "";
+    let effectLibraryGroup = "builtin";
+    let effectNotice = "";
     let activeFamily = "all";
     let selectedIcon = "deepseek_girl";
     let customIconData = "";
@@ -3642,6 +3741,10 @@
     const colorGrid = document.getElementById("colorGrid");
     const nativeColorPicker = document.getElementById("nativeColorPicker");
     const colorHexText = document.getElementById("colorHexText");
+    const demoTrackRadius = document.getElementById("demoTrackRadius");
+    const demoTrackRadiusValue = document.getElementById("demoTrackRadiusValue");
+    const demoTrackRadiusPresets = document.querySelectorAll("#demoTrackRadiusPresets button");
+    const demoTrackRadiusKey = "dsh-claude-slider.demo.track-radius";
     const iconGrid = document.getElementById("iconGrid");
     const themeToggleBtn = document.getElementById("themeToggleBtn");
 
@@ -3655,6 +3758,30 @@
     const brightnessSlider = document.getElementById("brightnessSlider");
     const brightnessValText = document.getElementById("brightnessValText");
     const brightnessResetBtn = document.getElementById("brightnessResetBtn");
+
+    function setDemoTrackRadius(value, persist = true) {
+      const parsed = value === null || value === "" ? NaN : Number(value);
+      const radius = Number.isFinite(parsed)
+        ? Math.max(0, Math.min(Number(demoTrackRadius.max), Math.round(parsed))) : Number(demoTrackRadius.defaultValue);
+      sliderTrack.style.setProperty("--demo-track-radius", `${radius}px`);
+      demoTrackRadius.value = radius;
+      demoTrackRadiusValue.textContent = `${radius} px`;
+      demoTrackRadius.setAttribute("aria-valuetext", `${radius} 像素`);
+      demoTrackRadiusPresets.forEach((button) => {
+        const active = Number(button.dataset.radius) === radius;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      if (persist) {
+        try { localStorage.setItem(demoTrackRadiusKey, String(radius)); } catch (_) {}
+      }
+    }
+
+    let savedDemoTrackRadius = null;
+    try { savedDemoTrackRadius = localStorage.getItem(demoTrackRadiusKey); } catch (_) {}
+    setDemoTrackRadius(savedDemoTrackRadius, false);
+    demoTrackRadius.addEventListener("input", () => setDemoTrackRadius(demoTrackRadius.value));
+    demoTrackRadiusPresets.forEach((button) => button.addEventListener("click", () => setDemoTrackRadius(button.dataset.radius)));
 
     function applyAccentColor(hex) {
       selectedAccentColor = hex;
@@ -3729,11 +3856,45 @@
     }
 
     function escapeEffectName(name) {
-      return name.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+      return name.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    }
+
+    function updateHiddenEffects(ids) {
+      hiddenEffectIds = ids;
+      try { window.localStorage.setItem(HIDDEN_EFFECTS_STORAGE_KEY, JSON.stringify(ids)); } catch (_) {}
+      const enabled = getEnabledEffects();
+      if (!enabled.some((effect) => effect.id === selectedEffect)) selectedEffect = enabled[0]?.id ?? NO_EFFECT;
+      wakeUp();
+    }
+
+    function renderEffectManagementGroup(label, effects, imported = false) {
+      const rows = effects.map((effect) => {
+        const hidden = hiddenEffectIds.includes(effect.id);
+        const active = selectedEffect === effect.id;
+        const confirming = pendingDeleteId === effect.id;
+        const name = escapeEffectName(effect.name);
+        const button = (action, title, style = "") =>
+          `<button type="button" class="demo-custom-control ${style}" data-fx-action="${action}" data-fx-id="${effect.id}" aria-label="${title} ${name}">${title}</button>`;
+        return `<li class="demo-custom-row ${active ? "is-active" : hidden ? "is-hidden" : ""}">
+          <div class="demo-custom-name">
+            <span class="demo-tile-dot" aria-hidden="true"></span>
+            <span class="demo-custom-name-text" title="${name}">${name}</span>
+            ${active ? '<span class="demo-custom-status">使用中</span>' : ""}
+          </div>
+          <div class="demo-custom-row-actions">
+            ${button("visibility", hidden ? "恢复" : "隐藏", hidden ? "is-restore" : "")}
+            ${imported || confirming ? button("copy", confirming ? "取消" : "复制 JSON") : ""}
+            ${button("delete", confirming ? "确认删除" : "删除", "is-danger")}
+          </div>
+        </li>`;
+      }).join("");
+      return rows ? `<ul class="demo-custom-list" aria-label="${label}">${rows}</ul>` :
+        `<p class="demo-custom-empty">${imported ? "还没有导入的动效。" : "内置动效已全部删除。"}</p>`;
     }
 
     function renderEffectOptions() {
-      const effectFamilies = getEffectFamilies(customEffectsCache);
+      const enabledEffects = getEnabledEffects();
+      const effectFamilies = getEffectFamilies(enabledEffects);
       if (!effectFamilies.some(({ id }) => id === activeFamily)) activeFamily = "all";
       const pillsHtml = `<div class="demo-family-pills">` + effectFamilies.map(fam => {
         const active = activeFamily === fam.id;
@@ -3741,7 +3902,7 @@
       }).join("") + `</div>`;
 
       if (activeFamily !== "custom") {
-        const availableEffects = [...EFFECT_MODES, ...customEffectsCache]
+        const availableEffects = enabledEffects
           .filter(eff => activeFamily === "all" || eff.family === activeFamily);
         const listHtml = availableEffects
           .map(eff => {
@@ -3751,21 +3912,24 @@
               <span class="demo-tile-name">${escapeEffectName(eff.name)}</span>
             </button>`;
           }).join("");
-        effectList.innerHTML = pillsHtml + `<div class="demo-effect-grid">${listHtml}</div>`;
+        effectList.innerHTML = pillsHtml + `<div class="demo-effect-grid">${listHtml ||
+          '<p class="demo-custom-empty">这里暂无可用动效，可在「自定义」中恢复。</p>'}</div>`;
       } else {
-        const managementHtml = customEffectsCache.length ? `
-          <div class="demo-custom-actions">
-            <select id="demoCustomManage" class="demo-custom-control demo-custom-select" aria-label="管理自定义动效">
-              <option value="">选择要管理的动效</option>
-              ${customEffectsCache.map(eff => `<option value="${eff.id}">${escapeEffectName(eff.name)}</option>`).join("")}
-            </select>
-            <button type="button" id="demoCustomDelete" class="demo-custom-control" disabled>删除</button>
-          </div>` : "";
-        effectList.innerHTML = pillsHtml + managementHtml + `
+        effectList.innerHTML = pillsHtml + `
           <div class="demo-custom-actions">
             <button type="button" id="demoCustomImportBtn" class="demo-custom-control">＋ 粘贴导入 JSON</button>
-            <button type="button" id="demoCustomFileBtn" class="demo-custom-control">📂 导入文件</button>
+            <button type="button" id="demoCustomFileBtn" class="demo-custom-control">导入文件</button>
             <input type="file" id="demoCustomFileInput" accept=".json,.dcs-effect.json" style="display:none;" />
+          </div>
+          <div class="demo-custom-empty" role="status" ${effectNotice ? "" : "hidden"}>${escapeEffectName(effectNotice)}</div>
+          <div class="demo-custom-library" role="region" aria-label="管理动效" tabindex="0">
+            <div class="demo-custom-groups" role="group" aria-label="动效来源">
+              ${[["builtin", "内置动效"], ["imported", "已导入"]].map(([id, label]) =>
+                `<button type="button" class="demo-custom-control" data-fx-group="${id}" aria-pressed="${effectLibraryGroup === id}">${label}</button>`
+              ).join("")}
+            </div>
+            ${effectLibraryGroup === "builtin" ? renderEffectManagementGroup("内置动效", getAvailableBuiltinEffects()) :
+              renderEffectManagementGroup("已导入", customEffectsCache, true)}
           </div>`;
       }
       makeDraggableScroll(effectList.querySelector('.demo-family-pills'));
@@ -3786,20 +3950,58 @@
         });
       });
 
-      const manageSelect = effectList.querySelector('#demoCustomManage');
-      const deleteBtn = effectList.querySelector('#demoCustomDelete');
-      if (manageSelect && deleteBtn) {
-        manageSelect.addEventListener('change', () => { deleteBtn.disabled = !manageSelect.value; });
-        deleteBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const id = manageSelect.value;
-          if (!id) return;
-          removeCustomEffectById(id);
-          if (selectedEffect === id) {
-            selectedEffect = "liquid_mercury";
-            wakeUp();
+      const library = effectList.querySelector('.demo-custom-library');
+      if (library) {
+        library.addEventListener('click', async (e) => {
+          const group = e.target.closest('[data-fx-group]');
+          if (group) {
+            effectLibraryGroup = group.dataset.fxGroup;
+            pendingDeleteId = "";
+            renderEffectOptions();
+            effectList.querySelector('[data-fx-group][aria-pressed="true"]').focus({ preventScroll: true });
+            return;
           }
+          const button = e.target.closest('[data-fx-action]');
+          if (!button) return;
+          e.stopPropagation();
+          const { fxId: id, fxAction: action } = button.dataset;
+          const builtinEffect = getAvailableBuiltinEffects().find((item) => item.id === id);
+          const effect = builtinEffect || getCustomEffectById(id);
+          if (!effect) return;
+          if (action === "visibility") {
+            const hidden = hiddenEffectIds.includes(id);
+            updateHiddenEffects(hidden ? hiddenEffectIds.filter((item) => item !== id) : [...hiddenEffectIds, id]);
+            pendingDeleteId = "";
+            effectNotice = hidden ? `已恢复「${effect.name}」` : `已从动效列表隐藏「${effect.name}」`;
+          } else if (action === "copy" && pendingDeleteId === id) {
+            pendingDeleteId = "";
+          } else if (action === "copy") {
+            try {
+              await navigator.clipboard.writeText(JSON.stringify(effect, null, 2));
+              effectNotice = `已复制「${effect.name}」的 JSON`;
+            } catch (_) {
+              effectNotice = "剪贴板写入失败";
+            }
+          } else if (pendingDeleteId !== id) {
+            pendingDeleteId = id;
+          } else {
+            if (builtinEffect) {
+              deletedBuiltinEffectIds = [...deletedBuiltinEffectIds, id];
+              try { window.localStorage.setItem(DELETED_BUILTIN_EFFECTS_STORAGE_KEY, JSON.stringify(deletedBuiltinEffectIds)); } catch (_) {}
+            } else {
+              removeCustomEffectById(id);
+            }
+            updateHiddenEffects(hiddenEffectIds.filter((item) => item !== id));
+            pendingDeleteId = "";
+            effectNotice = `已删除「${effect.name}」`;
+          }
+          if (!library.isConnected) return;
+          const scrollTop = library.scrollTop;
           renderEffectOptions();
+          const nextLibrary = effectList.querySelector('.demo-custom-library');
+          nextLibrary.scrollTop = scrollTop;
+          const nextButton = nextLibrary.querySelector(`[data-fx-id="${id}"][data-fx-action="${action}"]`);
+          (nextButton || nextLibrary).focus({ preventScroll: true });
         });
       }
 
@@ -3812,8 +4014,10 @@
           try {
             const saved = upsertCustomEffectPackage(JSON.parse(raw));
             selectedEffect = saved.id;
+            updateHiddenEffects(hiddenEffectIds.filter((id) => id !== saved.id));
+            effectLibraryGroup = "imported";
+            effectNotice = `已导入并启用「${saved.name}」`;
             renderEffectOptions();
-            wakeUp();
           } catch (err) {
             window.alert("导入失败：" + (err?.message || err));
           }
@@ -3831,8 +4035,10 @@
             try {
               const saved = upsertCustomEffectPackage(JSON.parse(String(r.result || "")));
               selectedEffect = saved.id;
+              updateHiddenEffects(hiddenEffectIds.filter((id) => id !== saved.id));
+              effectLibraryGroup = "imported";
+              effectNotice = `已导入并启用「${saved.name}」`;
               renderEffectOptions();
-              wakeUp();
             } catch (err) {
               window.alert("导入失败：" + (err?.message || err));
             }
@@ -9109,7 +9315,7 @@ button.dcs-toggle-switch.is-on .dcs-toggle-thumb {
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      if (visualRatio > 0.015) {
+      if (selectedEffect !== NO_EFFECT && visualRatio > 0.015) {
         const pxScale = Math.max(1, scale || 1);
         const thumbX = thumbXCss * scale;
         const demoCustomPkg = getCustomEffectById(selectedEffect);
