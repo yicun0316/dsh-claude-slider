@@ -4,7 +4,7 @@
 
 **把 DeepSeek Harness（DSH）的原生「推理强度」下拉框升级为丝滑物理滑块、动效画布、输入框萌宠剧场与莫奈光效套件。**
 
-[![Version](https://img.shields.io/badge/version-2.22.0-4D6BFE?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-2.23.0-4D6BFE?style=flat-square)](package.json)
 [![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Studio Online](https://img.shields.io/badge/Studio-在线动效工坊-6366F1?style=flat-square)](https://yicun0316.github.io/dsh-claude-slider/studio/)
@@ -86,6 +86,7 @@ dsh plugin --profile desktop remove dsh-claude-slider
 - **智能品牌识别与 AI 拟人娘头像**：自动匹配 DeepSeek、Claude、ChatGPT/OpenAI、Gemini、Grok、Kimi、豆包、MiniMax、智谱 GLM、千问等内置 Q 版头像，并为 OpenRouter、Ollama、Mistral、Llama 等第三方/本地模型生成专属徽章。
 - **搜索、★ 置顶与最近使用**：支持中英文别名即时搜索、点击星标置顶收藏、筛选「全部 / ★ 置顶 / 推理模型 / 最近」，以及 <kbd>↑</kbd>/<kbd>↓</kbd> + <kbd>Enter</kbd> 键盘快切。
 - **能力透视与第三方容错**：每行标注提供商与推理档位数（如 `3 档推理` / `4 档推理` / `标准对话`），完整保留第三方 `ModelLabelText` 子槽位徽章以及原生加载失败警告与重试。
+- **宿主槽位扩展**：通过 `conversation.input.model.options` 与 `conversation.input.model.pane` 槽位，模型菜单可动态呈现其他插件注册的会话选项与详情页；复用宿主的团队协作控件、会话状态与关闭确认，热加载与移除即时生效。
 
 <div align="center">
 
@@ -109,6 +110,8 @@ dsh plugin --profile desktop remove dsh-claude-slider
 ### 3. 自定义动效生态与在线工坊（Studio）
 
 插件抽屉「动效 → **全部**」汇总内置与已导入动效，「动效 → **自定义**」支持导入、复制分享与删除 `.dcs-effect.json` 动效包。运行时原生支持 **Canvas 2D** 与 **WebGL GLSL** 双引擎，提供离屏试跑校验与连续异常自动熔断保护。
+
+- **动效库管理**：「自定义」页按「内置动效 / 已导入」分类列出全部动效，任意一款都可从选用列表中隐藏或恢复；删除内置动效同样支持行内二次确认。隐藏或删除正在使用的动效会自动回退到仍可用的动效，全部隐藏时停止绘制但滑轨依旧可调。
 
 - **在线自由定制工坊**：[**立即打开 Studio 在线工坊**](https://yicun0316.github.io/dsh-claude-slider/studio/)（或双击本地单文件 [`studio/index.html`](studio/index.html)）：
   1. **创作或让 AI 生成**：从内置模板起步、直接编写 Canvas 2D / WebGL GLSL 代码，或点击 **「复制 AI 动效生成提示词」** 发给 DeepSeek / Claude 按协议生成；
@@ -141,6 +144,7 @@ dsh plugin --profile desktop remove dsh-claude-slider
 点击滑块右上角按钮展开 **5 页签设置面板**（动效 / 外观 / 萌宠 / 图标 / 声音）：
 
 - **外观与莫奈色盘**：内置 8 个常用主色、Hex 拾色器、浅色玻璃 / 深色磨砂 / 跟随系统三种质感与 `15% ~ 100%` 面板透明度；提供 6 组莫奈三色盘（反重力星紫、莫奈睡莲、樱云薄雾、晨曦琥珀、碧水青瓷、深海鲸蓝）及输入框 **全周随鼠流光框**（棱镜虹彩 / 莫奈色盘）与环境晕色。
+- **滑轨圆角可调**：`0 ~ 15 px` 圆角实时作用于轨道边框、扫光以及 Canvas 2D / WebGL 动效，默认 `15 px`（完全圆头），随插件配置一并保存。
 - **20 款内置游标 & 自定义裁边**：
   - 10 款 AI 拟人娘（`DeepSeek娘`、`Claude娘`、`ChatGPT娘`、`Gemini娘`、`Grok娘`、`Kimi娘`、`豆包娘`、`MiniMax娘`、`GLM娘`、`千问娘`）
   - 4 款原创 Q 版（`月相观星员`、`樱花茶屋主`、`海玻璃信使`、`琥珀狐机械师`）
