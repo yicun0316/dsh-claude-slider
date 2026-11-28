@@ -4,7 +4,7 @@
 
 **把 DeepSeek Harness（DSH）的原生「推理强度」下拉框升级为丝滑物理滑块、动效画布、输入框萌宠剧场与莫奈光效套件。**
 
-[![Version](https://img.shields.io/badge/version-2.24.0-4D6BFE?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-2.24.1-4D6BFE?style=flat-square)](package.json)
 [![Listed on DSH Plugin Hub](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/yicun0316/dsh-claude-slider)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![Studio Online](https://img.shields.io/badge/Studio-在线动效工坊-6366F1?style=flat-square)](https://yicun0316.github.io/dsh-claude-slider/studio/)
