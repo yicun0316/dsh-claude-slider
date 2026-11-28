@@ -2,6 +2,14 @@
 
 > 以本文件为准，不要依赖记忆。每完成一步就更新。
 
+## v2.24.0 发布：模型菜单裁切修复与紧凑面板（2026-11-28）
+
+- **问题**：模型菜单锚定在输入框上方（`bottom: calc(100% + 8px)`），却只按 `100vh` 限高，被输入框祖先容器的 `overflow` 裁掉顶部，搜索框与「全部 / 置顶 / 推理模型 / 最近」筛选胶囊永远滚不进视野。
+- **修法**：菜单改为顶层渲染（`popover="manual"` + `:popover-open` 的 `position: fixed`），`useLayoutEffect` 实测触发器位置并写入 `--dcs-model-menu-*` 变量；高度严格贴合触发器上方余量，上方空间不足时自动向下展开（`data-side="down"`）。`.dcs-model-pro-list` 补 `min-height: 0` 与 `overscroll-behavior-y: contain`，顶栏 / 底栏 `flex-shrink: 0` 固定，保证顶部控件始终可见。
+- **配套改进**：行高与头像收紧；厂商超过 40 款时非当前厂商分组默认折叠（可逐组展开）；搜索框右侧新增来源下拉筛选；底栏显示「命中 / 总数」；输入法组合期间不触发快捷键；↑↓ 改为精确跟随高亮项滚动。
+- **发布**：`npm` 2.24.0（Trusted Publishing / OIDC，sha1 `b483dd43…`，tarball 已校验可下载）+ GitHub Release [`v2.24.0`](https://github.com/yicun0316/dsh-claude-slider/releases/tag/v2.24.0)（附离线 `dsh-claude-slider-2.24.0.tgz`）。dsh-plugin.org 走 `dsh-plugin` topic 自动抓取，无需手动提交。
+- **注意**：本机 git 配了 `http.proxy=127.0.0.1:7897`，该代理会让 GitHub 的 TLS 握手失败；推送需 `git -c http.proxy= -c https.proxy= push`。
+
 ## 模型菜单扩展兼容（2026-11-27）
 
 - 推理弹窗动态渲染 DSH 模型菜单注册的会话选项及其详情页。关闭滑块或当前模型无推理档位时，选项出现在模型菜单中。
